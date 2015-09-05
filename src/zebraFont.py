@@ -23,6 +23,7 @@
 # zebraFont.py TYPE STYLE STRIPES SIZE FAMILY MAG
 # creates a new MetaFont file and then invokes it.
 
+import argparse
 import glob
 import io
 import os
@@ -84,7 +85,7 @@ def callAndLog(args, log):
 
 def createMFcontent(kind, style, stripes, sourceFont):
     styledict = { 'b' : '0', 'f' : '1',  'h' : '2' }
-    text = '''% Copied from rtest on p.311 of the MetaFont book.
+    textFormat = '''% Copied from rtest on p.311 of the MetaFont book.
 if unknown cmbase: input cmbase fi
 mode_setup;
 def generate suffix t = enddef;
@@ -93,24 +94,22 @@ let iff = always_iff;
            
 stripes:={1};
 foreground:={2};
-input zeroman{3};'''.format(sourceFont,
-                      stripes,
-                      styledict[style],
-                      kind)
+input zeroman{3};'''
+    text = textFormat.format(
+               sourceFont, stripes,
+               styledict[style], kind)
     return text
 
 def createMFfiles(params):
     sourceFont = '{0}{1}'.format(params.typeFamily, int(params.ptSize))
     destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
-    destMF = 'z{0}{1}{2}{3}'.format(params.kind,
-                                    params.style,
-                                    params.stripesAsLetter,
-                                    sourceFont)
+    destMF = 'z{0}{1}{2}{3}'.format(
+                 params.kind, params.style,
+                 params.stripesAsLetter, sourceFont)
     destMFpath = '{0}/{1}.mf'.format(destMFdir, destMF)
-    textMFfile = createMFcontent(params.kind,
-                                 params.style,
-                                 params.stripes,
-                                 sourceFont)
+    textMFfile = createMFcontent(
+                     params.kind, params.style,
+                     params.stripes, sourceFont)
 
     try:
         subprocess.check_output(['kpsewhich', '{0}.mf'.format(sourceFont)])
@@ -138,14 +137,13 @@ def createMFfiles(params):
     if params.mag != 1.0:
         dpi = int(params.mag * params.mag * float(600) + .5)
         try:
-            subprocess.check_output(['kpsewhich',
-                                     '{0}.{1}pk'.format(destMF, dpi)])
+            subprocess.check_output(
+                ['kpsewhich', '{0}.{1}pk'.format(destMF, dpi)])
         except subprocess.CalledProcessError:
             try:
-                proc = subprocess.Popen(['kpsewhich',
-                                         '{0}.600pk'.format(destMF)],
-                                        stdout=subprocess.PIPE,
-                                        universal_newlines=True)
+                proc = subprocess.Popen(
+                           ['kpsewhich', '{0}.600pk'.format(destMF)],
+                            stdout=subprocess.PIPE, universal_newlines=True)
             except subprocess.CalledProcessError:
                 sys.exit('Could not find file {0}.600pk'.format(destMF))
             dpidir = re.sub('/[^/]*$', '', proc.stdout.read())
