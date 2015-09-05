@@ -21,7 +21,7 @@
 
 # TODO: The manipulation of the parameters is now done.
 #       It is now time to deal with the calling infrastructure.
-#       Basically, from here, we call zebraFont or zebrackets.
+#       Basically, from here, we call zebraFont or zebraFilter.
 #       Could we put the code in this file, and not need
 #       calling infrastructure?
 
@@ -189,7 +189,7 @@ def beginZebrackets(defaults, params, args):
 def endZebrackets(defaults, params):
 #      system "cat /tmp/ze-sub_buf | $cbindir/zebrackets $style $numerator $denominator $encoding $size $family > /tmp/ze-sub_buf-out";
      string = params.buf.getvalue()
-     proc = subprocess.Popen(['./zebrackets.py',
+     proc = subprocess.Popen(['./zebraFilter.py',
                               params.style,
                               str(params.numerator),
                               str(params.denominator),
