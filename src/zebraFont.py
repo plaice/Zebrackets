@@ -18,7 +18,7 @@
 # This filter is run on a region of text.
 # Its arguments dictate translation of parentheses in the region.
 
-# generateFont.sh TYPE STYLE STRIPES SIZE FAMILY MAG
+# zebraFont.py TYPE STYLE STRIPES SIZE FAMILY MAG
 # creates a new MetaFont file and then invokes it.
 
 import glob

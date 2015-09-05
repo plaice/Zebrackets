@@ -21,7 +21,7 @@
 
 # TODO: The manipulation of the parameters is now done.
 #       It is now time to deal with the calling infrastructure.
-#       Basically, from here, we call generateFont or zebrackets.
+#       Basically, from here, we call zebraFont or zebrackets.
 #       Could we put the code in this file, and not need
 #       calling infrastructure?
 
@@ -116,7 +116,7 @@ def declareFont(defaults, params, args):
      else:
          mag = 1.0
      try:
-         subprocess.check_output(['./generateFont.py',
+         subprocess.check_output(['./zebraFont.py',
                                   kind,
                                   style,
                                   str(stripes),

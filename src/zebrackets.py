@@ -209,7 +209,7 @@ def printAndReplaceSymbols(params, delims, buf):
          
 # TODO: Document
 def generateFiles(params, delims, buf):
-    baseCommand = './generateFont.py'
+    baseCommand = './zebraFont.py'
     for k, w in delims.items():
         if w.used:
             try:
