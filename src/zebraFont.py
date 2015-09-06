@@ -49,6 +49,11 @@ class Parameters:
             if 'TEXMFHOME' not in os.environ:
                 raise ArgError('TEXMFHOME environment variable is not set')
             self.texmfHome = os.environ['TEXMFHOME']
+        if fontFamily not in [
+            'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
+            'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
+            'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']:
+            raise ArgError('Invalid Computer Modern font family')
 
         self.btype = btype
         self.style = style
