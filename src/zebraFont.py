@@ -65,8 +65,8 @@ class ArgError(Exception):
         return repr(self.value)
 
 class Parameters:
-    def __init__(self, btype, style, stripes, fontSize,
-            fontFamily, mag, texmfHome, checkArgs):
+    def __init__(self, btype, style, stripes, fontFamily,
+            fontSize, mag, texmfHome, checkArgs):
 
         if btype not in validTypes:
             raise ArgError('Invalid type')
@@ -89,8 +89,8 @@ class Parameters:
         self.style = style
         self.stripes = stripes
         self.stripesAsLetter = chr(ord('a') + self.stripes)
-        self.fontSize = fontSize
         self.fontFamily = fontFamily
+        self.fontSize = fontSize
         self.mag = mag
         self.texmfHome = texmfHome
         self.checkArgs = checkArgs
@@ -187,11 +187,11 @@ def createMFfiles(params):
         for string in zetexFontsLog:
             zetexLogFile.write(string)
 
-def zebraFont(btype, style, stripes, fontSize,
-        fontFamily, mag, texmfHome, checkArgs):
+def zebraFont(btype, style, stripes, fontFamily,
+        fontSize, mag, texmfHome, checkArgs):
     try:
-        parameters = Parameters(btype, style, stripes, fontSize,
-                         fontFamily, mag, texmfHome, checkArgs)
+        parameters = Parameters(btype, style, stripes, fontFamily,
+                         fontSize, mag, texmfHome, checkArgs)
         if checkArgs is False:
             createMFfiles(parameters)
     except ArgError as e:
@@ -206,12 +206,12 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--stripes', type=int,
         required=True, choices=validStripes,
         help='number of stripes in brackets')
-    parser.add_argument('--size', type=int,
-        choices=validFontSizes,
-        required=True, help='font size')
     parser.add_argument('--family', type=str,
         choices=validFontFamilies,
         required=True, help='font family')
+    parser.add_argument('--size', type=int,
+        choices=validFontSizes,
+        required=True, help='font size')
     parser.add_argument('--mag', type=float,
         default=1.0, help='magnification')
     parser.add_argument('--texmfhome', type=str,
@@ -219,8 +219,8 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
     args = parser.parse_args(inputArguments)
-    zebraFont(args.type, args.style, args.stripes, args.size,
-        args.family, args.mag, args.texmfhome, args.checkargs)
+    zebraFont(args.type, args.style, args.stripes, args.family,
+        args.size, args.mag, args.texmfhome, args.checkargs)
 
 if __name__ == '__main__':
     zebraFontParser()
