@@ -45,15 +45,15 @@ class Parameters:
             raise ArgError('Invalid style')
         if stripes < 0 or stripes > 7:
             raise ArgError('Invalid number of stripes')
-        if texmfHome is None:
-            if 'TEXMFHOME' not in os.environ:
-                raise ArgError('TEXMFHOME environment variable is not set')
-            self.texmfHome = os.environ['TEXMFHOME']
         if fontFamily not in [
             'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
             'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
             'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']:
             raise ArgError('Invalid Computer Modern font family')
+        if texmfHome is None:
+            if 'TEXMFHOME' not in os.environ:
+                raise ArgError('TEXMFHOME environment variable is not set')
+            self.texmfHome = os.environ['TEXMFHOME']
 
         self.btype = btype
         self.style = style
