@@ -38,25 +38,25 @@ validFontFamilies = [
     'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
 validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
 validFontPairs = {
-    'cmb': [10],
-    'cmbtt': [8, 9, 10],
-    'cmbx': [5, 6, 7, 8, 9, 10, 12],
+    'cmb':    [10],
+    'cmbtt':  [8, 9, 10],
+    'cmbx':   [5, 6, 7, 8, 9, 10, 12],
     'cmbxsl': [10],
     'cmdunh': [10],
-    'cmff': [10],
-    'cmfib': [8],
-    'cmr': [5, 6, 7, 8, 9, 10, 12, 17],
-    'cmsl': [8, 9, 10, 12],
+    'cmff':   [10],
+    'cmfib':  [8],
+    'cmr':    [5, 6, 7, 8, 9, 10, 12, 17],
+    'cmsl':   [8, 9, 10, 12],
     'cmsltt': [10],
-    'cmss': [8, 9, 10, 12, 17],
+    'cmss':   [8, 9, 10, 12, 17],
     'cmssbx': [10],
     'cmssdc': [10],
-    'cmssi': [8, 9, 10, 12, 17],
-    'cmssq': [8],
+    'cmssi':  [8, 9, 10, 12, 17],
+    'cmssq':  [8],
     'cmssqi': [8],
-    'cmtt': [8, 9, 10, 12],
-    'cmttb': [10],
-    'cmvtt': [10] }
+    'cmtt':   [8, 9, 10, 12],
+    'cmttb':  [10],
+    'cmvtt':  [10] }
 
 class ArgError(Exception):
     def __init__(self, value):
@@ -76,10 +76,14 @@ class Parameters:
             raise ArgError('Invalid number of stripes')
         if fontFamily not in validFontFamilies:
             raise ArgError('Invalid Computer Modern font family')
+        if fontSize not in validFontSizes:
+            raise ArgError('Invalid font size')
+        if fontSize not in validFontPairs[fontFamily]:
+            raise ArgError('Invalid font family-size pair')
         if texmfHome is None:
             if 'TEXMFHOME' not in os.environ:
                 raise ArgError('TEXMFHOME environment variable is not set')
-            self.texmfHome = os.environ['TEXMFHOME']
+            texmfHome = os.environ['TEXMFHOME']
 
         self.btype = btype
         self.style = style
@@ -193,7 +197,7 @@ def zebraFont(btype, style, stripes, fontSize,
     except ArgError as e:
         print('Invalid input:', e.value)
 
-def zebraFontParser(inputArguments = sys.argv):
+def zebraFontParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Build a zebrackets font.')
     parser.add_argument('--type', type=str, choices=validTypes,
         required=True, help='b = bracket, p = parenthesis')
@@ -214,11 +218,6 @@ def zebraFontParser(inputArguments = sys.argv):
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
-#    ourFavoriteInput = './zebraFont.py --type b --style b --stripes 0 --size 14.4 --family zzz --mag 2.0 --texmfhome /Users/plaice --checkargs'
-#    print(ourFavoriteInput)
-#    print(ourFavoriteInput.split(' '))
-#    print(sys.argv)
-#    print(ourFavoriteInput.split(' ') == sys.argv)
     args = parser.parse_args(inputArguments)
     zebraFont(args.type, args.style, args.stripes, args.size,
         args.family, args.mag, args.texmfhome, args.checkargs)
