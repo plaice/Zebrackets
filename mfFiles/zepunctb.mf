@@ -1,0 +1,130 @@
+def lb(expr mark_count, total_count) = 
+    numeric wd#; wd#=max(5u#,4.5u#+.5if hefty:stem# else:rule_thickness# fi);
+    beginchar(mark_count,wd#,body_height#,paren_depth#);
+
+	if (foreground=0):
+	    "zebracket- left bracket, background " & decimal mark_count & "/" & decimal total_count;
+	elseif (foreground=1):
+	    "zebracket- left bracket, foreground " & decimal mark_count & "/" & decimal total_count;
+	elseif (foreground=2):
+	    "zebracket- left bracket, hybrid " & decimal mark_count & "/" & decimal total_count;
+	else:
+	    "trouble city: invalid foreground type";
+	fi;
+
+	italcorr body_height#*slant;
+	adjust_fit(0,0);
+	numeric top_thickness,side_thickness;
+	if hefty: top_thickness=vair;
+	    side_thickness=max(crisp.breadth,stem-2stem_corr);
+	else: top_thickness=side_thickness=rule_thickness; fi;
+	pickup crisp.nib; pos1(side_thickness,0); pos2(side_thickness,0);
+	top y1=h; bot y2=-d; lft x1l=lft x2l=hround(2.5u-.5side_thickness)-1-eps;
+	filldraw stroke z1e--z2e;  % stem
+	pos3(top_thickness,90); pos4(top_thickness,90);
+	pos5(top_thickness,90); pos6(top_thickness,90);
+	x3=x5=x1l; rt x4=rt x6=ceiling(w-.4u)+eps; y3r=y4r=y1; y5l=y6l=y2;
+	filldraw stroke z3e--z4e;  % upper bar
+	filldraw stroke z5e--z6e;  % lower bar
+
+	if (foreground=0) or (foreground=2):
+	    pickup pensquare scaled .6pt;
+	    lft x7 = lft x1 - .1w;
+	    rt x8 = rt x1 + .1w;
+	fi;
+
+	if (foreground=2):
+	    for bitpos := 0 upto (total_count - 1):
+		y7 := y8 := ((bitpos+1)/(total_count+1))[y1,y2];
+		erase draw z7 -- z8;
+	    endfor;
+	fi;
+
+	if (foreground=1) or (foreground=2):
+		pickup pencircle scaled .25pt;
+		x7 := lft x1 - .2w;
+		x8 := x4 - .1w;
+	fi;
+			
+	for bitpos := 0 upto (total_count - 1):
+	    if ((mark_count mod (2**(bitpos+1))) >= (2**bitpos)): 
+		y7 := y8 := ((bitpos+1)/(total_count+1))[y1,y2];
+		if (foreground=0):
+		    erase draw z7 -- z8;
+		else:
+		    draw z7 -- z8;
+		fi;
+	    fi;
+	endfor;
+	
+	penlabels(1,2,3,4,5,6,7,8); 
+    endchar;
+enddef;
+
+def rb(expr mark_count, total_count) = 
+    numeric wd#; wd#=max(5u#,4.5u#+.5if hefty:stem# else:rule_thickness# fi);
+    beginchar(mark_count + (2**total_count),wd#,body_height#,paren_depth#);
+
+	if (foreground=0):
+	    "zebracket- right bracket, background " & decimal mark_count & "/" & decimal total_count;
+	elseif (foreground=1):
+	    "zebracket- right bracket, foreground " & decimal mark_count & "/" & decimal total_count;
+	elseif (foreground=2):
+	    "zebracket- right bracket, hybrid " & decimal mark_count & "/" & decimal total_count;
+	else:
+	    "trouble city: invalid foreground type";
+	fi;
+
+	italcorr body_height#*slant-2u#+.5if hefty:stem# else:rule_thickness# fi;
+	adjust_fit(0,0);
+	numeric top_thickness,side_thickness;
+	if hefty: top_thickness=vair;
+	    side_thickness=max(crisp.breadth,stem-2stem_corr);
+	else: top_thickness=side_thickness=rule_thickness; fi;
+	pickup crisp.nib; pos1(side_thickness,0); pos2(side_thickness,0);
+	top y1=h; bot y2=-d; rt x1r=rt x2r=hround(w-2.5u+.5side_thickness)+1+eps;
+	filldraw stroke z1e--z2e;  % stem
+	pos3(top_thickness,90); pos4(top_thickness,90);
+	pos5(top_thickness,90); pos6(top_thickness,90);
+	x3=x5=x1r; lft x4=lft x6=floor .4u-eps; y3r=y4r=y1; y5l=y6l=y2;
+	filldraw stroke z3e--z4e;  % upper bar
+	filldraw stroke z5e--z6e;  % lower bar
+	
+	if (foreground=0) or (foreground=2):
+	    pickup pensquare scaled .6pt;
+	    lft x7 = lft x1 - .1w;
+	    rt x8 = rt x1 + .1w;
+	fi;
+
+	if (foreground=2):
+	    for bitpos := 0 upto (total_count - 1):
+		y7 := y8 := ((bitpos+1)/(total_count+1))[y1,y2];
+		erase draw z7 -- z8;
+	    endfor;
+	fi;
+
+	if (foreground=1) or (foreground=2):
+	    pickup pencircle scaled .25pt;
+	    x7 := x4 + .1w;
+	    x8 := rt x1 + .2w;
+	fi;
+			
+	for bitpos := 0 upto (total_count - 1):
+	    if ((mark_count mod (2**(bitpos+1))) >= (2**bitpos)): 
+		y7 := y8 := ((bitpos+1)/(total_count+1))[y1,y2];
+		if (foreground=0):
+		    erase draw z7 -- z8;
+		else:
+		    draw z7 -- z8;
+		fi;
+	    fi;
+	endfor;
+	
+	penlabels(1,2,3,4,5,6,7,8); 
+    endchar;
+enddef;
+
+for s := 0 upto ((2**stripes)-1):
+  lb(s,stripes);
+  rb(s,stripes);
+endfor;
