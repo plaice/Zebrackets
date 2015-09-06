@@ -178,7 +178,8 @@ if __name__ == '__main__':
     parser.add_argument('--stripes', type=int,
         required=True, choices=[0, 1, 2, 3, 4, 5, 6, 7],
         help='number of stripes in brackets')
-    parser.add_argument('--size', type=float,
+    parser.add_argument('--size', type=int,
+        choices=[5, 6, 7, 8, 9, 10, 12, 17],
         required=True, help='font size')
     parser.add_argument('--family', type=str,
         choices=['cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
