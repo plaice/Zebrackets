@@ -27,7 +27,14 @@
 #       Could we put the code in this file, and not need
 #       calling infrastructure?
 
-import copy, io, math, os, re, subprocess, sys
+import copy
+import io
+import math
+import os
+import re
+import subprocess
+import sys
+import zebraFont
 
 # TODO: Document
 class Params:
@@ -117,16 +124,15 @@ def declareFont(defaults, params, args):
          mag = math.sqrt(float(defaults.mag))
      else:
          mag = 1.0
-     try:
-         subprocess.check_output(['./zebraFont.py',
-                                  kind,
-                                  style,
-                                  str(stripes),
-                                  str(size),
-                                  family,
-                                  str(mag)])
-     except subprocess.CalledProcessError:
-         pass
+     zebraFont.zebraFont(
+         kind,
+         style,
+         int(stripes),
+         family,
+         int(size),
+         float(mag),
+         texmfHome,
+         False)
 
 
 # TODO: Document
