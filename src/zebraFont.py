@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This filter is run on a region of text.
-# Its arguments dictate translation of parentheses in the region.
-
 # zebraFont.py TYPE STYLE STRIPES SIZE FAMILY MAG
 # creates a new MetaFont file and then invokes it.
 
@@ -32,58 +29,48 @@ import subprocess
 import shutil
 import sys
 
-def printUsage(argv, msg):
-    print('''Usage: {0} TYPE STYLE STRIPES SIZE FAMILY MAG
-       TYPE:    [b = bracket, p = parenthesis]
-       STYLE:   [b = background, f = foreground, h = hydrid]
-       STRIPES: [0-7]
-       SIZE:    float
-       FAMILY:  string
-       MAG:     float
-       Environment variable TEXMFHOME must be set'''.format(argv[0]))
-    sys.exit(msg)
+class ArgError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 class Parameters:
-    def __init__(self, argv):
-        print(argv)
-        if len(argv[:]) != 7:
-            printUsage(argv, 'Invalid number of arguments')
+    def __init__(self, btype, style, stripes, fontSize,
+            fontFamily, mag, texmfHome, checkArgs):
 
-        if len(argv[1]) != 1 or 'bp'.find(argv[1]) == -1:
-            printUsage(argv, 'Invalid kind')
-        self.kind = argv[1]
+        if len(btype) != 1 or 'bp'.find(btype) == -1:
+            raise ArgError('Invalid type')
+        if len(style) != 1 or 'bfh'.find(style) == -1:
+            raise ArgError('Invalid style')
+        if stripes < 0 or stripes > 7:
+            raise ArgError('Invalid number of stripes')
+        if texmfHome is None:
+            if 'TEXMFHOME' not in os.environ:
+                raise ArgError('TEXMFHOME environment variable is not set')
+            self.texmfHome = os.environ['TEXMFHOME']
 
-        if len(argv[2]) != 1 or 'bfh'.find(argv[2]) == -1:
-            printUsage(argv, 'Invalid style')
-        self.style = argv[2]
-
-        self.stripes = int(argv[3])
-        if self.stripes < 0 or self.stripes > 7:
-            printUsage(argv, 'Invalid number of stripes')
+        self.btype = btype
+        self.style = style
+        self.stripes = stripes
         self.stripesAsLetter = chr(ord('a') + self.stripes)
-
-        self.ptSize = float(argv[4])
-
-        self.typeFamily = argv[5]
-
-        self.mag = float(argv[6])
-
-        if 'TEXMFHOME' not in os.environ:
-            printUsage(argv, 'TEXMFHOME environment variable is not set')
-        self.texmfHome = os.environ['TEXMFHOME']
+        self.fontSize = fontSize
+        self.fontFamily = fontFamily
+        self.mag = mag
+        self.texmfHome = texmfHome
+        self.checkArgs = checkArgs
 
 def callAndLog(args, log):
     try:
-        proc = subprocess.Popen(args,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True)
+        proc = subprocess.Popen(
+                   args, stdout=subprocess.PIPE, universal_newlines=True)
         output = proc.stdout.read()
         if output != '':
             log.append(output)
     except subprocess.CalledProcessError:
         sys.exit('System died when calling {0}'.format(*args))
 
-def createMFcontent(kind, style, stripes, sourceFont):
+def createMFcontent(btype, style, stripes, sourceFont):
     styledict = { 'b' : '0', 'f' : '1',  'h' : '2' }
     textFormat = '''% Copied from rtest on p.311 of the MetaFont book.
 if unknown cmbase: input cmbase fi
@@ -97,18 +84,18 @@ foreground:={2};
 input zeroman{3};'''
     text = textFormat.format(
                sourceFont, stripes,
-               styledict[style], kind)
+               styledict[style], btype)
     return text
 
 def createMFfiles(params):
-    sourceFont = '{0}{1}'.format(params.typeFamily, int(params.ptSize))
+    sourceFont = '{0}{1}'.format(params.fontFamily, int(params.fontSize))
     destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
     destMF = 'z{0}{1}{2}{3}'.format(
-                 params.kind, params.style,
+                 params.btype, params.style,
                  params.stripesAsLetter, sourceFont)
     destMFpath = '{0}/{1}.mf'.format(destMFdir, destMF)
     textMFfile = createMFcontent(
-                     params.kind, params.style,
+                     params.btype, params.style,
                      params.stripes, sourceFont)
 
     try:
@@ -165,7 +152,37 @@ def createMFfiles(params):
         for string in zetexFontsLog:
             zetexLogFile.write(string)
 
+def zebraFont(btype, style, stripes, fontSize,
+        fontFamily, mag, texmfHome, checkArgs):
+    try:
+        parameters = Parameters(btype, style, stripes, fontSize,
+                         fontFamily, mag, texmfHome, checkArgs)
+        if checkArgs is False:
+            createMFfiles(parameters)
+    except ArgError as e:
+        print('Invalid input:', e.value)
+
 # TODO: Document
+
 if __name__ == '__main__':
-    parameters = Parameters(sys.argv)
-    createMFfiles(parameters)
+    parser = argparse.ArgumentParser(description='Build a zebrackets font.')
+    parser.add_argument('--type', type=str, choices=['b', 'p'],
+        required=True, help='b = bracket, p = parenthesis')
+    parser.add_argument('--style', type=str, choices=['b', 'f', 'h'],
+        required=True, help='b = background, f = foreground, h=hybrid')
+    parser.add_argument('--stripes', type=int,
+        required=True, choices=[0, 1, 2, 3, 4, 5, 6, 7],
+        help='number of stripes in brackets')
+    parser.add_argument('--size', type=float,
+        required=True, help='font size')
+    parser.add_argument('--family', type=str,
+        required=True, help='font family')
+    parser.add_argument('--mag', type=float,
+        default=1.0, help='magnification')
+    parser.add_argument('--texmfhome', type=str,
+        help='substitute for variable TEXMFHOME')
+    parser.add_argument('--checkargs', action='store_true',
+        help='check validity of input arguments')
+    args = parser.parse_args()
+    zebraFont(args.type, args.style, args.stripes, args.size,
+        args.family, args.mag, args.texmfhome, args.checkargs)
