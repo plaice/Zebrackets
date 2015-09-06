@@ -29,6 +29,35 @@ import subprocess
 import shutil
 import sys
 
+validTypes = ['b', 'p']
+validStyles = ['b', 'f', 'h']
+validStripes = [0, 1, 2, 3, 4, 5, 6, 7]
+validFontFamilies = [
+    'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
+    'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
+    'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
+validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
+validFontPairs = {
+    'cmb': [10],
+    'cmbtt': [8, 9, 10],
+    'cmbx': [5, 6, 7, 8, 9, 10, 12],
+    'cmbxsl': [10],
+    'cmdunh': [10],
+    'cmff': [10],
+    'cmfib': [8],
+    'cmr': [5, 6, 7, 8, 9, 10, 12, 17],
+    'cmsl': [8, 9, 10, 12],
+    'cmsltt': [10],
+    'cmss': [8, 9, 10, 12, 17],
+    'cmssbx': [10],
+    'cmssdc': [10],
+    'cmssi': [8, 9, 10, 12, 17],
+    'cmssq': [8],
+    'cmssqi': [8],
+    'cmtt': [8, 9, 10, 12],
+    'cmttb': [10],
+    'cmvtt': [10] }
+
 class ArgError(Exception):
     def __init__(self, value):
         self.value = value
@@ -39,16 +68,13 @@ class Parameters:
     def __init__(self, btype, style, stripes, fontSize,
             fontFamily, mag, texmfHome, checkArgs):
 
-        if len(btype) != 1 or 'bp'.find(btype) == -1:
+        if btype not in validTypes:
             raise ArgError('Invalid type')
-        if len(style) != 1 or 'bfh'.find(style) == -1:
+        if style not in validStyles:
             raise ArgError('Invalid style')
-        if stripes < 0 or stripes > 7:
+        if stripes not in validStripes:
             raise ArgError('Invalid number of stripes')
-        if fontFamily not in [
-            'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
-            'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
-            'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']:
+        if fontFamily not in validFontFamilies:
             raise ArgError('Invalid Computer Modern font family')
         if texmfHome is None:
             if 'TEXMFHOME' not in os.environ:
@@ -167,25 +193,20 @@ def zebraFont(btype, style, stripes, fontSize,
     except ArgError as e:
         print('Invalid input:', e.value)
 
-# TODO: Document
-
-if __name__ == '__main__':
+def zebraFontParser(inputArguments = sys.argv):
     parser = argparse.ArgumentParser(description='Build a zebrackets font.')
-    parser.add_argument('--type', type=str, choices=['b', 'p'],
+    parser.add_argument('--type', type=str, choices=validTypes,
         required=True, help='b = bracket, p = parenthesis')
-    parser.add_argument('--style', type=str, choices=['b', 'f', 'h'],
+    parser.add_argument('--style', type=str, choices=validStyles,
         required=True, help='b = background, f = foreground, h=hybrid')
     parser.add_argument('--stripes', type=int,
-        required=True, choices=[0, 1, 2, 3, 4, 5, 6, 7],
+        required=True, choices=validStripes,
         help='number of stripes in brackets')
     parser.add_argument('--size', type=int,
-        choices=[5, 6, 7, 8, 9, 10, 12, 17],
+        choices=validFontSizes,
         required=True, help='font size')
     parser.add_argument('--family', type=str,
-        choices=['cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
-                 'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
-                 'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb',
-                 'cmvtt'],
+        choices=validFontFamilies,
         required=True, help='font family')
     parser.add_argument('--mag', type=float,
         default=1.0, help='magnification')
@@ -193,6 +214,14 @@ if __name__ == '__main__':
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
-    args = parser.parse_args()
+#    ourFavoriteInput = './zebraFont.py --type b --style b --stripes 0 --size 14.4 --family zzz --mag 2.0 --texmfhome /Users/plaice --checkargs'
+#    print(ourFavoriteInput)
+#    print(ourFavoriteInput.split(' '))
+#    print(sys.argv)
+#    print(ourFavoriteInput.split(' ') == sys.argv)
+    args = parser.parse_args(inputArguments)
     zebraFont(args.type, args.style, args.stripes, args.size,
         args.family, args.mag, args.texmfhome, args.checkargs)
+
+if __name__ == '__main__':
+    zebraFontParser()
