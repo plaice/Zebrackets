@@ -17,11 +17,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import math
 import os
 import subprocess
 import sys
 import zebraFont
+
+validStyles = ['b', 'f', 'h']
+validEncodings = ['b', 'u', 'd']
+validFontFamilies = [
+    'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff',
+    'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx',
+    'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
+validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
+validFontPairs = {
+    'cmb':    [10],
+    'cmbtt':  [8, 9, 10],
+    'cmbx':   [5, 6, 7, 8, 9, 10, 12],
+    'cmbxsl': [10],
+    'cmdunh': [10],
+    'cmff':   [10],
+    'cmfib':  [8],
+    'cmr':    [5, 6, 7, 8, 9, 10, 12, 17],
+    'cmsl':   [8, 9, 10, 12],
+    'cmsltt': [10],
+    'cmss':   [8, 9, 10, 12, 17],
+    'cmssbx': [10],
+    'cmssdc': [10],
+    'cmssi':  [8, 9, 10, 12, 17],
+    'cmssq':  [8],
+    'cmssqi': [8],
+    'cmtt':   [8, 9, 10, 12],
+    'cmttb':  [10],
+    'cmvtt':  [10] }
 
 # This filter is run on a region of text.
 #  Its arguments dictate translation of parentheses in the region.
@@ -54,49 +83,41 @@ class Delimiter:
         self.broadestBreadth = 0
         self.stack = [0 for level in range(64)]
 
-def printUsage(argv, msg):
-    print('''Usage: {0} STYLE NUMERATOR DENOMINATOR ENCODING SIZE FAMILY
-       STYLE:    [b = background, f = foreground, h = hydrid]
-       NUMERATOR:
-       DENOMINATOR:
-       ENCODING: [b = binary, u = unary, d = demux]
-       SIZE:     float
-       FAMILY:   string
-       Environment variable TEXMFHOME must be set'''.format(argv[0]))
-    sys.exit(msg)
-
 # TODO: Document
 class Parameters:
-    def __init__(self, argv):
-        if len(argv[:]) != 7:
-            printUsage(argv, 'Invalid number of arguments')
+    def __init__(self, style, encoding, fontFamily, fontSize,
+            numerator, denominator, texmfHome, checkArgs):
+        if style not in validStyles:
+            raise ArgError('Invalid style')
+        if encoding not in validEncodings:
+            raise ArgError('Invalid encoding')
+        if fontFamily not in validFontFamilies:
+            raise ArgError('Invalid Computer Modern font family')
+        if fontSize not in validFontSizes:
+            raise ArgError('Invalid font size')
+        if fontSize not in validFontPairs[fontFamily]:
+            raise ArgError('Invalid font family-size pair')
+        if texmfHome is None:
+            if 'TEXMFHOME' not in os.environ:
+                raise ArgError('TEXMFHOME environment variable is not set')
+            texmfHome = os.environ['TEXMFHOME']
 
-        if len(argv[1]) != 1 or 'bfh'.find(argv[1]) == -1:
-            printUsage(argv, 'Invalid style')
-        self.style = argv[1]
+        if numerator < 0:
+            if numerator < -3:
+                ArgError('Invalid numerator')
+        elif denominator < 0:
+            ArgError('Invalid denominator')
 
-        self.numerator = int(argv[2])
-        self.denominator = int(argv[3])
-        if self.numerator < 0:
-            if self.numerator < -3:
-                printUsage(argv, 'Invalid numerator')
-        elif self.denominator < 0:
-            printUsage(argv, 'Invalid denominator')
-
-        if len(argv[4]) != 1 or 'bud'.find(argv[4]) == -1:
-            printUsage(argv, 'Invalid encoding')
-        self.valueToEncoding = valueToFunctions[argv[4]]
-        self.valueFromEncoding = valueFromFunctions[argv[4]]
-
-        self.ptSize = float(argv[5])
-        if self.ptSize < 0:
-            printUsage(argv, 'Invalid point size')
-
-        self.typeFamily = argv[6]
-
-        if 'TEXMFHOME' not in os.environ:
-            printUsage(argv, 'TEXMFHOME environment variable is not set')
-        self.texmfHome = os.environ['TEXMFHOME']
+        self.style = style
+        self.encoding = encoding
+        self.valueToEncoding = valueToFunctions[encoding]
+        self.valueFromEncoding = valueFromFunctions[encoding]
+        self.numerator = numerator
+        self.denominator = denominator
+        self.fontFamily = fontFamily
+        self.fontSize = fontSize
+        self.texmfHome = texmfHome
+        self.checkArgs = checkArgs
 
 # TODO: Document
 def readInput():
@@ -148,11 +169,11 @@ def printDeclarations(params, delims, buf):
             fontName = 'z{0}{1}{2}{3}'.format(w.kind,
                                               params.style,
                                               chr(ord('a') + w.denominator),
-                                              params.typeFamily)
+                                              params.fontFamily)
             print('\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
                   format(fontName,
-                         chr(ord('A') - 1 + int(params.ptSize)),
-                         int(params.ptSize)))
+                         chr(ord('A') - 1 + int(params.fontSize)),
+                         int(params.fontSize)))
 
 # TODO: Document
 def printAndReplaceSymbols(params, delims, buf):
@@ -204,8 +225,8 @@ def printAndReplaceSymbols(params, delims, buf):
                   format(wsaved.kind,
                          params.style,
                          chr(ord('a') + wsaved.denominator),
-                         params.typeFamily,
-                         chr(ord('A') - 1 + int(params.ptSize)),
+                         params.fontFamily,
+                         chr(ord('A') - 1 + int(params.fontSize)),
                          numerator), end='')
         else:
             print(c, end='')
@@ -218,19 +239,53 @@ def generateFiles(params, delims, buf):
                 w.kind,
                 params.style,
                 int(w.denominator),
-                params.typeFamily,
-                int(params.ptSize),
+                params.fontFamily,
+                int(params.fontSize),
                 1.0,
                 params.texmfHome,
                 False)
 
+def zebraFilter(style, encoding, fontFamily, fontSize,
+        numerator, denominator, texmfHome, checkArgs):
+    try:
+        parameters = Parameters(style, encoding, fontFamily, fontSize,
+                         numerator, denominator, texmfHome, checkArgs)
+        if checkArgs is False:
+            delimiters = dict(bracket = Delimiter('b', '[', ']'),
+                              parenthesis = Delimiter('p', '(', ')'))
+            fileBuffer = readInput()
+            countDelimiters(parameters, delimiters, fileBuffer)
+            printDeclarations(parameters, delimiters, fileBuffer)
+            printAndReplaceSymbols(parameters, delimiters, fileBuffer)
+            generateFiles(parameters, delimiters, fileBuffer)
+    except ArgError as e:
+        print('Invalid input:', e.value)
+
+def zebraFilterParser(inputArguments = sys.argv[1:]):
+    parser = argparse.ArgumentParser(
+                 description='Replace brackets by zebrackets in a text.')
+    parser.add_argument('--style', type=str, choices=validStyles,
+        required=True, help='b = background, f = foreground, h = hybrid')
+    parser.add_argument('--encoding', type=str, choices=validEncodings,
+        required=True, help='b = binary, u = unary, d = demux')
+    parser.add_argument('--family', type=str,
+        choices=validFontFamilies,
+        required=True, help='font family')
+    parser.add_argument('--size', type=int,
+        choices=validFontSizes,
+        required=True, help='font size')
+    parser.add_argument('--numerator', type=int,
+        required=True, help='numerator')
+    parser.add_argument('--denominator', type=int,
+        required=True, help='denominator')
+    parser.add_argument('--texmfhome', type=str,
+        help='substitute for variable TEXMFHOME')
+    parser.add_argument('--checkargs', action='store_true',
+        help='check validity of input arguments')
+    args = parser.parse_args(inputArguments)
+    zebraFilter(args.style, args.encoding, args.family, args.size,
+        args.numerator, args.denominator, args.texmfhome, args.checkargs)
+
 # TODO: Document
 if __name__ == '__main__':
-    parameters = Parameters(sys.argv)
-    delimiters = dict(bracket = Delimiter('b', '[', ']'),
-                      parenthesis = Delimiter('p', '(', ')'))
-    fileBuffer = readInput()
-    countDelimiters(parameters, delimiters, fileBuffer)
-    printDeclarations(parameters, delimiters, fileBuffer)
-    printAndReplaceSymbols(parameters, delimiters, fileBuffer)
-    generateFiles(parameters, delimiters, fileBuffer)
+    zebraFilterParser()
