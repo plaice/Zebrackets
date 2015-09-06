@@ -21,6 +21,7 @@ import math
 import os
 import subprocess
 import sys
+import zebraFont
 
 # This filter is run on a region of text.
 #  Its arguments dictate translation of parentheses in the region.
@@ -211,22 +212,17 @@ def printAndReplaceSymbols(params, delims, buf):
          
 # TODO: Document
 def generateFiles(params, delims, buf):
-    baseCommand = './zebraFont.py'
     for k, w in delims.items():
         if w.used:
-            try:
-                subprocess.check_output([baseCommand,
-                                         w.kind,
-                                         params.style,
-                                         str(w.denominator),
-                                         str(params.ptSize),
-                                         params.typeFamily,
-                                         str(1.0)])
-                                        
-            except subprocess.CalledProcessError:
-                pass
-
-
+            zebraFont.zebraFont(
+                w.kind,
+                params.style,
+                int(w.denominator),
+                params.typeFamily,
+                int(params.ptSize),
+                1.0,
+                params.texmfHome,
+                False)
 
 # TODO: Document
 if __name__ == '__main__':
