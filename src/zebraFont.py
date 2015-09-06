@@ -181,6 +181,10 @@ if __name__ == '__main__':
     parser.add_argument('--size', type=float,
         required=True, help='font size')
     parser.add_argument('--family', type=str,
+        choices=['cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
+                 'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
+                 'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb',
+                 'cmvtt'],
         required=True, help='font family')
     parser.add_argument('--mag', type=float,
         default=1.0, help='magnification')
