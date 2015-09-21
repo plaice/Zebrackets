@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# File zebrackets.py
+# File zebraParser.py
 #
 # Copyright (c) John Plaice, 2015
 #
