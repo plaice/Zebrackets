@@ -22,7 +22,7 @@ import math
 import os
 import subprocess
 import sys
-import zebraFont
+from zebrackets import zebraFont
 
 validStyles = ['b', 'f', 'h']
 validEncodings = ['b', 'u', 'd']

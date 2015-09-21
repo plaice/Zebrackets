@@ -34,7 +34,7 @@ import os
 import re
 import subprocess
 import sys
-import zebraFont
+from zebrackets import zebraFont
 
 # TODO: Document
 class Params:

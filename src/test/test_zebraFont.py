@@ -2,8 +2,12 @@ import unittest
 import sys
 from unittest.mock import patch
 
+print(sys.path)
+sys.path.append('/home/mancilla/development/Zebrackets/src')
 
-import zebraFont
+print(sys.path)
+
+from zebrackets import *
 
 HelpStringUsage = '''usage: zebraFont.py [-h] --type {b,p} --style {b,f,h} --stripes
                     {0,1,2,3,4,5,6,7} --size {5,6,7,8,9,10,12,17} --family
