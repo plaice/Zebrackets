@@ -1,13 +1,15 @@
+#!/usr/bin/python3
+
 import unittest
 import sys
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, Mock
 
-print(sys.path)
 sys.path.append('/home/mancilla/development/Zebrackets/src')
 
-print(sys.path)
-
 from zebrackets import *
+
+BeginningHelpString = \
+ 'usage: zebraFont.py [-h] --type {b,p} --style {b,f,h} --stripes'
 
 HelpStringUsage = '''usage: zebraFont.py [-h] --type {b,p} --style {b,f,h} --stripes
                     {0,1,2,3,4,5,6,7} --size {5,6,7,8,9,10,12,17} --family
@@ -41,28 +43,55 @@ optional arguments:
 
 '''
 
-full_cmd_1 = ['--type', 'b', '--style', 'b', '--stripes', '7', '--family', 'cmb',
-    '--size', '10',  '--texmfhome', '/home/mancilla', '--checkargs']
-full_cmd_2 = ['--type', 'b', '--style', 'b', '--stripes', '5', '--family', 'cmb',
-    '--size', '17',  '--texmfhome', '/home/mancilla', '--checkargs']
+full_cmd_1 = ['--type', 'b',
+              '--style', 'b',
+              '--stripes', '7',
+              '--family', 'cmb',
+              '--size', '10',
+              '--texmfhome', '/home/mancilla',
+              '--checkargs']
+
+full_cmd_2 = ['--type', 'b',
+              '--style', 'b',
+              '--stripes', '5',
+              '--family', 'cmb',
+              '--size', '17', 
+              '--texmfhome', '/home/mancilla',
+              '--checkargs']
 
 
 class TestZebraFont(unittest.TestCase):
-#    def setUp(self):
-#        self.parser = zebraFont.zebraFontParser()
+    def setUp(self):
+        pass
 
-    def test_zebrafont_0(self):
+    ## Checking the argparse parametrization, no errors in command
+    def test_zebrafont_cmd1(self):
         self.assertEqual(zebraFont.zebraFontParser(full_cmd_1), None)
-        
-    def test_zebra_font_1(self):
-        self.assertEqual(zebraFont.zebraFontParser(full_cmd_2), None)
-        
+
+    ## Checking the argparse parametrization, contradicting values
+    def test_zebrafont_cmd2(self):
+        self.assertIn(zebraFont.zebraFontParser(full_cmd_2),
+            "Invalid input: Invalid font family-size pair")
+
+    ## Checking the argparse parametrization, with no values
+    # Argparse raises an exception so we need to catch it here
+    def test_zebrafont_noargs(self):
+        try:
+            zebraFont.zebraFontParser()
+        except:
+            pass
+
+    ## Checking the actual call to create the fonts
     def test_zebra_font_2(self):
         self.assertEqual(zebraFont.zebraFont(
             'b', 'b', '7', 'cmb', '17', '/home/mancilla', '1', '--checkargs'), False)
 
     def test_zebra_font_3(self):
-        mock.parser = zebraFont.zebraFontParser
+        thing = zebraFont.zebraFontParser()
+#        thing.zebraFontParser = MagicMock(return_value=HelpString)
+        thing.zebraFontParser = MagicMock(return_value=HelpStringUsage)
+        thing.zebraFontParser()
+        thing.zebraFontParser.assert_called_with()
 
 
 
