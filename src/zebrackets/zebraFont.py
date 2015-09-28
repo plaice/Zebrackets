@@ -189,18 +189,16 @@ def createMFfiles(params):
 
 def zebraFont(btype, style, stripes, fontFamily,
         fontSize, mag, texmfHome, checkArgs):
-#    flag = True
     try:
         parameters = Parameters(btype, style, stripes, fontFamily,
                          fontSize, mag, texmfHome, checkArgs)
         if checkArgs is False:
             createMFfiles(parameters)
     except ArgError as e:
-        print('Invalid input:', e.value)
-#        flag = False
-#    return flag
+        prt_str = 'Invalid input: ' + e.value
+        print(prt_str)
+        return prt_str
 
-#def zebraFontParser():
 def zebraFontParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Build a zebrackets font.')
     parser.add_argument('--type', type=str, choices=validTypes,
@@ -223,11 +221,11 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
 
-#    args = parser.parse_args(sys.argv[1:])
+#    print(inputArguments)
     args = parser.parse_args(inputArguments)
-    zebraFont(args.type, args.style, args.stripes, args.family,
+#    print("after the args call")
+    return zebraFont(args.type, args.style, args.stripes, args.family,
         args.size, args.mag, args.texmfhome, args.checkargs)
-#    return sys.argv
 
 if __name__ == '__main__':
     print(sys.argv)
