@@ -221,9 +221,7 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
 
-#    print(inputArguments)
     args = parser.parse_args(inputArguments)
-#    print("after the args call")
     return zebraFont(args.type, args.style, args.stripes, args.family,
         args.size, args.mag, args.texmfhome, args.checkargs)
 
