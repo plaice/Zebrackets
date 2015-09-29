@@ -27,6 +27,21 @@
 #       Could we put the code in this file, and not need
 #       calling infrastructure?
 
+'''This module takes as input three arguments: input file, output file and 
+texmfhome directory. 
+It parses the input file looking for zebrackets directives and handles them:
+1. \zebracketsdefaults set the default zebrackets params for the entire document
+2. \zebracketsfont modifies the default zebracket params and orders the
+creation of the corresponding font in the texmfhome directory, if it does
+not exist yet. 
+3. \\begin{zebrackets} and \end{zebrackets} assume that the font has been 
+created (should we check and throw an error if not created?), recreated the full
+zebracket params based on default and the arguments given in the
+\\begin{zebrackets} and output something... I think the font to be used in
+this specific tex environment.
+Now to stdout but it should go to a temporary file, the input of zebraFilter. 
+'''
+
 import copy
 import io
 import math
@@ -53,6 +68,11 @@ class Params:
 
 # TODO: Document
 def setDefaults(defaults, params, args):
+    '''This method set the zebrackets default arguments for the entire 
+    document, based in the '\zebracketsdefaults' directive in the input file.
+    Each subsequent occurrence of '\zebracketsFont' will modify the defaults
+    to create a new font (in another method). 
+    '''
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
     if m:
         defaults.style = m.group(1)
@@ -92,47 +112,52 @@ def setDefaults(defaults, params, args):
 
 # TODO: Document
 def declareFont(defaults, params, args):
-     m = re.search(r'typ\w*=([bp])\w*[,\]]', args)
-     if m:
-         kind = m.group(1)
-     else:
-         kind = defaults.kind
-     m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
-     if m:
-         style = m.group(1)
-     else:
-         style = defaults.style
-     m = re.search(r'str\w*=(\d+)[,\]]', args)
-     if m:
-         stripes = m.group(1)
-     else:
-         stripes = defaults.stripes
-     m = re.search(r'siz\w*=(\d+)[,\]]', args)
-     if m:
-         size = m.group(1)
-     else:
-         size = defaults.size
-     m = re.search(r'fam\w*=(\w+)[,\]]', args)
-     if m:
-         family = m.group(1)
-     else:
-         family = defaults.family
-     m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', args)
-     if m:
-         mag = math.sqrt(float(m.group(1)))
-     elif (defaults.mag != ''):
-         mag = math.sqrt(float(defaults.mag))
-     else:
-         mag = 1.0
-     zebraFont.zebraFont(
-         kind,
-         style,
-         int(stripes),
-         family,
-         int(size),
-         float(mag),
-         texmfHome,
-         False)
+    '''This method is called everytime the directive '\zebracketsfont'
+    is found in the input .zetex file. After the parsing of the values,
+    the zebraFont module is called to create the corresponsing font file. 
+    '''
+    
+    m = re.search(r'typ\w*=([bp])\w*[,\]]', args)
+    if m:
+        kind = m.group(1)
+    else:
+        kind = defaults.kind
+    m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
+    if m:
+        style = m.group(1)
+    else:
+        style = defaults.style
+    m = re.search(r'str\w*=(\d+)[,\]]', args)
+    if m:
+        stripes = m.group(1)
+    else:
+        stripes = defaults.stripes
+    m = re.search(r'siz\w*=(\d+)[,\]]', args)
+    if m:
+        size = m.group(1)
+    else:
+        size = defaults.size
+    m = re.search(r'fam\w*=(\w+)[,\]]', args)
+    if m:
+        family = m.group(1)
+    else:
+        family = defaults.family
+    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', args)
+    if m:
+        mag = math.sqrt(float(m.group(1)))
+    elif (defaults.mag != ''):
+        mag = math.sqrt(float(defaults.mag))
+    else:
+        mag = 1.0
+    zebraFont.zebraFont(
+        kind,
+        style,
+        int(stripes),
+        family,
+        int(size),
+        float(mag),
+        texmfHome,
+        False)
 
 
 # TODO: Document
@@ -215,6 +240,13 @@ def endZebrackets(defaults, params):
 
 # TODO: Document
 def filterText(defaults, params):
+    '''This method parses the input file and captures all of the zebrackets
+    directive, calls the corresponding method, and if necessary
+    (zebracketsfont, zebracketsdefaults) supresses the line from the output.
+    zebracketsdefaults only happens once.
+    zebracketsfont could happen many times but at least once (?).
+    '''
+
     defaults.buf = io.StringIO()
     params.filterMode = False
     for line in sys.stdin:
