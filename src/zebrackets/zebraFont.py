@@ -200,7 +200,9 @@ def zebraFont(btype, style, stripes, fontFamily,
         return prt_str
 
 def zebraFontParser(inputArguments = sys.argv[1:]):
-    parser = argparse.ArgumentParser(description='Build a zebrackets font.')
+    parser = argparse.ArgumentParser(
+        description='Build a zebrackets font.',
+        epilog="This module is part of the zebrackets package.")
     parser.add_argument('--type', type=str, choices=validTypes,
         required=True, help='b = bracket, p = parenthesis')
     parser.add_argument('--style', type=str, choices=validStyles,

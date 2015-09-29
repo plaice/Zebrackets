@@ -42,13 +42,16 @@ this specific tex environment.
 Now to stdout but it should go to a temporary file, the input of zebraFilter. 
 '''
 
-import copy
-import io
+import copy        # Might need if using a dict instead of a class
+import io          # Might not need if using files
 import math
 import os
 import re
-import subprocess
+import subprocess  # Might not need if using files
 import sys
+import argparse
+#import zebraFont
+sys.path.append('/home/mancilla/development/Zebrackets/src')
 from zebrackets import zebraFont
 
 # TODO: Document
@@ -275,7 +278,28 @@ def filterText(defaults, params):
     print(defaults.buf.getvalue(), end='')
     defaults.buf.close()
 
+
+def zebraParserParser(inputArguments = sys.argv[1:]):
+    parser = argparse.ArgumentParser(
+        description="Handle zebrackets directives in input file.",
+        epilog="This module is part of the zebrackets package.")
+    parser.add_argument('--input', '-i', type=argparse.FileType('r'), 
+        help='input file with extension .zetex',
+        required=True)
+    parser.add_argument('--output', '-o', type=argparse.FileType('w'), 
+        help='output file name with extention .tex')
+    parser.add_argument('--texmfhome', '-t', type=argparse.FileType(),
+        help='substitute for variable TEXMFHOME')
+    parser.add_argument('--checkargs', '-c', action='store_true',
+        help='check validity of input arguments')
+
+    args = parser.parse_args(inputArguments)
+
+
 if __name__ == '__main__':
+    zebraParserParser()
+    exit()
+
     if 'TEXMFHOME' not in os.environ:
        sys.exit('TEXMFHOME environment variable is not set')
     texmfHome = os.environ['TEXMFHOME']

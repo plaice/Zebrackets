@@ -45,8 +45,9 @@ class TestZebraFont(unittest.TestCase):
         try:
             self.assertEqual(zebraFont.zebraFontParser(['--h']), None)
         except:
-            print(sys.exc_info()[0])
-            print(sys.exc_info())
+            pass
+#            print(sys.exc_info()[0])
+#            print(sys.exc_info())
 
     ## Checking the argparse parametrization, with no values
     # Argparse raises an exception so we need to catch it here
@@ -54,8 +55,7 @@ class TestZebraFont(unittest.TestCase):
         try:
             zebraFont.zebraFontParser()
         except:
-            print(sys.exc_info()[0])
-            print(sys.exc_info())
+            pass
 
     ## Checking the actual call to create the fonts function
     # Invalid number of stripes
