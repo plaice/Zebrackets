@@ -1,0 +1,1 @@
+python3 -W ignore:ResourceWarning -m unittest test_zebraParser.TestZebraParser.test_zebraparser_cmd1

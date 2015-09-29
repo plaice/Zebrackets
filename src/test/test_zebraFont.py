@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# src/test/test_zebraFont.pyc
+# src/test/test_zebraFont.py
 
 import unittest
 import sys

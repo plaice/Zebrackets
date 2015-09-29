@@ -279,6 +279,36 @@ def filterText(defaults, params):
     defaults.buf.close()
 
 
+def zebraParser(in_file, out_file, texmfHome, checkArgs):
+    '''Debating whether I should open the input and output as files in the
+    argparse checking, or just grab the strings and check here if there are
+    actual files. I might have more control of the opening and closing...
+    '''
+    in_name = os.path.basename(in_file.name)
+    in_base, in_ext = os.path.splitext(in_name)
+    if in_ext != ".zetex":
+        prt_str = "Invalid input file: zetex extension required."
+        print(prt_str)
+        return prt_str
+    if texmfHome == None:
+        if 'TEXMFHOME' not in os.environ:
+            prt_str = 'TEXMFHOME environment variable is not set.'
+            print(prt_str)
+            return prt_str
+        texmfHome = os.environ['TEXMFHOME']
+    elif not os.path.isdir(texmfHome):
+        prt_str = "Invalid textmf, path is not a directory."
+        print(prt_str)
+        return prt_str
+    if out_file == None:
+        out_file_name = in_name + ".tmp"
+
+    if checkArgs is False:
+        print("Ok, here we go!")
+        defaults = Params()   
+        params = copy.copy(defaults)
+        filterText(defaults, params)
+
 def zebraParserParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
         description="Handle zebrackets directives in input file.",
@@ -288,23 +318,21 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
         required=True)
     parser.add_argument('--output', '-o', type=argparse.FileType('w'), 
         help='output file name with extention .tex')
-    parser.add_argument('--texmfhome', '-t', type=argparse.FileType(),
+    parser.add_argument('--texmfhome', '-t', 
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--checkargs', '-c', action='store_true',
         help='check validity of input arguments')
 
     args = parser.parse_args(inputArguments)
-
+    return zebraParser(args.input, args.output, args.texmfhome, args.checkargs)
 
 if __name__ == '__main__':
     zebraParserParser()
-    exit()
 
-    if 'TEXMFHOME' not in os.environ:
-       sys.exit('TEXMFHOME environment variable is not set')
-    texmfHome = os.environ['TEXMFHOME']
-    scriptHome = texmfHome + '/scripts/zetex/python'
+#    if 'TEXMFHOME' not in os.environ:
+#       sys.exit('TEXMFHOME environment variable is not set')
+#    texmfHome = os.environ['TEXMFHOME']
+#    scriptHome = texmfHome + '/scripts/zetex/python'
 
-    defaults = Params()   
-    params = copy.copy(defaults)
-    filterText(defaults, params)
+    
+    # Need to close both input and output files
