@@ -69,9 +69,25 @@ class Params:
         self.mag = ''
         self.filterMode = False
 
+doc_defaults = {
+    'style': '',
+    'numerator': '',
+    'denominator': '',
+    'encoding': '',
+    'size': '',
+    'family': '',
+    'kind': '',
+    'stripes': '',
+    'index': '',
+    'mag': '',
+    'filterMode': False,
+    }
+this_font_params = copy.copy(doc_defaults)
+
+
 # TODO: Document
 def setDefaults(defaults, params, args):
-    '''This method set the zebrackets default arguments for the entire 
+    '''This method sets the zebrackets default arguments for the entire 
     document, based in the '\zebracketsdefaults' directive in the input file.
     Each subsequent occurrence of '\zebracketsFont' will modify the defaults
     to create a new font (in another method). 
@@ -165,10 +181,13 @@ def declareFont(defaults, params, args):
 
 # TODO: Document
 def beginZebrackets(defaults, params, args):
+    '''This method parses the arguments to \\begin{zebrabrackets}
+    '''
      m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
      if m:
          params.style = m.group(1)
      else:
+         # We do not need this. That is why we have a copy made before.
          params.style = defaults.style
      m = re.search(r'ind\w*=([bdu])\w*[,\]]', args)
      if m:
@@ -218,6 +237,8 @@ def beginZebrackets(defaults, params, args):
      if params.denominator == '':
          params.denominator = -1
      params.filterMode = True
+     ## There should be a call to zebraFont here.
+     ## What is filterMode for? 
      params.buf = io.StringIO()
 
 # TODO: Document
@@ -284,6 +305,9 @@ def zebraParser(in_file, out_file, texmfHome, checkArgs):
     argparse checking, or just grab the strings and check here if there are
     actual files. I might have more control of the opening and closing...
     '''
+    global infile, outfile
+    infile = in_file
+    outfile = out_file
     in_name = os.path.basename(in_file.name)
     in_base, in_ext = os.path.splitext(in_name)
     if in_ext != ".zetex":
@@ -305,9 +329,13 @@ def zebraParser(in_file, out_file, texmfHome, checkArgs):
 
     if checkArgs is False:
         print("Ok, here we go!")
-        defaults = Params()   
-        params = copy.copy(defaults)
-        filterText(defaults, params)
+#        defaults = Params()   
+#        params = copy.copy(defaults)
+#        filterText(defaults, params)
+        print(doc_defaults)
+        print(font_params)
+#        filterText(doc_defaults, font_params)
+        
 
 def zebraParserParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
@@ -328,6 +356,9 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
 
 if __name__ == '__main__':
     zebraParserParser()
+    infile.close()
+    outfile.close()
+
 
 #    if 'TEXMFHOME' not in os.environ:
 #       sys.exit('TEXMFHOME environment variable is not set')
