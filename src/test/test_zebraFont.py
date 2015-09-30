@@ -13,7 +13,7 @@ full_cmd_1 = ['--type', 'b',
               '--stripes', '7',
               '--family', 'cmb',
               '--size', '10',
-              '--texmfhome', '/home/mancilla',
+              '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
 full_cmd_2 = ['--type', 'b',
@@ -21,7 +21,7 @@ full_cmd_2 = ['--type', 'b',
               '--stripes', '5',
               '--family', 'cmb',
               '--size', '17', 
-              '--texmfhome', '/home/mancilla',
+              '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
 

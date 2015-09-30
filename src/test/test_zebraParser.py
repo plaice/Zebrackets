@@ -15,7 +15,7 @@ full_cmd_1 = ['-i', 'somefile',
 
 full_cmd_2 = ['--input', 'somenonfile',
               '--output', 'otherfile',
-              '--texmfhome', '/home/mancilla',
+              '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
 full_cmd_3 = ['--input', 'somefile.zetex',
@@ -26,7 +26,7 @@ full_cmd_4 = ['--input', 'somefile.zetex',
               '--checkargs']
 
 full_cmd_5 = ['--input', 'somefile.zetex',
-              '--texmfhome', '/home/mancilla',
+              '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
 
