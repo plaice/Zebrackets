@@ -59,7 +59,7 @@ class TestZebraParser(unittest.TestCase):
         begin_test("test_zebraparser_cmd3")
         self.assertEqual(
             zebraParser.zebraParserParser(full_cmd_3),
-            "Invalid textmf, path is not a directory.")
+            "Invalid texmf, path is not a directory.")
 
     def test_zebraparser_cmd4(self):
         begin_test("test_zebraparser_cmd4")
