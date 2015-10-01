@@ -20,9 +20,10 @@
 import argparse
 import math
 import os
+import io
 import subprocess
 import sys
-from zebrackets import zebraFont
+from zebrackets.zebraFont import zebraFont
 
 validStyles = ['b', 'f', 'h']
 validEncodings = ['b', 'u', 'd']
@@ -127,6 +128,7 @@ class Parameters:
 def countDelimiters(params, delims, buf):
     # Go through the buffer and count the (opening) delimiters
     # in case the automatic stripe denominator is requested.
+    ## buf is now a string. Does it matter?
     for c in buf:
         for k, w in delims.items():
             if c == w.left:
@@ -170,10 +172,11 @@ def printDeclarations(params, delims, buf):
                                               params.style,
                                               chr(ord('a') + w.denominator),
                                               params.fontFamily)
-            print('\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
-                  format(fontName,
-                         chr(ord('A') - 1 + int(params.fontSize)),
-                         int(params.fontSize)))
+            out_string.write(
+                '\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
+                    format(fontName,
+                           chr(ord('A') - 1 + int(params.fontSize)),
+                           int(params.fontSize)))
 
 # TODO: Document
 def printAndReplaceSymbols(params, delims, buf):
@@ -221,21 +224,25 @@ def printAndReplaceSymbols(params, delims, buf):
             if not endIsLeft:
                 numerator += pow(2, wsaved.denominator)
 
-            print('{{\\z{0}{1}{2}{3}{4} \\symbol{{{5}}}}}'.
+            out_string.write('{{\\z{0}{1}{2}{3}{4} \\symbol{{{5}}}}}'.
                   format(wsaved.kind,
                          params.style,
                          chr(ord('a') + wsaved.denominator),
                          params.fontFamily,
                          chr(ord('A') - 1 + int(params.fontSize)),
-                         numerator), end='')
+                         numerator))
+#                         numerator), end='')
         else:
-            print(c, end='')
+            out_string.write(c)
+#            print(c, end='')
          
 # TODO: Document
 def generateFiles(params, delims, buf):
     for k, w in delims.items():
         if w.used:
-            zebraFont.zebraFont(
+            print("Generating fonts...")
+            '''
+            zebraFont(
                 w.kind,
                 params.style,
                 int(w.denominator),
@@ -244,13 +251,14 @@ def generateFiles(params, delims, buf):
                 1.0,
                 params.texmfHome,
                 False)
+            '''
 
 def zebraFilter(style, encoding, fontFamily, fontSize,
         numerator, denominator, texmfHome, string_tofilter, 
         checkArgs=False):
     if texmfHome == None:
         if 'TEXMFHOME' not in os.environ:
-            prt_str = 'TEXMFHOME environment variable is not set.'
+            prt_str = 'Invalid texmf, TEXMFHOME environment variable not set.'
             print(prt_str)
             return prt_str
         texmfHome = os.environ['TEXMFHOME']
@@ -264,6 +272,8 @@ def zebraFilter(style, encoding, fontFamily, fontSize,
         parameters = Parameters(style, encoding, fontFamily, fontSize,
                          numerator, denominator, texmfHome, checkArgs)
         if checkArgs is False:
+            global out_string 
+            out_string = io.StringIO()
             delimiters = dict(bracket = Delimiter('b', '[', ']'),
                               parenthesis = Delimiter('p', '(', ')'))
 #            fileBuffer = readInput()
@@ -271,6 +281,10 @@ def zebraFilter(style, encoding, fontFamily, fontSize,
             printDeclarations(parameters, delimiters, string_tofilter)
             printAndReplaceSymbols(parameters, delimiters, string_tofilter)
             generateFiles(parameters, delimiters, string_tofilter)
+            ## I think it goes here, after return it the string
+            # out_string.close()
+            return out_string.getvalue()
+
     except ArgError as e:
         print('Invalid input:', e.value)
 

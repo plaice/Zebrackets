@@ -242,6 +242,8 @@ def endZebrackets(defaults, params):
     global this_font_params
     
     string_tofilter = this_font_params['buf'].getvalue()
+    this_font_params['buf'].close()
+
     string_filtered = zebraFilter(
         this_font_params['style'],
         this_font_params['encoding'][0],
@@ -252,29 +254,11 @@ def endZebrackets(defaults, params):
         texmfhome,
         string_tofilter,
         )
+    ## Here we can check if the string_filtered contains an error message.
+    ## If so, write to the log file and exit graciously.
     print(string_filtered)
     this_font_params['filterMode'] = False
-    return
-
-
-
-    '''
-    To delete
-    proc = subprocess.Popen(['./zebraFilter.py',
-                             params.style,
-                             str(params.numerator),
-                             str(params.denominator),
-                             params.encoding[0],
-                             str(params.size),
-                             params.family],
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            universal_newlines=True)
-    proc.stdin.write(string)
-    proc.stdin.close()
-    '''
     outfile.write(string_filtered)
-    this_font_params['buf'].close()
 
 #    defaults.buf.write(proc.stdout.read())
 #    params.buf.close()
