@@ -119,9 +119,9 @@ class Parameters:
         self.texmfHome = texmfHome
         self.checkArgs = checkArgs
 
-# TODO: Document
-def readInput():
-    return sys.stdin.read()
+# To delete
+#def readInput():
+#    return sys.stdin.read()
 
 # TODO: Document
 def countDelimiters(params, delims, buf):
@@ -246,18 +246,31 @@ def generateFiles(params, delims, buf):
                 False)
 
 def zebraFilter(style, encoding, fontFamily, fontSize,
-        numerator, denominator, texmfHome, checkArgs):
+        numerator, denominator, texmfHome, string_tofilter, 
+        checkArgs=False):
+    if texmfHome == None:
+        if 'TEXMFHOME' not in os.environ:
+            prt_str = 'TEXMFHOME environment variable is not set.'
+            print(prt_str)
+            return prt_str
+        texmfHome = os.environ['TEXMFHOME']
+    elif not os.path.isdir(texmfHome):
+        prt_str = "Invalid texmf, path is not a directory."
+        print(prt_str)
+        return prt_str
+
+
     try:
         parameters = Parameters(style, encoding, fontFamily, fontSize,
                          numerator, denominator, texmfHome, checkArgs)
         if checkArgs is False:
             delimiters = dict(bracket = Delimiter('b', '[', ']'),
                               parenthesis = Delimiter('p', '(', ')'))
-            fileBuffer = readInput()
-            countDelimiters(parameters, delimiters, fileBuffer)
-            printDeclarations(parameters, delimiters, fileBuffer)
-            printAndReplaceSymbols(parameters, delimiters, fileBuffer)
-            generateFiles(parameters, delimiters, fileBuffer)
+#            fileBuffer = readInput()
+            countDelimiters(parameters, delimiters, string_tofilter)
+            printDeclarations(parameters, delimiters, string_tofilter)
+            printAndReplaceSymbols(parameters, delimiters, string_tofilter)
+            generateFiles(parameters, delimiters, string_tofilter)
     except ArgError as e:
         print('Invalid input:', e.value)
 
@@ -280,6 +293,9 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
         required=True, help='denominator')
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
+    parser.add_argument('--string', type=str,
+        required=True,
+        help='text between in the zebracket environment')
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
     args = parser.parse_args(inputArguments)

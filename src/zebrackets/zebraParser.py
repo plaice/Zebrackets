@@ -141,7 +141,6 @@ def declareFont(defaults, params, args):
     is found in the input .zetex file. After the parsing of the values,
     the zebraFont module is called to create the corresponsing font file. 
     '''
-    
     m = re.search(r'typ\w*=([bp])\w*[,\]]', args)
     if m:
         kind = m.group(1)
@@ -192,8 +191,11 @@ def beginZebrackets(defaults, params, args):
     ## defaults and params not needed they are global variables.
     '''This method parses the arguments to \\begin{zebrabrackets}
     '''
+    global this_font_params
     this_font_params = copy.copy(doc_font_defaults)
+    this_font_params['buf'] = io.StringIO()
 
+    this_font_params['filterMode'] = True
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
     if m:
         this_font_params['style'] = m.group(1)
@@ -232,29 +234,32 @@ def beginZebrackets(defaults, params, args):
         this_font_params['numerator'] = this_font_params['index']
     if this_font_params['denominator'] == '':
         this_font_params['denominator'] = -1
-    this_font_params['filterMode'] = True
-    this_font_params['buf'] = io.StringIO()
 
 # TODO: Document
 # TODO: How do we pass the input to this program?
 def endZebrackets(defaults, params):
     ## defaults and params not needed they are global variables.
+    global this_font_params
+    
     string_tofilter = this_font_params['buf'].getvalue()
     string_filtered = zebraFilter(
         this_font_params['style'],
         this_font_params['encoding'][0],
         this_font_params['family'],
-        str(this_font_params['size']),
-        str(this_font_params['numerator']),
-        str(this_font_params['denominator']),
-        '/home/other/silly')
-#        texmfhome)
-    print(string_filtere)
+        int(this_font_params['size']),
+        int(this_font_params['numerator']),
+        int(this_font_params['denominator']),
+        texmfhome,
+        string_tofilter,
+        )
+    print(string_filtered)
+    this_font_params['filterMode'] = False
     return
 
 
 
-     
+    '''
+    To delete
     proc = subprocess.Popen(['./zebraFilter.py',
                              params.style,
                              str(params.numerator),
@@ -267,9 +272,12 @@ def endZebrackets(defaults, params):
                             universal_newlines=True)
     proc.stdin.write(string)
     proc.stdin.close()
-    defaults.buf.write(proc.stdout.read())
-    params.buf.close()
-    params.filterMode = False
+    '''
+    outfile.write(string_filtered)
+    this_font_params['buf'].close()
+
+#    defaults.buf.write(proc.stdout.read())
+#    params.buf.close()
 
 # TODO: Document
 def filterText(defaults, params):
@@ -287,14 +295,17 @@ def filterText(defaults, params):
         if not this_font_params['filterMode']:
             m = re.search(r'^\\zebracketsdefaults(\[.*\])', line)
             if m:
+                print("Going to setDefaults")
                 setDefaults(defaults, params, m.group(1))
                 continue
             m = re.search(r'^\\zebracketsfont(\[.*\])', line)
             if m:
+                print("Going to declareFonts")
                 declareFont(defaults, params, m.group(1))
                 continue
             m = re.search(r'^\\begin{zebrackets}(\[.*])', line)
             if m:
+                print("Going to beginZebrackets")
                 beginZebrackets(defaults, params, m.group(1))
                 continue
             # Process a normal line
@@ -303,6 +314,7 @@ def filterText(defaults, params):
         else:
             m = re.search(r'^\\end{zebrackets}', line)
             if m:
+                print("Going to endZebrackets")
                 endZebrackets(defaults, params)
                 continue
             # Process a normal line
@@ -374,10 +386,8 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
 
 if __name__ == '__main__':
     zebraParserParser()
-    print(infile.name, outfile.name)
     infile.close()
     outfile.close()
-    print(infile.name, outfile.name)
 
 
 #    if 'TEXMFHOME' not in os.environ:
