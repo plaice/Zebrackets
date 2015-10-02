@@ -29,6 +29,8 @@ import re
 import subprocess
 import shutil
 import sys
+import zebraFontFiles
+
 
 validTypes = ['b', 'p']
 validStyles = ['b', 'f', 'h']
@@ -126,15 +128,17 @@ input zeroman{3};'''
                styledict[style], btype)
     return text
 
-def checkAndCreateFont(destMFpath):
+def checkAndCreateFont(fileName, destMFdir, fileContent, texmfHome, log):
     # Check if the font file exists already, and not create it. 
     # Write the content in the file. 
+    fileNameMF = '{0}.mf'.format(fileName)
     try:
-        subprocess.check_output(['kpsewhich', destMFpath])
+        subprocess.check_output(['kpsewhich', fileNameMF])
     except subprocess.CalledProcessError:
+        destMFpath = '{0}/{1}.mf'.format(destMFdir, fileName)
         with open(destMFpath, 'w') as fileMF:
-            fileMF.write(textMFfile)
-        ## Does this file need closing? 
+            fileMF.write(fileContent)
+        callAndLog(['mktexlsr', texmfHome], log)
 
 def createMFfiles(params):
     # Set up of diretories and files names
@@ -160,15 +164,28 @@ def createMFfiles(params):
     except FileExistsError:
         pass
 
+    zetexFontsLog = []
+
+    ## This is now outside in def method
     # Check if the font file exists already, and not create it. 
     # Write the content in the file. 
-    try:
-        subprocess.check_output(['kpsewhich', destMFpath])
-    except subprocess.CalledProcessError:
-        with open(destMFpath, 'w') as fileMF:
-            fileMF.write(textMFfile)
+    checkAndCreateFont(
+        destMF, destMFdir, textMFfile, params.texmfHome, zetexFontsLog)
+    checkAndCreateFont(
+        'zepunctb', destMFdir, zebraFontFiles.str_zepunctb,
+        params.texmfHome, zetexFontsLog)
+    checkAndCreateFont(
+        'zepunctp', destMFdir, zebraFontFiles.str_zepunctp,
+        params.texmfHome, zetexFontsLog)
+    checkAndCreateFont(
+        'zeromanb', destMFdir, zebraFontFiles.str_zeromanb,
+        params.texmfHome, zetexFontsLog)
+    checkAndCreateFont(
+        'zeromanp', destMFdir, zebraFontFiles.str_zeromanp,
+        params.texmfHome, zetexFontsLog)
 
-    zetexFontsLog = []
+    # Checking main fonts exists
+
     # generate the TFM font and install the file
     # generate the ls-R database used by the kpathsea library
     try:

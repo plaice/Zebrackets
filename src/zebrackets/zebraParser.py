@@ -173,7 +173,6 @@ def declareFont(defaults, params, args):
         mag = math.sqrt(float(doc_font_defaults['mag']))
     else:
         mag = 1.0
-    ''' postponing call to zebraFont until I know what is going on in the call
 
     zebraFont.zebraFont(
         kind,
@@ -184,7 +183,6 @@ def declareFont(defaults, params, args):
         float(mag),
         texmfhome,
         False)
-    '''
 
 # TODO: Document
 def beginZebrackets(defaults, params, args):
