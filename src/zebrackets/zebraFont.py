@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# zebraFont.py TYPE STYLE STRIPES SIZE FAMILY MAG
-# creates a new MetaFont file and then invokes it.
+'''zebraFont.py TYPE STYLE STRIPES SIZE FAMILY MAG
+creates a new MetaFont file and then invokes it.
+'''
 
 import argparse
 import glob
@@ -124,6 +125,16 @@ input zeroman{3};'''
                sourceFont, stripes,
                styledict[style], btype)
     return text
+
+def checkAndCreateFont(destMFpath):
+    # Check if the font file exists already, and not create it. 
+    # Write the content in the file. 
+    try:
+        subprocess.check_output(['kpsewhich', destMFpath])
+    except subprocess.CalledProcessError:
+        with open(destMFpath, 'w') as fileMF:
+            fileMF.write(textMFfile)
+        ## Does this file need closing? 
 
 def createMFfiles(params):
     # Set up of diretories and files names
