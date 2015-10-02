@@ -106,6 +106,9 @@ def callAndLog(args, log):
         sys.exit('System died when calling {0}'.format(*args))
 
 def createMFcontent(btype, style, stripes, sourceFont):
+    '''This method creates the header of the font file and returns it as a
+    string. John to verify truth of statement. 
+    '''
     styledict = { 'b' : '0', 'f' : '1',  'h' : '2' }
     textFormat = '''% Copied from rtest on p.311 of the MetaFont book.
 if unknown cmbase: input cmbase fi
@@ -123,6 +126,7 @@ input zeroman{3};'''
     return text
 
 def createMFfiles(params):
+    # Set up of diretories and files names
     sourceFont = '{0}{1}'.format(params.fontFamily, int(params.fontSize))
     destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
     destMF = 'z{0}{1}{2}{3}'.format(
@@ -133,16 +137,20 @@ def createMFfiles(params):
                      params.btype, params.style,
                      params.stripes, sourceFont)
 
+    # Check that the master font exists in the TeX ecosystem.
     try:
         subprocess.check_output(['kpsewhich', '{0}.mf'.format(sourceFont)])
     except subprocess.CalledProcessError:
         sys.exit('File "{0}.mf" does not exist'.format(destMF))
 
+    # Create the directory where font files will be stored for this run.
     try:
         os.makedirs(destMFdir)
     except FileExistsError:
         pass
 
+    # Check if the font file exists already, and not create it. 
+    # Write the content in the file. 
     try:
         subprocess.check_output(['kpsewhich', destMFpath])
     except subprocess.CalledProcessError:
@@ -188,7 +196,19 @@ def createMFfiles(params):
             zetexLogFile.write(string)
 
 def zebraFont(btype, style, stripes, fontFamily,
-        fontSize, mag, texmfHome, checkArgs):
+              fontSize, mag, texmfHome, checkArgs):
+    if texmfHome == None:
+        if 'TEXMFHOME' not in os.environ:
+            prt_str = 'TEXMFHOME environment variable is not set.'
+            print(prt_str)
+            return prt_str
+        texmfHome = os.environ['TEXMFHOME']
+    elif not os.path.isdir(texmfHome):
+        prt_str = "Invalid texmf, path is not a directory."
+        print(prt_str)
+        return prt_str
+
+
     try:
         parameters = Parameters(btype, style, stripes, fontFamily,
                          fontSize, mag, texmfHome, checkArgs)

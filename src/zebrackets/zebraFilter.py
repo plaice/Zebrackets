@@ -241,7 +241,6 @@ def generateFiles(params, delims, buf):
     for k, w in delims.items():
         if w.used:
             print("Generating fonts...")
-            '''
             zebraFont(
                 w.kind,
                 params.style,
@@ -251,6 +250,7 @@ def generateFiles(params, delims, buf):
                 1.0,
                 params.texmfHome,
                 False)
+            '''
             '''
 
 def zebraFilter(style, encoding, fontFamily, fontSize,
@@ -266,7 +266,6 @@ def zebraFilter(style, encoding, fontFamily, fontSize,
         prt_str = "Invalid texmf, path is not a directory."
         print(prt_str)
         return prt_str
-
 
     try:
         parameters = Parameters(style, encoding, fontFamily, fontSize,
