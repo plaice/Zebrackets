@@ -158,11 +158,16 @@ def createMFfiles(params):
             fileMF.write(textMFfile)
 
     zetexFontsLog = []
+    # generate the TFM font and install the file
+    # generate the ls-R database used by the kpathsea library
     try:
         subprocess.check_output(['kpsewhich', '{0}.tfm'.format(destMF)])
     except subprocess.CalledProcessError:
-        callAndLog(['mktextfm', destMF], zetexFontsLog)
-        callAndLog(['mktexlsr', params.texmfHome], zetexFontsLog)
+        callAndLog(
+            ['mktextfm', '--destdir', params.texmfHome, destMF],
+            zetexFontsLog)
+        callAndLog(
+            ['mktexlsr', params.texmfHome], zetexFontsLog)
 
     if params.mag != 1.0:
         dpi = int(params.mag * params.mag * float(600) + .5)
