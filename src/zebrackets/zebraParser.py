@@ -17,37 +17,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This filter is run on a region of text.
-# Its arguments dictate translation of parentheses in the region.
 
-
-# TODO: The manipulation of the parameters is now done.
-#       It is now time to deal with the calling infrastructure.
-#       Basically, from here, we call zebraFont or zebraFilter.
-#       Could we put the code in this file, and not need
-#       calling infrastructure?
 
 '''This module takes as input three arguments: input file, output file and 
 texmfhome directory. 
-It parses the input file looking for zebrackets directives and handles them:
+It takes into consideration a region of text at a time and the arguments of
+each region and the defaults, dictate translation of parentheses in the region.
+The module parses the input file looking for zebrackets directives and
+handles them:
 1. \zebracketsdefaults set the default zebrackets params for the entire document
 2. \zebracketsfont modifies the default zebracket params and orders the
 creation of the corresponding font in the texmfhome directory, if it does
 not exist yet. 
 3. \begin{zebrackets} and \end{zebrackets} assume that the font has been 
-created (should we check and throw an error if not created?), recreated the full
-zebracket params based on default and the arguments given in the
-\begin{zebrackets} and output something... I think the font to be used in
-this specific tex environment.
-Now to stdout but it should go to a temporary file, the input of zebraFilter. 
+created (should we check and throw an error if not created?). Using defaults
+and block parameters, create the output having replaced normal parenthesis
+with zebrackets.
 '''
 
-import copy
 import io
 import math
 import os
 import re
-import subprocess  # Might not need if using files
 import sys
 import argparse
 sys.path.append('/home/mancilla/development/Zebrackets/src')
@@ -55,7 +46,6 @@ from zebrackets import zebraFont
 from zebrackets import zebraHelp
 from zebrackets.zebraFilter import zebraFilter
 
-# TODO: Document
 class Params:
     def __init__(self):
         self.style = ''
@@ -70,33 +60,10 @@ class Params:
         self.mag = ''
         self.filterMode = False
 
-'''
-'''
-doc_font_defaults = {
-    'style': '',
-    'numerator': '',
-    'denominator': '',
-    'encoding': '',
-    'size': '',
-    'family': '',
-    'kind': '',
-    'stripes': '',
-    'index': '',
-    'mag': '',
-    'filterMode': False,
-    }
-## TODO: ask question
-## Should the copy of doc_font_defaulst be done after running setDefaults?
-## or rather, before each new parsing of fonts, should there be a copy made?
-
-
-# TODO: Document
 def setDefaults(params_doc_defaults, params_paragraph, doc_args):
-    ## No need for inputs except args. Others are global.
     '''This method sets the zebrackets default arguments for the entire
-    document, based in the '\zebracketsdefaults' directive in the input file.
-    Each subsequent occurrence of '\zebracketsFont' will modify the defaults
-    to create a new font (in another method). 
+    document, based in the '\zebracketsdefaults' directive in the input
+    zetex file.
     '''
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', doc_args)
     if m:
@@ -136,9 +103,7 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
             params_doc_defaults.index = -1
 
 
-# TODO: Document
 def declareFont(params_doc_defaults, params_paragraph, font_args):
-    ## No need for inputs except args. Others are global.
     '''This method is called everytime the directive '\zebracketsfont'
     is found in the input .zetex file. After the parsing of the values,
     the zebraFont module is called to create the corresponsing font file. 
@@ -186,17 +151,12 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
         params_doc_defaults.texmfHome,
         False)
 
-# TODO: Document
 def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
-    '''This method parses the arguments to \begin{zebrabrackets}
+    '''This method parses the arguments in \begin{zebrabrackets}
+    and modifies the the params_paragraph accordingly.
     '''
-    print(params_paragraph)
-#    params_paragraph = copy.copy(params_doc_defaults)
-## Problematic as this will keep values from previous paragraphs instead
-## of defaults
     params_paragraph.buf = io.StringIO()
     params_paragraph.filterMode = True
-    print(params_paragraph)
 
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', par_args)
     if m:
@@ -252,9 +212,11 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
         params_paragraph.denominator = -1
 
 
-# TODO: Document
 def endZebrackets(params_doc_defaults, params_paragraph):
-    
+    '''This method writes the buffer into the output file. The buffer has been
+    accumulating the translation between normal parenthesis and zebrackets. 
+    zebraFilter is call to replace the glyphs. 
+    '''
     string_tofilter = params_paragraph.buf.getvalue()
     params_paragraph.buf.close()
 
@@ -277,14 +239,11 @@ def endZebrackets(params_doc_defaults, params_paragraph):
 
 def filterText(params_doc_defaults, params_paragraph):
     '''This method parses the input file and captures all of the zebrackets
-    directive, calls the corresponding method, and if necessary (for
-    zebracketsfont, zebracketsdefaults) supresses the line from the output.
+    directive, calls the corresponding method, and if necessary, for
+    zebracketsfont, zebracketsdefaults, supresses the line from the output.
     * zebracketsdefaults only happens once.
     * zebracketsfont could happen many times but at least once (?).
     '''
-
-    # TODO
-    ## A new copy of params_paragraphs need to be done for each block.
     params_paragraph.filterMode = False
     for line in params_doc_defaults.infile:
         if not params_paragraph.filterMode:
@@ -352,6 +311,8 @@ def zebraParser(args):
     if args.checkargs is False:
         print("Ok, here we go!")
         filterText(params_doc_defaults, params_paragraph)
+        params_doc_defaults.infile.close()
+        params_doc_defaults.outfile.close()
 
 def zebraParserParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
@@ -368,7 +329,7 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
         help='check validity of input arguments')
 
     args = parser.parse_args(inputArguments)
-    print(args.input)
+    print(args.input.name)
     print(args.output)
     print(args.texmfhome)
     print(args.checkargs)
@@ -376,5 +337,3 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
 
 if __name__ == '__main__':
     zebraParserParser()
-#    infile.close()
-#    outfile.close()
