@@ -264,6 +264,7 @@ def endZebrackets(defaults, params):
 
 # TODO: Document
 def filterText(defaults, params):
+#def filterText(doc, paragraph):
     ## No need for any input. These are global.
     '''This method parses the input file and captures all of the zebrackets
     directive, calls the corresponding method, and if necessary
@@ -310,16 +311,12 @@ def filterText(defaults, params):
     ##defaults.buf.close()
 
 
-#def zebraParser(in_file, out_file, texmfHome, checkArgs):
 def zebraParser(args):
-    '''Debating whether I should open the input and output as files in the
-    argparse checking, or just grab the strings and check here if there are
-    actual files. I might have more control of the opening and closing...
+    '''Final checking of the input arguments, checking if the file extensions
+    conform with what is asked, and if the texmfhome is a valid path.
     '''
     params_doc_defaults = Params()
     params_paragraph = Params()
-
-#    global infile, outfile, texmfhome
 
     # Assigning the input file if the input is correct
     in_name = os.path.basename(args.input.name)
@@ -370,8 +367,6 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
     return zebraParser(args)
 
 if __name__ == '__main__':
-#    params_doc_defaults = Params()
-#    params_paragraph = Params()
     zebraParserParser()
-    infile.close()
-    outfile.close()
+#    infile.close()
+#    outfile.close()
