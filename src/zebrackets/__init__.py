@@ -1,2 +1,5 @@
-__all__ = [ "zebraFilter", "zebraFont", "zebraParser", "zebraFontFiles",
+__all__ = [ "zebraFilter",
+            "zebraFont",
+            "zebraParser",
+            "zebraFontFiles",
             "zebraHelp"]

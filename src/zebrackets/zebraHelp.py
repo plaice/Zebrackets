@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# File zebraParser.py
+# File zebraHelp.py
 #
 # Copyright (c) John Plaice and Blanca Mancilla, 2015
 #
