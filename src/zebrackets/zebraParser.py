@@ -18,7 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 '''This module takes as input three arguments: input file, output file and 
 texmfhome directory. 
 It takes into consideration a region of text at a time and the arguments of
