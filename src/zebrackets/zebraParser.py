@@ -2,7 +2,7 @@
 
 # File zebraParser.py
 #
-# Copyright (c) John Plaice, 2015
+# Copyright (c) John Plaice and Blanca Mancilla, 2015
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,10 +34,10 @@ It parses the input file looking for zebrackets directives and handles them:
 2. \zebracketsfont modifies the default zebracket params and orders the
 creation of the corresponding font in the texmfhome directory, if it does
 not exist yet. 
-3. \\begin{zebrackets} and \end{zebrackets} assume that the font has been 
+3. \begin{zebrackets} and \end{zebrackets} assume that the font has been 
 created (should we check and throw an error if not created?), recreated the full
 zebracket params based on default and the arguments given in the
-\\begin{zebrackets} and output something... I think the font to be used in
+\begin{zebrackets} and output something... I think the font to be used in
 this specific tex environment.
 Now to stdout but it should go to a temporary file, the input of zebraFilter. 
 '''
@@ -52,6 +52,7 @@ import sys
 import argparse
 sys.path.append('/home/mancilla/development/Zebrackets/src')
 from zebrackets import zebraFont
+from zebrackets import zebraHelp
 from zebrackets.zebraFilter import zebraFilter
 
 # TODO: Document
@@ -309,45 +310,43 @@ def filterText(defaults, params):
     ##defaults.buf.close()
 
 
-def zebraParser(in_file, out_file, texmfHome, checkArgs):
+#def zebraParser(in_file, out_file, texmfHome, checkArgs):
+def zebraParser(args):
     '''Debating whether I should open the input and output as files in the
     argparse checking, or just grab the strings and check here if there are
     actual files. I might have more control of the opening and closing...
     '''
-    global infile, outfile, texmfhome
-    infile = in_file
-    outfile = out_file
-    print(infile, outfile)
-    in_name = os.path.basename(in_file.name)
+    params_doc_defaults = Params()
+    params_paragraph = Params()
+
+#    global infile, outfile, texmfhome
+
+    # Assigning the input file if the input is correct
+    in_name = os.path.basename(args.input.name)
     in_base, in_ext = os.path.splitext(in_name)
     if in_ext != ".zetex":
-        prt_str = "Invalid input file: zetex extension required."
+        prt_str = "Error: Invalid input file, zetex extension required."
         print(prt_str)
         return prt_str
-    if texmfHome == None:
-        if 'TEXMFHOME' not in os.environ:
-            prt_str = 'TEXMFHOME environment variable is not set.'
-            print(prt_str)
-            return prt_str
-        texmfHome = os.environ['TEXMFHOME']
-    elif not os.path.isdir(texmfHome):
-        prt_str = "Invalid texmf, path is not a directory."
-        print(prt_str)
-        return prt_str
-    texmfhome = texmfHome
-    if out_file == None:
-        out_file_name = in_base + ".tex"
-        outfile = open(out_file_name, 'w')
-    print(infile.name, outfile.name)
+    else:
+        params_doc_defaults.input = args.input
 
-    if checkArgs is False:
+    # If not output file name is given, build it from the input file name.
+    if args.output == None:
+        out_file_name = in_base + ".tex"
+        params_doc_defaults.output = open(out_file_name, 'w')
+    else:
+        params_doc_defaults.output = args.output
+
+    # Looking for a valid TEXMFHOME
+    params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(args.texmfhome)
+    if "Error" in params_doc_defaults.texmfHome:
+        print(params_doc_defaults.texmfHome)
+        return params_doc_defaults.texmfHome
+
+    if args.checkargs is False:
         print("Ok, here we go!")
-#        defaults = Params()
-#        params = copy.copy(defaults)
-#        filterText(defaults, params)
-        ## print(doc_font_defaults)
-        ## print(this_font_params)
-        filterText(doc_font_defaults, this_font_params)
+        filterText(params_doc_defaults, params_paragraph)
 
 def zebraParserParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
@@ -359,23 +358,20 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--output', '-o', type=argparse.FileType('w'), 
         help='output file name with extention .tex')
     parser.add_argument('--texmfhome', '-t', 
-        help='substitute for variable TEXMFHOME')
+        help='substitute for environment variable TEXMFHOME')
     parser.add_argument('--checkargs', '-c', action='store_true',
         help='check validity of input arguments')
 
     args = parser.parse_args(inputArguments)
-    return zebraParser(args.input, args.output, args.texmfhome, args.checkargs)
+    print(args.input)
+    print(args.output)
+    print(args.texmfhome)
+    print(args.checkargs)
+    return zebraParser(args)
 
 if __name__ == '__main__':
+#    params_doc_defaults = Params()
+#    params_paragraph = Params()
     zebraParserParser()
     infile.close()
     outfile.close()
-
-
-#    if 'TEXMFHOME' not in os.environ:
-#       sys.exit('TEXMFHOME environment variable is not set')
-#    texmfHome = os.environ['TEXMFHOME']
-#    scriptHome = texmfHome + '/scripts/zetex/python'
-
-    
-    # Need to close both input and output files

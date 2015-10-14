@@ -4,7 +4,9 @@
 import unittest
 import sys
 
+## TODO:  Paths need to adjust to the testing environment.
 sys.path.append('/home/mancilla/development/Zebrackets/src')
+sys.path.append('/home/mancilla/development/Zebrackets/src/zebrackets')
 
 from zebrackets import *
 
@@ -45,7 +47,7 @@ class TestZebraParser(unittest.TestCase):
         begin_test("test_zebraparser_cmd1")
         self.assertEqual(
             zebraParser.zebraParserParser(full_cmd_1), 
-            'Invalid input file: zetex extension required.')
+            'Error: Invalid input file, zetex extension required.')
 
     ## Checking the argparse parametrization, checking for file extensions
     def test_zebraparser_cmd2(self):
@@ -59,13 +61,13 @@ class TestZebraParser(unittest.TestCase):
         begin_test("test_zebraparser_cmd3")
         self.assertEqual(
             zebraParser.zebraParserParser(full_cmd_3),
-            "Invalid texmf, path is not a directory.")
+            "Error: Invalid texmf, path is not a directory.")
 
     def test_zebraparser_cmd4(self):
         begin_test("test_zebraparser_cmd4")
         self.assertEqual(
             zebraParser.zebraParserParser(full_cmd_4),
-            "TEXMFHOME environment variable is not set.")
+            "Error: TEXMFHOME environment variable is not set.")
 
     def test_zebraparser_cmd5(self):
         begin_test("test_zebraparser_cmd5")
