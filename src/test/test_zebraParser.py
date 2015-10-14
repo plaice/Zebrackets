@@ -5,8 +5,10 @@ import unittest
 import sys
 
 ## TODO:  Paths need to adjust to the testing environment.
-sys.path.append('/home/mancilla/development/Zebrackets/src')
-sys.path.append('/home/mancilla/development/Zebrackets/src/zebrackets')
+#sys.path.append('/home/mancilla/development/Zebrackets/src')
+sys.path.append('../')
+#sys.path.append('/home/mancilla/development/Zebrackets/src/zebrackets')
+sys.path.append('../zebrackets')
 
 from zebrackets import *
 
