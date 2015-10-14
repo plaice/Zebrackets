@@ -70,6 +70,8 @@ class Params:
         self.mag = ''
         self.filterMode = False
 
+'''
+'''
 doc_font_defaults = {
     'style': '',
     'numerator': '',
@@ -86,92 +88,91 @@ doc_font_defaults = {
 ## TODO: ask question
 ## Should the copy of doc_font_defaulst be done after running setDefaults?
 ## or rather, before each new parsing of fonts, should there be a copy made?
-this_font_params = copy.copy(doc_font_defaults)
 
 
 # TODO: Document
-def setDefaults(defaults, params, args):
+def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     ## No need for inputs except args. Others are global.
     '''This method sets the zebrackets default arguments for the entire
     document, based in the '\zebracketsdefaults' directive in the input file.
     Each subsequent occurrence of '\zebracketsFont' will modify the defaults
     to create a new font (in another method). 
     '''
-    m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
+    m = re.search(r'sty\w*=([bfh])\w*[,\]]', doc_args)
     if m:
-        doc_font_defaults['style'] = m.group(1)
-    m = re.search(r'num\w*=([-]?\d+)[,\]]', args)
+        params_doc_defaults.style = m.group(1)
+    m = re.search(r'num\w*=([-]?\d+)[,\]]', doc_args)
     if m:
-        doc_font_defaults['numerator'] = m.group(1)
-    m = re.search(r'den\w*=([-]?\d+)[,\]]', args)
+        params_doc_defaults.numerator = m.group(1)
+    m = re.search(r'den\w*=([-]?\d+)[,\]]', doc_args)
     if m:
-        doc_font_defaults['denominator'] = m.group(1)
-    m = re.search(r'enc\w*=(\w+)[,\]]', args)
+        params_doc_defaults.denominator = m.group(1)
+    m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
     if m:
-        doc_font_defaults['encoding'] = m.group(1)
-    m = re.search(r'siz\w*=(\d+)[,\]]', args)
+        params_doc_defaults.encoding = m.group(1)
+    m = re.search(r'siz\w*=(\d+)[,\]]', doc_args)
     if m:
-        doc_font_defaults['size'] = m.group(1)
-    m = re.search(r'fam\w*=(\w+)[,\]]', args)
+        params_doc_defaults.size = m.group(1)
+    m = re.search(r'fam\w*=(\w+)[,\]]', doc_args)
     if m:
-        doc_font_defaults['family'] = m.group(1)
-    m = re.search(r'str\w*=(\d+)[,\]]', args)
+        params_doc_defaults.family = m.group(1)
+    m = re.search(r'str\w*=(\d+)[,\]]', doc_args)
     if m:
-        doc_font_defaults['stripes'] = m.group(1)
-    m = re.search(r'typ\w*=([bp])\w+[,\]]', args)
+        params_doc_defaults.stripes = m.group(1)
+    m = re.search(r'typ\w*=([bp])\w+[,\]]', doc_args)
     if m:
-        doc_font_defaults['kind'] = m.group(1)
-    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', args)
+        params_doc_defaults.kind = m.group(1)
+    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', doc_args)
     if m:
-        doc_font_defaults['mag'] = m.group(1)
-    m = re.search(r'ind\w*=([bdu])\w*[,\]]', args)
+        params_doc_defaults.mag = m.group(1)
+    m = re.search(r'ind\w*=([bdu])\w*[,\]]', doc_args)
     if m:
-        doc_font_defaults['index'] = m.group(1)
-        if (doc_font_defaults['index'] == 'b'):
-            doc_font_defaults['index'] = -3
-        elif (doc_font_defaults['index'] == 'd'):
-            doc_font_defaults['index'] = -2
+        params_doc_defaults.index = m.group(1)
+        if (params_doc_defaults.index == 'b'):
+            params_doc_defaults.index = -3
+        elif (params_doc_defaults.index == 'd'):
+            params_doc_defaults.index = -2
         else:
-            doc_font_defaults['index'] = -1
+            params_doc_defaults.index = -1
 
 
 # TODO: Document
-def declareFont(defaults, params, args):
+def declareFont(params_doc_defaults, params_paragraph, font_args):
     ## No need for inputs except args. Others are global.
     '''This method is called everytime the directive '\zebracketsfont'
     is found in the input .zetex file. After the parsing of the values,
     the zebraFont module is called to create the corresponsing font file. 
     '''
-    m = re.search(r'typ\w*=([bp])\w*[,\]]', args)
+    m = re.search(r'typ\w*=([bp])\w*[,\]]', font_args)
     if m:
         kind = m.group(1)
     else:
-        kind = defaults.kind
-    m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
+        kind = params_doc_defaults.kind
+    m = re.search(r'sty\w*=([bfh])\w*[,\]]', font_args)
     if m:
         style = m.group(1)
     else:
-        style = defaults.style
-    m = re.search(r'str\w*=(\d+)[,\]]', args)
+        style = params_doc_defaults.style
+    m = re.search(r'str\w*=(\d+)[,\]]', font_args)
     if m:
         stripes = m.group(1)
     else:
-        stripes = defaults.stripes
-    m = re.search(r'siz\w*=(\d+)[,\]]', args)
+        stripes = params_doc_defaults.stripes
+    m = re.search(r'siz\w*=(\d+)[,\]]', font_args)
     if m:
         size = m.group(1)
     else:
-        size = defaults.size
-    m = re.search(r'fam\w*=(\w+)[,\]]', args)
+        size = params_doc_defaults.size
+    m = re.search(r'fam\w*=(\w+)[,\]]', font_args)
     if m:
         family = m.group(1)
     else:
-        family = defaults.family
-    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', args)
+        family = params_doc_defaults.family
+    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', font_args)
     if m:
         mag = math.sqrt(float(m.group(1)))
-    elif (doc_font_defaults['mag'] != ''):
-        mag = math.sqrt(float(doc_font_defaults['mag']))
+    elif (params_doc_defaults.mag != ''):
+        mag = math.sqrt(float(params_doc_defaults.mag))
     else:
         mag = 1.0
 
@@ -182,132 +183,139 @@ def declareFont(defaults, params, args):
         family,
         int(size),
         float(mag),
-        texmfhome,
+        params_doc_defaults.texmfHome,
         False)
 
 # TODO: Document
-def beginZebrackets(defaults, params, args):
-    ## defaults and params not needed they are global variables.
-    '''This method parses the arguments to \\begin{zebrabrackets}
+def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
+    '''This method parses the arguments to \begin{zebrabrackets}
     '''
-    global this_font_params
-    this_font_params = copy.copy(doc_font_defaults)
-    this_font_params['buf'] = io.StringIO()
+    print(params_paragraph)
+#    params_paragraph = copy.copy(params_doc_defaults)
+## Problematic as this will keep values from previous paragraphs instead
+## of defaults
+    params_paragraph.buf = io.StringIO()
+    params_paragraph.filterMode = True
+    print(params_paragraph)
 
-    this_font_params['filterMode'] = True
-    m = re.search(r'sty\w*=([bfh])\w*[,\]]', args)
+    m = re.search(r'sty\w*=([bfh])\w*[,\]]', par_args)
     if m:
-        this_font_params['style'] = m.group(1)
-    m = re.search(r'ind\w*=([bdu])\w*[,\]]', args)
-    if m:
-        this_font_params['index'] = m.group(1)
-        if this_font_params['index'] == 'b':
-            this_font_params['index'] = -3
-        elif this_font_params['index'] == 'd':
-            this_font_params['index'] = -2
-        else:
-            this_font_params['index'] = -1
-    m = re.search(r'num\w*=([-]?\d+)[,\]]', args)
-    if m:
-        this_font_params['numerator'] = m.group(1)
-    m = re.search(r'den\w*=([-]?\d+)[,\]]', args)
-    if m:
-        this_font_params['denominator'] = m.group(1)
-    m = re.search(r'enc\w*=(\w+)[,\]]', args)
-    if m:
-       this_font_params['encoding'] = m.group(1)
-    m = re.search(r'siz\w*=(\d+)[,\]]', args)
-    if m:
-       this_font_params['size'] = m.group(1)
-    m = re.search(r'fam\w*=(\w+)[,\]]', args)
-    if m:
-        this_font_params['family'] = m.group(1)
-    m = re.search(r'mag\w*=(\w+)[,\]]', args)
-    if m:
-        this_font_params['mag'] = m.group(1)
-    elif this_font_params['mag'] == '':
-        this_font_params['mag'] = 1.0
+        params_paragraph.style = m.group(1)
     else:
-        this_font_params['mag'] = defaults.mag
-    if this_font_params['numerator'] == '':
-        this_font_params['numerator'] = this_font_params['index']
-    if this_font_params['denominator'] == '':
-        this_font_params['denominator'] = -1
+        params_paragraph.style = params_doc_defaults.style
+    m = re.search(r'ind\w*=([bdu])\w*[,\]]', par_args)
+    if m:
+        params_paragraph.index = m.group(1)
+        if params_paragraph.index == 'b':
+            params_paragraph.index = -3
+        elif params_paragraph.index == 'd':
+            params_paragraph.index = -2
+        else:
+            params_paragraph.index = -1
+    else:
+        params_paragraph.index = params_doc_defaults.index
+    m = re.search(r'num\w*=([-]?\d+)[,\]]', par_args)
+    if m:
+        params_paragraph.numerator = m.group(1)
+    else:
+        params_paragraph.numerator = params_doc_defaults.numerator
+    m = re.search(r'den\w*=([-]?\d+)[,\]]', par_args)
+    if m:
+        params_paragraph.denominator = m.group(1)
+    else:
+        params_paragraph.denominator = params_doc_defaults.denominator
+    m = re.search(r'enc\w*=(\w+)[,\]]', par_args)
+    if m:
+       params_paragraph.encoding = m.group(1)
+    else:
+        params_paragraph.encoding = params_doc_defaults.encoding
+    m = re.search(r'siz\w*=(\d+)[,\]]', par_args)
+    if m:
+       params_paragraph.size = m.group(1)
+    else:
+        params_paragraph.size = params_doc_defaults.size
+    m = re.search(r'fam\w*=(\w+)[,\]]', par_args)
+    if m:
+        params_paragraph.family = m.group(1)
+    else:
+        params_paragraph.family = params_doc_defaults.family
+    m = re.search(r'mag\w*=(\w+)[,\]]', par_args)
+    if m:
+        params_paragraph.mag = m.group(1)
+    elif params_paragraph.mag == '':
+        params_paragraph.mag = 1.0
+    else:
+        params_paragraph.mag = params_doc_defaults.mag
+    if params_paragraph.numerator == '':
+        params_paragraph.numerator = params_paragraph.index
+    if params_paragraph.denominator == '':
+        params_paragraph.denominator = -1
+
 
 # TODO: Document
-# TODO: How do we pass the input to this program?
-def endZebrackets(defaults, params):
-    ## defaults and params not needed they are global variables.
-    global this_font_params
+def endZebrackets(params_doc_defaults, params_paragraph):
     
-    string_tofilter = this_font_params['buf'].getvalue()
-    this_font_params['buf'].close()
+    string_tofilter = params_paragraph.buf.getvalue()
+    params_paragraph.buf.close()
 
     string_filtered = zebraFilter(
-        this_font_params['style'],
-        this_font_params['encoding'][0],
-        this_font_params['family'],
-        int(this_font_params['size']),
-        int(this_font_params['numerator']),
-        int(this_font_params['denominator']),
-        texmfhome,
+        params_paragraph.style,
+        params_paragraph.encoding[0],
+        params_paragraph.family,
+        int(params_paragraph.size),
+        int(params_paragraph.numerator),
+        int(params_paragraph.denominator),
+        params_doc_defaults.texmfHome,
         string_tofilter,
         )
     ## Here we can check if the string_filtered contains an error message.
     ## If so, write to the log file and exit graciously.
     print(string_filtered)
-    this_font_params['filterMode'] = False
-    outfile.write(string_filtered)
+    params_paragraph.filterMode = False
+    params_doc_defaults.outfile.write(string_filtered)
 
-#    defaults.buf.write(proc.stdout.read())
-#    params.buf.close()
 
-# TODO: Document
-def filterText(defaults, params):
-#def filterText(doc, paragraph):
-    ## No need for any input. These are global.
+def filterText(params_doc_defaults, params_paragraph):
     '''This method parses the input file and captures all of the zebrackets
-    directive, calls the corresponding method, and if necessary
-    (zebracketsfont, zebracketsdefaults) supresses the line from the output.
-    zebracketsdefaults only happens once.
-    zebracketsfont could happen many times but at least once (?).
+    directive, calls the corresponding method, and if necessary (for
+    zebracketsfont, zebracketsdefaults) supresses the line from the output.
+    * zebracketsdefaults only happens once.
+    * zebracketsfont could happen many times but at least once (?).
     '''
 
-#    defaults.buf = io.StringIO() # this is now outfile
-    this_font_params['filterMode'] = False
-    for line in infile:
-        if not this_font_params['filterMode']:
+    # TODO
+    ## A new copy of params_paragraphs need to be done for each block.
+    params_paragraph.filterMode = False
+    for line in params_doc_defaults.infile:
+        if not params_paragraph.filterMode:
             m = re.search(r'^\\zebracketsdefaults(\[.*\])', line)
             if m:
                 print("Going to setDefaults")
-                setDefaults(defaults, params, m.group(1))
+                setDefaults(params_doc_defaults, params_paragraph, m.group(1))
                 continue
             m = re.search(r'^\\zebracketsfont(\[.*\])', line)
             if m:
                 print("Going to declareFonts")
-                declareFont(defaults, params, m.group(1))
+                declareFont(params_doc_defaults, params_paragraph, m.group(1))
                 continue
             m = re.search(r'^\\begin{zebrackets}(\[.*])', line)
             if m:
                 print("Going to beginZebrackets")
-                beginZebrackets(defaults, params, m.group(1))
+                beginZebrackets(params_doc_defaults, params_paragraph, m.group(1))
                 continue
             # Process a normal line
-            ##defaults.buf.write(line)
-            outfile.write(line)
+            params_doc_defaults.outfile.write(line)
         else:
             m = re.search(r'^\\end{zebrackets}', line)
             if m:
                 print("Going to endZebrackets")
-                endZebrackets(defaults, params)
+                endZebrackets(params_doc_defaults, params_paragraph)
                 continue
             # Process a normal line
-            ##params.buf.write(line)
-            this_font_params['buf'].write(line)
-    # No need for this one as the buffer was eliminated and now all we have is
-    # writing directly to the output file. 
-    ##print(defaults.buf.getvalue(), end='')
-    # I moved this to be done at the main method.
+            params_paragraph.buf.write(line)
+
+    #params_paragraph.buf.close()
+    #Not sure this is the correct place...
     ##defaults.buf.close()
 
 
@@ -326,14 +334,14 @@ def zebraParser(args):
         print(prt_str)
         return prt_str
     else:
-        params_doc_defaults.input = args.input
+        params_doc_defaults.infile = args.input
 
     # If not output file name is given, build it from the input file name.
     if args.output == None:
         out_file_name = in_base + ".tex"
-        params_doc_defaults.output = open(out_file_name, 'w')
+        params_doc_defaults.outfile = open(out_file_name, 'w')
     else:
-        params_doc_defaults.output = args.output
+        params_doc_defaults.outfile = args.output
 
     # Looking for a valid TEXMFHOME
     params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(args.texmfhome)
