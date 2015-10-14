@@ -30,8 +30,10 @@ import subprocess
 import shutil
 import sys
 import zebraFontFiles
+import zebraHelp
 
 
+'''
 validTypes = ['b', 'p']
 validStyles = ['b', 'f', 'h']
 validStripes = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -60,6 +62,7 @@ validFontPairs = {
     'cmtt':   [8, 9, 10, 12],
     'cmttb':  [10],
     'cmvtt':  [10] }
+'''
 
 class ArgError(Exception):
     def __init__(self, value):
@@ -71,22 +74,22 @@ class Parameters:
     def __init__(self, btype, style, stripes, fontFamily,
             fontSize, mag, texmfHome, checkArgs):
 
-        if btype not in validTypes:
+        if btype not in zebraHelp.validTypes:
             raise ArgError('Invalid type')
-        if style not in validStyles:
+        if style not in zebraHelp.validStyles:
             raise ArgError('Invalid style')
-        if stripes not in validStripes:
+        if stripes not in zebraHelp.validStripes:
             raise ArgError('Invalid number of stripes')
-        if fontFamily not in validFontFamilies:
+        if fontFamily not in zebraHelp.validFontFamilies:
             raise ArgError('Invalid Computer Modern font family')
-        if fontSize not in validFontSizes:
+        if fontSize not in zebraHelp.validFontSizes:
             raise ArgError('Invalid font size')
-        if fontSize not in validFontPairs[fontFamily]:
+        if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise ArgError('Invalid font family-size pair')
-        if texmfHome is None:
-            if 'TEXMFHOME' not in os.environ:
-                raise ArgError('TEXMFHOME environment variable is not set')
-            texmfHome = os.environ['TEXMFHOME']
+#        if texmfHome is None:
+#            if 'TEXMFHOME' not in os.environ:
+#                raise ArgError('TEXMFHOME environment variable is not set')
+#            texmfHome = os.environ['TEXMFHOME']
 
         self.btype = btype
         self.style = style
@@ -95,7 +98,7 @@ class Parameters:
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.mag = mag
-        self.texmfHome = texmfHome
+        self.texmfHome = zebraHelp.check_texmfhome(texmfHome)
         self.checkArgs = checkArgs
 
 def callAndLog(args, log):
@@ -110,7 +113,7 @@ def callAndLog(args, log):
 
 def createMFcontent(btype, style, stripes, sourceFont):
     '''This method creates the header of the font file and returns it as a
-    string. John to verify truth of statement. 
+    string. John to verify truth of statement.
     '''
     styledict = { 'b' : '0', 'f' : '1',  'h' : '2' }
     textFormat = '''% Copied from rtest on p.311 of the MetaFont book.
@@ -230,17 +233,6 @@ def createMFfiles(params):
 
 def zebraFont(btype, style, stripes, fontFamily,
               fontSize, mag, texmfHome, checkArgs):
-    if texmfHome == None:
-        if 'TEXMFHOME' not in os.environ:
-            prt_str = 'TEXMFHOME environment variable is not set.'
-            print(prt_str)
-            return prt_str
-        texmfHome = os.environ['TEXMFHOME']
-    elif not os.path.isdir(texmfHome):
-        prt_str = "Invalid texmf, path is not a directory."
-        print(prt_str)
-        return prt_str
-
 
     try:
         parameters = Parameters(btype, style, stripes, fontFamily,
@@ -256,18 +248,18 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
         description='Build a zebrackets font.',
         epilog="This module is part of the zebrackets package.")
-    parser.add_argument('--type', type=str, choices=validTypes,
+    parser.add_argument('--type', type=str, choices=zebraHelp.validTypes,
         required=True, help='b = bracket, p = parenthesis')
-    parser.add_argument('--style', type=str, choices=validStyles,
+    parser.add_argument('--style', type=str, choices=zebraHelp.validStyles,
         required=True, help='b = background, f = foreground, h=hybrid')
     parser.add_argument('--stripes', type=int,
-        required=True, choices=validStripes,
+        required=True, choices=zebraHelp.validStripes,
         help='number of stripes in brackets')
     parser.add_argument('--family', type=str,
-        choices=validFontFamilies,
+        choices=zebraHelp.validFontFamilies,
         required=True, help='font family')
     parser.add_argument('--size', type=int,
-        choices=validFontSizes,
+        choices=zebraHelp.validFontSizes,
         required=True, help='font size')
     parser.add_argument('--mag', type=float,
         default=1.0, help='magnification')

@@ -302,8 +302,9 @@ def zebraParser(args):
         params_doc_defaults.outfile = args.output
 
     # Looking for a valid TEXMFHOME
-    params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(args.texmfhome)
-    if "Error" in params_doc_defaults.texmfHome:
+    try:
+        params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(args.texmfhome)
+    except:
         print(params_doc_defaults.texmfHome)
         return params_doc_defaults.texmfHome
 

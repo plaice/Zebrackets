@@ -23,19 +23,53 @@ in zebrackets.
 
 import os
 
+validTypes = ['b', 'p']
+validStyles = ['b', 'f', 'h']
+validStripes = [0, 1, 2, 3, 4, 5, 6, 7]
+validFontFamilies = [
+    'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff',
+    'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx',
+    'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
+validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
+validFontPairs = {
+    'cmb':    [10],
+    'cmbtt':  [8, 9, 10],
+    'cmbx':   [5, 6, 7, 8, 9, 10, 12],
+    'cmbxsl': [10],
+    'cmdunh': [10],
+    'cmff':   [10],
+    'cmfib':  [8],
+    'cmr':    [5, 6, 7, 8, 9, 10, 12, 17],
+    'cmsl':   [8, 9, 10, 12],
+    'cmsltt': [10],
+    'cmss':   [8, 9, 10, 12, 17],
+    'cmssbx': [10],
+    'cmssdc': [10],
+    'cmssi':  [8, 9, 10, 12, 17],
+    'cmssq':  [8],
+    'cmssqi': [8],
+    'cmtt':   [8, 9, 10, 12],
+    'cmttb':  [10],
+    'cmvtt':  [10] 
+}
+
+
 def check_texmfhome(texmfHome):
     if texmfHome == None:
         if 'TEXMFHOME' not in os.environ:
             prt_str = 'Error: TEXMFHOME environment variable is not set.'
-            return prt_str
+            raise ArgError(prt_str)
         texmfHome = os.environ['TEXMFHOME']
     elif not os.path.isdir(texmfHome):
         prt_str = "Error: Invalid texmf, path is not a directory."
-        return prt_str
+        raise ArgError(prt_str)
     return texmfHome
 
-
-
+class ArgError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 
 
