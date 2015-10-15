@@ -77,6 +77,20 @@ def check_size(params, block_args):
     if m:
         params.size = int(m.group(1))
 
+def check_family(params, block_args):
+    m = re.search(r'fam\w*=(\w+)[,\]]', block_args)
+    if m:
+        if m.group(1) not in validFontFamilies:
+            raise ArgError("Error: " + m.group(1) + "not a valid font family.")
+        else:
+            params.family = m.group(1)
+
+def check_stripes(params, block_args):
+    m = re.search(r'str\w*=(\d+)[,\]]', block_args)
+    if m:
+        params.stripes = int(m.group(1))
+
+
 
 
 

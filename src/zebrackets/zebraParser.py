@@ -78,17 +78,14 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     if m:
         params_doc_defaults.encoding = m.group(1)
 
-#    m = re.search(r'siz\w*=(\d+)[,\]]', doc_args)
+#    m = re.search(r'str\w*=(\d+)[,\]]', doc_args)
 #    if m:
-#        params_doc_defaults.size = m.group(1)
-    zebraHelp.check_size(params_doc_defaults, doc_args)
+#        params_doc_defaults.stripes = m.group(1)
 
-    m = re.search(r'fam\w*=(\w+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.family = m.group(1)
-    m = re.search(r'str\w*=(\d+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.stripes = m.group(1)
+    zebraHelp.check_stripes(params_doc_defaults, doc_args)
+    zebraHelp.check_size(params_doc_defaults, doc_args)
+    zebraHelp.check_family(params_doc_defaults, doc_args)
+
     m = re.search(r'typ\w*=([bp])\w+[,\]]', doc_args)
     if m:
         params_doc_defaults.kind = m.group(1)
@@ -123,25 +120,18 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
         style = m.group(1)
     else:
         style = params_doc_defaults.style
-    m = re.search(r'str\w*=(\d+)[,\]]', font_args)
-    if m:
-        stripes = m.group(1)
-    else:
-        stripes = params_doc_defaults.stripes
 
-#    m = re.search(r'siz\w*=(\d+)[,\]]', font_args)
+#    m = re.search(r'str\w*=(\d+)[,\]]', font_args)
 #    if m:
-#        size = m.group(1)
+#        stripes = m.group(1)
 #    else:
-#        size = params_doc_defaults.size
+#        stripes = params_doc_defaults.stripes
+
+    zebraHelp.check_stripes(params_font, font_args)
     zebraHelp.check_size(params_font, font_args)
+    zebraHelp.check_family(params_font, font_args)
     
 
-    m = re.search(r'fam\w*=(\w+)[,\]]', font_args)
-    if m:
-        family = m.group(1)
-    else:
-        family = params_doc_defaults.family
     m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', font_args)
     if m:
         mag = math.sqrt(float(m.group(1)))
@@ -153,9 +143,8 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     zebraFont.zebraFont(
         kind,
         style,
-        int(stripes),
-        family,
-#        int(size),
+        params_font.stripes,
+        params_font.family,
         params_font.size,
         float(mag),
         params_doc_defaults.texmfHome,
@@ -200,19 +189,9 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     else:
         params_paragraph.encoding = params_doc_defaults.encoding
 
-#    m = re.search(r'siz\w*=(\d+)[,\]]', par_args)
-#    if m:
-#       params_paragraph.size = m.group(1)
-#    else:
-#        params_paragraph.size = params_doc_defaults.size
-    
+    zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
 
-    m = re.search(r'fam\w*=(\w+)[,\]]', par_args)
-    if m:
-        params_paragraph.family = m.group(1)
-    else:
-        params_paragraph.family = params_doc_defaults.family
     m = re.search(r'mag\w*=(\w+)[,\]]', par_args)
     if m:
         params_paragraph.mag = m.group(1)
