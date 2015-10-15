@@ -17,11 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-'''This module contains all of the helper methods and functions used 
+'''This module contains all of the helper methods and functions used
 in zebrackets.
 '''
 
 import os
+import re
 
 validTypes = ['b', 'p']
 validStyles = ['b', 'f', 'h']
@@ -50,9 +51,15 @@ validFontPairs = {
     'cmssqi': [8],
     'cmtt':   [8, 9, 10, 12],
     'cmttb':  [10],
-    'cmvtt':  [10] 
+    'cmvtt':  [10],
 }
 
+
+class ArgError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 def check_texmfhome(texmfHome):
     if texmfHome == None:
@@ -65,12 +72,10 @@ def check_texmfhome(texmfHome):
         raise ArgError(prt_str)
     return texmfHome
 
-class ArgError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
+def check_size(params, block_args):
+    m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
+    if m:
+        params.size = int(m.group(1))
 
 
 

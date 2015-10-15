@@ -36,6 +36,7 @@ with zebrackets.
 
 import io
 import math
+import copy
 import os
 import re
 import sys
@@ -76,9 +77,12 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
     if m:
         params_doc_defaults.encoding = m.group(1)
-    m = re.search(r'siz\w*=(\d+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.size = m.group(1)
+
+#    m = re.search(r'siz\w*=(\d+)[,\]]', doc_args)
+#    if m:
+#        params_doc_defaults.size = m.group(1)
+    zebraHelp.check_size(params_doc_defaults, doc_args)
+
     m = re.search(r'fam\w*=(\w+)[,\]]', doc_args)
     if m:
         params_doc_defaults.family = m.group(1)
@@ -107,6 +111,8 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     is found in the input .zetex file. After the parsing of the values,
     the zebraFont module is called to create the corresponsing font file. 
     '''
+    params_font = copy.copy(params_doc_defaults)
+
     m = re.search(r'typ\w*=([bp])\w*[,\]]', font_args)
     if m:
         kind = m.group(1)
@@ -122,11 +128,15 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
         stripes = m.group(1)
     else:
         stripes = params_doc_defaults.stripes
-    m = re.search(r'siz\w*=(\d+)[,\]]', font_args)
-    if m:
-        size = m.group(1)
-    else:
-        size = params_doc_defaults.size
+
+#    m = re.search(r'siz\w*=(\d+)[,\]]', font_args)
+#    if m:
+#        size = m.group(1)
+#    else:
+#        size = params_doc_defaults.size
+    zebraHelp.check_size(params_font, font_args)
+    
+
     m = re.search(r'fam\w*=(\w+)[,\]]', font_args)
     if m:
         family = m.group(1)
@@ -145,17 +155,18 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
         style,
         int(stripes),
         family,
-        int(size),
+#        int(size),
+        params_font.size,
         float(mag),
         params_doc_defaults.texmfHome,
         False)
 
 def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     '''This method parses the arguments in \begin{zebrabrackets}
-    and modifies the the params_paragraph accordingly.
+    and modifies the params_paragraph accordingly.
     '''
     params_paragraph.buf = io.StringIO()
-    params_paragraph.filterMode = True
+    params_doc_defaults.filterMode = True
 
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', par_args)
     if m:
@@ -188,11 +199,15 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
        params_paragraph.encoding = m.group(1)
     else:
         params_paragraph.encoding = params_doc_defaults.encoding
-    m = re.search(r'siz\w*=(\d+)[,\]]', par_args)
-    if m:
-       params_paragraph.size = m.group(1)
-    else:
-        params_paragraph.size = params_doc_defaults.size
+
+#    m = re.search(r'siz\w*=(\d+)[,\]]', par_args)
+#    if m:
+#       params_paragraph.size = m.group(1)
+#    else:
+#        params_paragraph.size = params_doc_defaults.size
+    
+    zebraHelp.check_size(params_paragraph, par_args)
+
     m = re.search(r'fam\w*=(\w+)[,\]]', par_args)
     if m:
         params_paragraph.family = m.group(1)
@@ -232,7 +247,7 @@ def endZebrackets(params_doc_defaults, params_paragraph):
     ## Here we can check if the string_filtered contains an error message.
     ## If so, write to the log file and exit graciously.
     print(string_filtered)
-    params_paragraph.filterMode = False
+    params_doc_defaults.filterMode = False
     params_doc_defaults.outfile.write(string_filtered)
 
 
@@ -243,9 +258,9 @@ def filterText(params_doc_defaults, params_paragraph):
     * zebracketsdefaults only happens once.
     * zebracketsfont could happen many times but at least once (?).
     '''
-    params_paragraph.filterMode = False
+    params_doc_defaults.filterMode = False
     for line in params_doc_defaults.infile:
-        if not params_paragraph.filterMode:
+        if not params_doc_defaults.filterMode:
             m = re.search(r'^\\zebracketsdefaults(\[.*\])', line)
             if m:
                 print("Going to setDefaults")
@@ -259,6 +274,7 @@ def filterText(params_doc_defaults, params_paragraph):
             m = re.search(r'^\\begin{zebrackets}(\[.*])', line)
             if m:
                 print("Going to beginZebrackets")
+                params_paragraph = copy.copy(params_doc_defaults)
                 beginZebrackets(params_doc_defaults, params_paragraph, m.group(1))
                 continue
             # Process a normal line
@@ -271,10 +287,6 @@ def filterText(params_doc_defaults, params_paragraph):
                 continue
             # Process a normal line
             params_paragraph.buf.write(line)
-
-    #params_paragraph.buf.close()
-    #Not sure this is the correct place...
-    ##defaults.buf.close()
 
 
 def zebraParser(args):
