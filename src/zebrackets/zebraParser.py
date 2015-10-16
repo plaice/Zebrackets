@@ -47,17 +47,21 @@ from zebrackets import zebraHelp
 from zebrackets.zebraFilter import zebraFilter
 
 class Params:
+    '''This init method should have a set of defaults. 
+    '''
     def __init__(self):
+        self.kind = ''
         self.style = ''
+        self.stripes = ''
+        self.family = ''
+        self.size = ''
+        self.mag = ''
+
         self.numerator = ''
         self.denominator = ''
         self.encoding = ''
-        self.size = ''
-        self.family = ''
-        self.kind = ''
-        self.stripes = ''
         self.index = ''
-        self.mag = ''
+
         self.filterMode = False
 
 def setDefaults(params_doc_defaults, params_paragraph, doc_args):
@@ -75,19 +79,18 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     if m:
         params_doc_defaults.encoding = m.group(1)
 
-#    m = re.search(r'typ\w*=([bp])\w+[,\]]', doc_args)
-#    if m:
-#        params_doc_defaults.kind = m.group(1)
-
-    zebraHelp.check_kindd(params_doc_defaults, doc_args)
+    zebraHelp.check_kind(params_doc_defaults, doc_args)
     zebraHelp.check_style(params_doc_defaults, doc_args)
     zebraHelp.check_stripes(params_doc_defaults, doc_args)
-    zebraHelp.check_size(params_doc_defaults, doc_args)
     zebraHelp.check_family(params_doc_defaults, doc_args)
+    zebraHelp.check_size(params_doc_defaults, doc_args)
 
+    ## This definition is different from the one given in declareFont
+    ## Discuss with John to choose the correct one.
     m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', doc_args)
     if m:
         params_doc_defaults.mag = m.group(1)
+
     m = re.search(r'ind\w*=([bdu])\w*[,\]]', doc_args)
     if m:
         params_doc_defaults.index = m.group(1)
@@ -106,35 +109,28 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     '''
     params_font = copy.copy(params_doc_defaults)
 
-#    m = re.search(r'typ\w*=([bp])\w*[,\]]', font_args)
-#    if m:
-#        kind = m.group(1)
-#    else:
-#        kind = params_doc_defaults.kind
-
-    zebraHelp.check_kindd(params_font, font_args)
+    zebraHelp.check_kind(params_font, font_args)
     zebraHelp.check_style(params_font, font_args)
     zebraHelp.check_stripes(params_font, font_args)
-    zebraHelp.check_size(params_font, font_args)
     zebraHelp.check_family(params_font, font_args)
+    zebraHelp.check_size(params_font, font_args)
+    zebraHelp.check_mag(params_font, params_doc_defaults, font_args)
     
-
-    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', font_args)
-    if m:
-        mag = math.sqrt(float(m.group(1)))
-    elif (params_doc_defaults.mag != ''):
-        mag = math.sqrt(float(params_doc_defaults.mag))
-    else:
-        mag = 1.0
+#    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', font_args)
+#    if m:
+#        mag = math.sqrt(float(m.group(1)))
+#    elif (params_doc_defaults.mag != ''):
+#        mag = math.sqrt(float(params_doc_defaults.mag))
+#    else:
+#        mag = 1.0
 
     zebraFont.zebraFont(
         params_font.kind,
-#        kind,
         params_font.style,
         params_font.stripes,
         params_font.family,
         params_font.size,
-        float(mag),
+        params_font.mag,
         params_doc_defaults.texmfHome,
         False)
 
@@ -176,6 +172,8 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
 
+    ## This definition is different from the one given in declareFont
+    ## Discuss with John to choose the correct one.
     m = re.search(r'mag\w*=(\w+)[,\]]', par_args)
     if m:
         params_paragraph.mag = m.group(1)
@@ -183,6 +181,7 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
         params_paragraph.mag = 1.0
     else:
         params_paragraph.mag = params_doc_defaults.mag
+
     if params_paragraph.numerator == '':
         params_paragraph.numerator = params_paragraph.index
     if params_paragraph.denominator == '':

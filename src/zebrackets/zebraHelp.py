@@ -23,6 +23,7 @@ in zebrackets.
 
 import os
 import re
+import math
 
 validTypes = ['b', 'p']
 validStyles = ['b', 'f', 'h']
@@ -72,7 +73,7 @@ def check_texmfhome(texmfHome):
         raise ArgError(prt_str)
     return texmfHome
 
-def check_kindd(params, block_args):
+def check_kind(params, block_args):
     m = re.search(r'typ\w*=([bp])\w*[,\]]', block_args)
     if m:
         params.kind = m.group(1)
@@ -105,3 +106,13 @@ def check_size(params, block_args):
     m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
     if m:
         params.size = int(m.group(1))
+
+def check_mag(params_new, params_defaults, block_args):
+    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', block_args)
+    if m:
+        params_new.mag = math.sqrt(float(m.group(1)))
+    elif (params_defaults.mag != ''):
+        params_new.mag = math.sqrt(float(params_defaults.mag))
+    else:
+        params_new.mag = 1.0
+
