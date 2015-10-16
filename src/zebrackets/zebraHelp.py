@@ -138,4 +138,10 @@ def check_denominator(params, block_args):
     if m:
         params.denominator = int(m.group(1))
 
+# TODO: perhaps we can use 
+def check_encoding(params, block_args):
+#    m = re.search(r'enc\w*=(\w+)[,\]]', block_args)
+    m = re.search(r'enc\w*=([ubdt])\w*[,\]]', block_args)
+    if m:
+        params.encoding = m.group(1)
 

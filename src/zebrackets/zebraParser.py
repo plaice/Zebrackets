@@ -59,7 +59,7 @@ class Params:
 
         self.index = ''
         self.numerator = ''
-        self.denominator = ''
+        self.denominator = -1
         self.encoding = ''
 
         self.filterMode = False
@@ -86,17 +86,13 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     zebraHelp.check_index(params_doc_defaults, doc_args)
     zebraHelp.check_numerator(params_doc_defaults, doc_args)
     zebraHelp.check_denominator(params_doc_defaults, doc_args)
+    zebraHelp.check_encoding(params_doc_defaults, doc_args)
 
-
-    # denominator
-#    m = re.search(r'den\w*=([-]?\d+)[,\]]', doc_args)
-#    if m:
-#        params_doc_defaults.denominator = m.group(1)
 
     # encoding
-    m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.encoding = m.group(1)
+#    m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
+#    if m:
+#        params_doc_defaults.encoding = m.group(1)
 
 
 def declareFont(params_doc_defaults, params_paragraph, font_args):
@@ -156,23 +152,17 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_numerator(params_paragraph, par_args)
     zebraHelp.check_denominator(params_paragraph, par_args)
-
-    # denominator
-#    m = re.search(r'den\w*=([-]?\d+)[,\]]', par_args)
-#    if m:
-#        params_paragraph.denominator = m.group(1)
-#    else:
-#        params_paragraph.denominator = params_doc_defaults.denominator
+    zebraHelp.check_encoding(params_paragraph, par_args)
 
     # encoding
-    m = re.search(r'enc\w*=(\w+)[,\]]', par_args)
-    if m:
-       params_paragraph.encoding = m.group(1)
-    else:
-        params_paragraph.encoding = params_doc_defaults.encoding
+#    m = re.search(r'enc\w*=(\w+)[,\]]', par_args)
+#    if m:
+#       params_paragraph.encoding = m.group(1)
+#    else:
+#        params_paragraph.encoding = params_doc_defaults.encoding
 
-    if params_paragraph.denominator == '':
-        params_paragraph.denominator = -1
+#    if params_paragraph.denominator == '':
+#        params_paragraph.denominator = -1
 
 
 def endZebrackets(params_doc_defaults, params_paragraph):
@@ -185,11 +175,12 @@ def endZebrackets(params_doc_defaults, params_paragraph):
 
     string_filtered = zebraFilter(
         params_paragraph.style,
-        params_paragraph.encoding[0],
+#        params_paragraph.encoding[0],
+        params_paragraph.encoding,
         params_paragraph.family,
-        int(params_paragraph.size),
-        int(params_paragraph.numerator),
-        int(params_paragraph.denominator),
+        params_paragraph.size,
+        params_paragraph.numerator,
+        params_paragraph.denominator,
         params_doc_defaults.texmfHome,
         string_tofilter,
         )
