@@ -80,13 +80,15 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     zebraHelp.check_stripes(params_doc_defaults, doc_args)
     zebraHelp.check_family(params_doc_defaults, doc_args)
     zebraHelp.check_size(params_doc_defaults, doc_args)
+    zebraHelp.check_mag(params_doc_defaults, doc_args)
+
 
     ## This definition is different from the one given in declareFont
     ## Discuss with John to choose the correct one.
-    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.mag = m.group(1)
-    ##
+#    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', doc_args)
+#    if m:
+#        params_doc_defaults.mag = m.group(1)
+#    ##
 
     zebraHelp.check_index(params_doc_defaults, doc_args)
     zebraHelp.check_numerator(params_doc_defaults, doc_args)
@@ -106,7 +108,7 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     zebraHelp.check_stripes(params_font, font_args)
     zebraHelp.check_family(params_font, font_args)
     zebraHelp.check_size(params_font, font_args)
-    zebraHelp.check_mag(params_font, params_doc_defaults, font_args)
+    zebraHelp.check_mag(params_font, font_args)
     
 #    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', font_args)
 #    if m:
@@ -137,16 +139,17 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_style(params_paragraph, par_args)
     zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
+    zebraHelp.check_mag(params_paragraph, par_args)
 
     ## This definition is different from the one given in declareFont
     ## Discuss with John to choose the correct one.
-    m = re.search(r'mag\w*=(\w+)[,\]]', par_args)
-    if m:
-        params_paragraph.mag = m.group(1)
-    elif params_paragraph.mag == '':
-        params_paragraph.mag = 1.0
-    else:
-        params_paragraph.mag = params_doc_defaults.mag
+#    m = re.search(r'mag\w*=(\w+)[,\]]', par_args)
+#    if m:
+#        params_paragraph.mag = m.group(1)
+#    elif params_paragraph.mag == '':
+#        params_paragraph.mag = 1.0
+#    else:
+#        params_paragraph.mag = params_doc_defaults.mag
     ##
 
     zebraHelp.check_index(params_paragraph, par_args)

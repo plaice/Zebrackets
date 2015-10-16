@@ -85,14 +85,9 @@ def check_type_(params, block_args):
         params.type_ = m.group(1)
 
 def check_style(params, block_args):
-    ## Raise condition not needed because regex will only catch correct values
-    ## TODO ask Johnny.
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', block_args)
     if m:
-        if m.group(1) not in validStyles:
-            raise ArgError("Error: " + m.group(1) + "not a valid style.")
-        else:
-            params.style = m.group(1)
+        params.style = m.group(1)
 
 def check_stripes(params, block_args):
     m = re.search(r'str\w*=(\d+)[,\]]', block_args)
@@ -112,14 +107,15 @@ def check_size(params, block_args):
     if m:
         params.size = int(m.group(1))
 
-def check_mag(params_new, params_defaults, block_args):
+#def check_mag(params_new, params_defaults, block_args):
+def check_mag(params, block_args):
     m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', block_args)
     if m:
-        params_new.mag = math.sqrt(float(m.group(1)))
-    elif (params_defaults.mag != ''):
-        params_new.mag = math.sqrt(float(params_defaults.mag))
-    else:
-        params_new.mag = 1.0
+        params.mag = math.sqrt(float(m.group(1)))
+#    elif (params_defaults.mag != ''):
+#        params_new.mag = math.sqrt(float(params_defaults.mag))
+#    else:
+#        params_new.mag = 1.0
 
 def check_index(params, block_args):
 #    m = re.search(r'ind\w*=([bdu])\w*[,\]]', block_args)
