@@ -24,34 +24,7 @@ import io
 import subprocess
 import sys
 from zebrackets.zebraFont import zebraFont
-
-validStyles = ['b', 'f', 'h']
-validEncodings = ['b', 'u', 'd']
-validFontFamilies = [
-    'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff',
-    'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx',
-    'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
-validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
-validFontPairs = {
-    'cmb':    [10],
-    'cmbtt':  [8, 9, 10],
-    'cmbx':   [5, 6, 7, 8, 9, 10, 12],
-    'cmbxsl': [10],
-    'cmdunh': [10],
-    'cmff':   [10],
-    'cmfib':  [8],
-    'cmr':    [5, 6, 7, 8, 9, 10, 12, 17],
-    'cmsl':   [8, 9, 10, 12],
-    'cmsltt': [10],
-    'cmss':   [8, 9, 10, 12, 17],
-    'cmssbx': [10],
-    'cmssdc': [10],
-    'cmssi':  [8, 9, 10, 12, 17],
-    'cmssq':  [8],
-    'cmssqi': [8],
-    'cmtt':   [8, 9, 10, 12],
-    'cmttb':  [10],
-    'cmvtt':  [10] }
+import zebraHelp
 
 # This filter is run on a region of text.
 #  Its arguments dictate translation of parentheses in the region.
@@ -88,15 +61,15 @@ class Delimiter:
 class Parameters:
     def __init__(self, style, encoding, fontFamily, fontSize,
             numerator, denominator, texmfHome, checkArgs):
-        if style not in validStyles:
+        if style not in zebraHelp.validStyles:
             raise ArgError('Invalid style')
-        if encoding not in validEncodings:
+        if encoding not in zebraHelp.validEncodings:
             raise ArgError('Invalid encoding')
-        if fontFamily not in validFontFamilies:
+        if fontFamily not in zebraHelp.validFontFamilies:
             raise ArgError('Invalid Computer Modern font family')
-        if fontSize not in validFontSizes:
+        if fontSize not in zebraHelp.validFontSizes:
             raise ArgError('Invalid font size')
-        if fontSize not in validFontPairs[fontFamily]:
+        if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise ArgError('Invalid font family-size pair')
         if texmfHome is None:
             if 'TEXMFHOME' not in os.environ:
@@ -290,15 +263,15 @@ def zebraFilter(style, encoding, fontFamily, fontSize,
 def zebraFilterParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
                  description='Replace brackets by zebrackets in a text.')
-    parser.add_argument('--style', type=str, choices=validStyles,
+    parser.add_argument('--style', type=str, choices=zebraHelp.validStyles,
         required=True, help='b = background, f = foreground, h = hybrid')
-    parser.add_argument('--encoding', type=str, choices=validEncodings,
+    parser.add_argument('--encoding', type=str, choices=zebraHelp.validEncodings,
         required=True, help='b = binary, u = unary, d = demux')
     parser.add_argument('--family', type=str,
-        choices=validFontFamilies,
+        choices=zebraHelp.validFontFamilies,
         required=True, help='font family')
     parser.add_argument('--size', type=int,
-        choices=validFontSizes,
+        choices=zebraHelp.validFontSizes,
         required=True, help='font size')
     parser.add_argument('--numerator', type=int,
         required=True, help='numerator')

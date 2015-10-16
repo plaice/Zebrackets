@@ -54,6 +54,8 @@ validFontPairs = {
     'cmttb':  [10],
     'cmvtt':  [10],
 }
+validEncodings = ['b', 'u', 'd']
+
 
 
 class ArgError(Exception):

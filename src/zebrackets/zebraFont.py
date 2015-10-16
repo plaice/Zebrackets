@@ -33,37 +33,6 @@ import zebraFontFiles
 import zebraHelp
 
 
-'''
-validTypes = ['b', 'p']
-validStyles = ['b', 'f', 'h']
-validStripes = [0, 1, 2, 3, 4, 5, 6, 7]
-validFontFamilies = [
-    'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff', 
-    'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx', 
-    'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
-validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
-validFontPairs = {
-    'cmb':    [10],
-    'cmbtt':  [8, 9, 10],
-    'cmbx':   [5, 6, 7, 8, 9, 10, 12],
-    'cmbxsl': [10],
-    'cmdunh': [10],
-    'cmff':   [10],
-    'cmfib':  [8],
-    'cmr':    [5, 6, 7, 8, 9, 10, 12, 17],
-    'cmsl':   [8, 9, 10, 12],
-    'cmsltt': [10],
-    'cmss':   [8, 9, 10, 12, 17],
-    'cmssbx': [10],
-    'cmssdc': [10],
-    'cmssi':  [8, 9, 10, 12, 17],
-    'cmssq':  [8],
-    'cmssqi': [8],
-    'cmtt':   [8, 9, 10, 12],
-    'cmttb':  [10],
-    'cmvtt':  [10] }
-'''
-
 class ArgError(Exception):
     def __init__(self, value):
         self.value = value
@@ -86,10 +55,7 @@ class Parameters:
             raise ArgError('Invalid font size')
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise ArgError('Invalid font family-size pair')
-#        if texmfHome is None:
-#            if 'TEXMFHOME' not in os.environ:
-#                raise ArgError('TEXMFHOME environment variable is not set')
-#            texmfHome = os.environ['TEXMFHOME']
+        texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
         self.btype = btype
         self.style = style
@@ -98,7 +64,7 @@ class Parameters:
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.mag = mag
-        self.texmfHome = zebraHelp.check_texmfhome(texmfHome)
+        self.texmfHome = texmfHome
         self.checkArgs = checkArgs
 
 def callAndLog(args, log):
