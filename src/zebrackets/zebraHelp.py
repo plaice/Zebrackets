@@ -78,7 +78,6 @@ def check_kind(params, block_args):
     if m:
         params.kind = m.group(1)
 
-
 def check_style(params, block_args):
     ## Raise condition not needed because regex will only catch correct values
     ## TODO ask Johnny.
@@ -115,4 +114,12 @@ def check_mag(params_new, params_defaults, block_args):
         params_new.mag = math.sqrt(float(params_defaults.mag))
     else:
         params_new.mag = 1.0
+
+
+def check_numerator(params, block_args):
+    m = re.search(r'num\w*=([-]?\d+)[,\]]', block_args)
+    if m:
+        params.numerator = m.group(1)
+    else:
+        params.numerator = params.index
 

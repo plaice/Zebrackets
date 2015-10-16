@@ -57,10 +57,10 @@ class Params:
         self.size = ''
         self.mag = ''
 
+        self.index = ''
         self.numerator = ''
         self.denominator = ''
         self.encoding = ''
-        self.index = ''
 
         self.filterMode = False
 
@@ -83,18 +83,7 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
         params_doc_defaults.mag = m.group(1)
     ##
 
-    m = re.search(r'num\w*=([-]?\d+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.numerator = m.group(1)
-
-    m = re.search(r'den\w*=([-]?\d+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.denominator = m.group(1)
-
-    m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
-    if m:
-        params_doc_defaults.encoding = m.group(1)
-
+    # index
     m = re.search(r'ind\w*=([bdu])\w*[,\]]', doc_args)
     if m:
         params_doc_defaults.index = m.group(1)
@@ -104,6 +93,22 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
             params_doc_defaults.index = -2
         else:
             params_doc_defaults.index = -1
+
+    zebraHelp.check_numerator(params_doc_defaults, doc_args)
+
+#    m = re.search(r'num\w*=([-]?\d+)[,\]]', doc_args)
+#    if m:
+#        params_doc_defaults.numerator = m.group(1)
+
+    # denominator
+    m = re.search(r'den\w*=([-]?\d+)[,\]]', doc_args)
+    if m:
+        params_doc_defaults.denominator = m.group(1)
+
+    # encoding
+    m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
+    if m:
+        params_doc_defaults.encoding = m.group(1)
 
 
 def declareFont(params_doc_defaults, params_paragraph, font_args):
@@ -173,12 +178,17 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     else:
         params_paragraph.index = params_doc_defaults.index
 
+    zebraHelp.check_numerator(params_paragraph, par_args)
+
     # numerator
-    m = re.search(r'num\w*=([-]?\d+)[,\]]', par_args)
-    if m:
-        params_paragraph.numerator = m.group(1)
-    else:
-        params_paragraph.numerator = params_doc_defaults.numerator
+#    m = re.search(r'num\w*=([-]?\d+)[,\]]', par_args)
+#    if m:
+#        params_paragraph.numerator = m.group(1)
+#    else:
+#        params_paragraph.numerator = params_doc_defaults.numerator
+#
+#    if params_paragraph.numerator == '':
+#        params_paragraph.numerator = params_paragraph.index
 
     # denominator
     m = re.search(r'den\w*=([-]?\d+)[,\]]', par_args)
@@ -194,8 +204,6 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     else:
         params_paragraph.encoding = params_doc_defaults.encoding
 
-    if params_paragraph.numerator == '':
-        params_paragraph.numerator = params_paragraph.index
     if params_paragraph.denominator == '':
         params_paragraph.denominator = -1
 
