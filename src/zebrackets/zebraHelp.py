@@ -115,11 +115,21 @@ def check_mag(params_new, params_defaults, block_args):
     else:
         params_new.mag = 1.0
 
+def check_index(params, block_args):
+    m = re.search(r'ind\w*=([bdu])\w*[,\]]', block_args)
+    if m:
+        params.index = m.group(1)
+        if (params.index == 'b'):
+            params.index = -3
+        elif (params.index == 'd'):
+            params.index = -2
+        else:
+            params.index = -1
 
 def check_numerator(params, block_args):
     m = re.search(r'num\w*=([-]?\d+)[,\]]', block_args)
     if m:
-        params.numerator = m.group(1)
+        params.numerator = int(m.group(1))
     else:
-        params.numerator = params.index
+        params.numerator = int(params.index)
 

@@ -84,21 +84,19 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     ##
 
     # index
-    m = re.search(r'ind\w*=([bdu])\w*[,\]]', doc_args)
-    if m:
-        params_doc_defaults.index = m.group(1)
-        if (params_doc_defaults.index == 'b'):
-            params_doc_defaults.index = -3
-        elif (params_doc_defaults.index == 'd'):
-            params_doc_defaults.index = -2
-        else:
-            params_doc_defaults.index = -1
+#    m = re.search(r'ind\w*=([bdu])\w*[,\]]', doc_args)
+#    if m:
+#        params_doc_defaults.index = m.group(1)
+#        if (params_doc_defaults.index == 'b'):
+#            params_doc_defaults.index = -3
+#        elif (params_doc_defaults.index == 'd'):
+#            params_doc_defaults.index = -2
+#        else:
+#            params_doc_defaults.index = -1
 
+    zebraHelp.check_index(params_doc_defaults, doc_args)
     zebraHelp.check_numerator(params_doc_defaults, doc_args)
 
-#    m = re.search(r'num\w*=([-]?\d+)[,\]]', doc_args)
-#    if m:
-#        params_doc_defaults.numerator = m.group(1)
 
     # denominator
     m = re.search(r'den\w*=([-]?\d+)[,\]]', doc_args)
@@ -166,18 +164,19 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     ##
 
     # index
-    m = re.search(r'ind\w*=([bdu])\w*[,\]]', par_args)
-    if m:
-        params_paragraph.index = m.group(1)
-        if params_paragraph.index == 'b':
-            params_paragraph.index = -3
-        elif params_paragraph.index == 'd':
-            params_paragraph.index = -2
-        else:
-            params_paragraph.index = -1
-    else:
-        params_paragraph.index = params_doc_defaults.index
+#    m = re.search(r'ind\w*=([bdu])\w*[,\]]', par_args)
+#    if m:
+#        params_paragraph.index = m.group(1)
+#        if params_paragraph.index == 'b':
+#            params_paragraph.index = -3
+#        elif params_paragraph.index == 'd':
+#            params_paragraph.index = -2
+#        else:
+#            params_paragraph.index = -1
+#    else:
+#        params_paragraph.index = params_doc_defaults.index
 
+    zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_numerator(params_paragraph, par_args)
 
     # numerator
