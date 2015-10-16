@@ -44,8 +44,8 @@ valueFromFunctions = {
 
 # TODO: Document
 class Delimiter:
-    def __init__(self, _kind, _left, _right):
-        self.kind = _kind
+    def __init__(self, type_, _left, _right):
+        self.type_ = type_
         self.left = _left
         self.right = _right
         self.count = 0
@@ -137,7 +137,7 @@ def printDeclarations(params, delims, buf):
             w.denominator = params.denominator
         if w.used:
             fontName = 'z{0}{1}{2}{3}'.format(
-                w.kind,
+                w.type_,
                 params.style,
                 chr(ord('a') + w.denominator),
                 params.fontFamily
@@ -195,7 +195,7 @@ def printAndReplaceSymbols(params, delims, buf):
                 numerator += pow(2, wsaved.denominator)
 
             out_string.write('{{\\z{0}{1}{2}{3}{4} \\symbol{{{5}}}}}'.
-                  format(wsaved.kind,
+                  format(wsaved.type_,
                          params.style,
                          chr(ord('a') + wsaved.denominator),
                          params.fontFamily,
@@ -210,7 +210,7 @@ def generateFiles(params, delims, buf):
         if w.used:
             print("Generating fonts...")
             zebraFont(
-                w.kind,
+                w.type_,
                 params.style,
                 int(w.denominator),
                 params.fontFamily,

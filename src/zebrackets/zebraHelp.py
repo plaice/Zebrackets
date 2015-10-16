@@ -25,7 +25,9 @@ import os
 import re
 import math
 
-validTypes = ['b', 'p']
+# Type is parentheses, brackets
+validTypes = ['p', 'b']
+# Style is background, foreground, hybrid
 validStyles = ['b', 'f', 'h']
 validStripes = [0, 1, 2, 3, 4, 5, 6, 7]
 validFontFamilies = [
@@ -54,8 +56,10 @@ validFontPairs = {
     'cmttb':  [10],
     'cmvtt':  [10],
 }
-validEncodings = ['b', 'u', 'd']
-
+# Encoding is uniry, binary and demux
+validEncodings = ['u', 'b', 'd']
+# Index is breadth, depth
+validIndex = ['b', 'd']
 
 
 class ArgError(Exception):
@@ -75,10 +79,10 @@ def check_texmfhome(texmfHome):
         raise ArgError(prt_str)
     return texmfHome
 
-def check_kind(params, block_args):
+def check_type_(params, block_args):
     m = re.search(r'typ\w*=([bp])\w*[,\]]', block_args)
     if m:
-        params.kind = m.group(1)
+        params.type_ = m.group(1)
 
 def check_style(params, block_args):
     ## Raise condition not needed because regex will only catch correct values
@@ -118,7 +122,8 @@ def check_mag(params_new, params_defaults, block_args):
         params_new.mag = 1.0
 
 def check_index(params, block_args):
-    m = re.search(r'ind\w*=([bdu])\w*[,\]]', block_args)
+#    m = re.search(r'ind\w*=([bdu])\w*[,\]]', block_args)
+    m = re.search(r'ind\w*=([du])\w*[,\]]', block_args)
     if m:
         params.index = m.group(1)
         if (params.index == 'b'):

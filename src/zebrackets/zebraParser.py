@@ -20,14 +20,19 @@
 
 '''This module takes as input three arguments: input file, output file and 
 texmfhome directory. 
+
 It takes into consideration a region of text at a time and the arguments of
 each region and the defaults, dictate translation of parentheses in the region.
 The module parses the input file looking for zebrackets directives and
 handles them:
-1. \zebracketsdefaults set the default zebrackets params for the entire document
+
+1. \zebracketsdefaults set the default zebrackets params for the entire
+document.
+
 2. \zebracketsfont modifies the default zebracket params and orders the
 creation of the corresponding font in the texmfhome directory, if it does
 not exist yet. 
+
 3. \begin{zebrackets} and \end{zebrackets} assume that the font has been 
 created (should we check and throw an error if not created?). Using defaults
 and block parameters, create the output having replaced normal parenthesis
@@ -50,14 +55,14 @@ class Params:
     '''This init method should have a set of defaults. 
     '''
     def __init__(self):
-        self.kind = ''
-        self.style = ''
-        self.stripes = ''
-        self.family = ''
-        self.size = ''
-        self.mag = ''
+        self.type_ = 'p'
+        self.style = 'h'
+        self.stripes = 7
+        self.family = 'cmr'
+        self.size = 10
+        self.mag = 1.0
 
-        self.index = ''
+        self.index = 'd'
         self.numerator = ''
         self.denominator = -1
         self.encoding = ''
@@ -70,7 +75,7 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     zetex file.
     '''
 
-    zebraHelp.check_kind(params_doc_defaults, doc_args)
+    zebraHelp.check_type_(params_doc_defaults, doc_args)
     zebraHelp.check_style(params_doc_defaults, doc_args)
     zebraHelp.check_stripes(params_doc_defaults, doc_args)
     zebraHelp.check_family(params_doc_defaults, doc_args)
@@ -96,7 +101,7 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     '''
     params_font = copy.copy(params_doc_defaults)
 
-    zebraHelp.check_kind(params_font, font_args)
+    zebraHelp.check_type_(params_font, font_args)
     zebraHelp.check_style(params_font, font_args)
     zebraHelp.check_stripes(params_font, font_args)
     zebraHelp.check_family(params_font, font_args)
@@ -112,7 +117,7 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
 #        mag = 1.0
 
     zebraFont.zebraFont(
-        params_font.kind,
+        params_font.type_,
         params_font.style,
         params_font.stripes,
         params_font.family,
