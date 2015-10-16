@@ -89,12 +89,6 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     zebraHelp.check_encoding(params_doc_defaults, doc_args)
 
 
-    # encoding
-#    m = re.search(r'enc\w*=(\w+)[,\]]', doc_args)
-#    if m:
-#        params_doc_defaults.encoding = m.group(1)
-
-
 def declareFont(params_doc_defaults, params_paragraph, font_args):
     '''This method is called everytime the directive '\zebracketsfont'
     is found in the input .zetex file. After the parsing of the values,
@@ -127,6 +121,7 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
         params_doc_defaults.texmfHome,
         False)
 
+
 def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     '''This method parses the arguments in \begin{zebrabrackets}
     and modifies the params_paragraph accordingly.
@@ -153,13 +148,6 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_numerator(params_paragraph, par_args)
     zebraHelp.check_denominator(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
-
-    # encoding
-#    m = re.search(r'enc\w*=(\w+)[,\]]', par_args)
-#    if m:
-#       params_paragraph.encoding = m.group(1)
-#    else:
-#        params_paragraph.encoding = params_doc_defaults.encoding
 
 #    if params_paragraph.denominator == '':
 #        params_paragraph.denominator = -1
@@ -288,4 +276,4 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
     return zebraParser(args)
 
 if __name__ == '__main__':
-    zebraParserParser()
+    print(zebraParserParser())
