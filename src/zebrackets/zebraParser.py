@@ -228,9 +228,7 @@ def zebraParser(args):
     in_name = os.path.basename(args.input.name)
     in_base, in_ext = os.path.splitext(in_name)
     if in_ext != ".zetex":
-        prt_str = "Error: Invalid input file, zetex extension required."
-        print(prt_str)
-        return prt_str
+        return "Error: Invalid input file, zetex extension required."
     else:
         params_doc_defaults.infile = args.input
 
@@ -245,7 +243,6 @@ def zebraParser(args):
     try:
         params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(args.texmfhome)
     except:
-        print(params_doc_defaults.texmfHome)
         return params_doc_defaults.texmfHome
 
     if args.checkargs is False:
