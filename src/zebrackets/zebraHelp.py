@@ -72,10 +72,26 @@ def check_texmfhome(texmfHome):
         raise ArgError(prt_str)
     return texmfHome
 
-def check_size(params, block_args):
-    m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
+def check_kindd(params, block_args):
+    m = re.search(r'typ\w*=([bp])\w*[,\]]', block_args)
     if m:
-        params.size = int(m.group(1))
+        params.kind = m.group(1)
+
+
+def check_style(params, block_args):
+    ## Raise condition not needed because regex will only catch correct values
+    ## TODO ask Johnny.
+    m = re.search(r'sty\w*=([bfh])\w*[,\]]', block_args)
+    if m:
+        if m.group(1) not in validStyles:
+            raise ArgError("Error: " + m.group(1) + "not a valid style.")
+        else:
+            params.style = m.group(1)
+
+def check_stripes(params, block_args):
+    m = re.search(r'str\w*=(\d+)[,\]]', block_args)
+    if m:
+        params.stripes = int(m.group(1))
 
 def check_family(params, block_args):
     m = re.search(r'fam\w*=(\w+)[,\]]', block_args)
@@ -85,16 +101,7 @@ def check_family(params, block_args):
         else:
             params.family = m.group(1)
 
-def check_stripes(params, block_args):
-    m = re.search(r'str\w*=(\d+)[,\]]', block_args)
+def check_size(params, block_args):
+    m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
     if m:
-        params.stripes = int(m.group(1))
-
-
-
-
-
-
-
-
-
+        params.size = int(m.group(1))
