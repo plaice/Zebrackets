@@ -133,3 +133,9 @@ def check_numerator(params, block_args):
     else:
         params.numerator = int(params.index)
 
+def check_denominator(params, block_args):
+    m = re.search(r'den\w*=([-]?\d+)[,\]]', block_args)
+    if m:
+        params.denominator = int(m.group(1))
+
+
