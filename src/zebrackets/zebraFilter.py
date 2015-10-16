@@ -71,10 +71,7 @@ class Parameters:
             raise ArgError('Invalid font size')
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise ArgError('Invalid font family-size pair')
-        if texmfHome is None:
-            if 'TEXMFHOME' not in os.environ:
-                raise ArgError('TEXMFHOME environment variable is not set')
-            texmfHome = os.environ['TEXMFHOME']
+        texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
         if numerator < 0:
             if numerator < -3:
@@ -93,9 +90,6 @@ class Parameters:
         self.texmfHome = texmfHome
         self.checkArgs = checkArgs
 
-# To delete
-#def readInput():
-#    return sys.stdin.read()
 
 # TODO: Document
 def countDelimiters(params, delims, buf):
@@ -141,10 +135,12 @@ def printDeclarations(params, delims, buf):
         if params.denominator != -1:
             w.denominator = params.denominator
         if w.used:
-            fontName = 'z{0}{1}{2}{3}'.format(w.kind,
-                                              params.style,
-                                              chr(ord('a') + w.denominator),
-                                              params.fontFamily)
+            fontName = 'z{0}{1}{2}{3}'.format(
+                w.kind,
+                params.style,
+                chr(ord('a') + w.denominator),
+                params.fontFamily
+            )
             out_string.write(
                 '\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
                     format(fontName,
