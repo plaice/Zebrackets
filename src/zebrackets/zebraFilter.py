@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+'''This filter is run on a region of text.
+Its arguments dictate translation of parentheses in the region.
+'''
+
 import argparse
 import math
 import os
@@ -25,9 +29,6 @@ import subprocess
 import sys
 from zebrackets.zebraFont import zebraFont
 import zebraHelp
-
-# This filter is run on a region of text.
-#  Its arguments dictate translation of parentheses in the region.
 
 # TODO: Document
 valueToFunctions = {
@@ -93,9 +94,9 @@ class Parameters:
 
 # TODO: Document
 def countDelimiters(params, delims, buf):
-    # Go through the buffer and count the (opening) delimiters
-    # in case the automatic stripe denominator is requested.
-    ## buf is now a string. Does it matter?
+    '''Go through the buffer and count the (opening) delimiters
+    in case the automatic stripe denominator is requested.
+    '''
     for c in buf:
         for k, w in delims.items():
             if c == w.left:
@@ -200,10 +201,8 @@ def printAndReplaceSymbols(params, delims, buf):
                          params.fontFamily,
                          chr(ord('A') - 1 + int(params.fontSize)),
                          numerator))
-#                         numerator), end='')
         else:
             out_string.write(c)
-#            print(c, end='')
          
 # TODO: Document
 def generateFiles(params, delims, buf):
@@ -225,16 +224,6 @@ def generateFiles(params, delims, buf):
 def zebraFilter(style, encoding, fontFamily, fontSize,
         numerator, denominator, texmfHome, string_tofilter, 
         checkArgs=False):
-    if texmfHome == None:
-        if 'TEXMFHOME' not in os.environ:
-            prt_str = 'Invalid texmf, TEXMFHOME environment variable not set.'
-            print(prt_str)
-            return prt_str
-        texmfHome = os.environ['TEXMFHOME']
-    elif not os.path.isdir(texmfHome):
-        prt_str = "Invalid texmf, path is not a directory."
-        print(prt_str)
-        return prt_str
 
     try:
         parameters = Parameters(style, encoding, fontFamily, fontSize,
@@ -244,13 +233,10 @@ def zebraFilter(style, encoding, fontFamily, fontSize,
             out_string = io.StringIO()
             delimiters = dict(bracket = Delimiter('b', '[', ']'),
                               parenthesis = Delimiter('p', '(', ')'))
-#            fileBuffer = readInput()
             countDelimiters(parameters, delimiters, string_tofilter)
             printDeclarations(parameters, delimiters, string_tofilter)
             printAndReplaceSymbols(parameters, delimiters, string_tofilter)
             generateFiles(parameters, delimiters, string_tofilter)
-            ## I think it goes here, after return it the string
-            # out_string.close()
             return out_string.getvalue()
 
     except ArgError as e:
