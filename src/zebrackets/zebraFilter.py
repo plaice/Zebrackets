@@ -63,22 +63,23 @@ class Parameters:
     def __init__(self, style, encoding, fontFamily, fontSize,
             numerator, denominator, texmfHome, checkArgs):
         if style not in zebraHelp.validStyles:
-            raise ArgError('Invalid style')
+            raise zebraHelp.ArgError('Invalid style')
         if encoding not in zebraHelp.validEncodings:
-            raise ArgError('Invalid encoding')
+            raise zebraHelp.ArgError('Invalid encoding')
         if fontFamily not in zebraHelp.validFontFamilies:
-            raise ArgError('Invalid Computer Modern font family')
+            raise zebraHelp.ArgError('Invalid Computer Modern font family')
         if fontSize not in zebraHelp.validFontSizes:
-            raise ArgError('Invalid font size')
+            raise zebraHelp.ArgError('Invalid font size')
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
-            raise ArgError('Invalid font family-size pair')
+            raise zebraHelp.ArgError('Invalid font family-size pair')
         texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
+        ## TODO: JP why don't you need to use the command 'raise' ?
         if numerator < 0:
             if numerator < -3:
-                ArgError('Invalid numerator')
+                zebraHelp.ArgError('Invalid numerator')
         elif denominator < 0:
-            ArgError('Invalid denominator')
+            zebraHelp.ArgError('Invalid denominator')
 
         self.style = style
         self.encoding = encoding

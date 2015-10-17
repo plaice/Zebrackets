@@ -32,29 +32,22 @@ import sys
 import zebraFontFiles
 import zebraHelp
 
-
-class ArgError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
 class Parameters:
     def __init__(self, btype, style, stripes, fontFamily,
             fontSize, mag, texmfHome, checkArgs):
 
         if btype not in zebraHelp.validTypes:
-            raise ArgError('Invalid type')
+            raise zebraHelp.ArgError('Invalid type')
         if style not in zebraHelp.validStyles:
-            raise ArgError('Invalid style')
+            raise zebraHelp.ArgError('Invalid style')
         if stripes not in zebraHelp.validStripes:
-            raise ArgError('Invalid number of stripes')
+            raise zebraHelp.ArgError('Invalid number of stripes')
         if fontFamily not in zebraHelp.validFontFamilies:
-            raise ArgError('Invalid Computer Modern font family')
+            raise zebraHelp.ArgError('Invalid Computer Modern font family')
         if fontSize not in zebraHelp.validFontSizes:
-            raise ArgError('Invalid font size')
+            raise zebraHelp.ArgError('Invalid font size')
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
-            raise ArgError('Invalid font family-size pair')
+            raise zebraHelp.ArgError('Invalid font family-size pair')
         texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
         self.btype = btype
@@ -205,7 +198,7 @@ def zebraFont(btype, style, stripes, fontFamily,
                          fontSize, mag, texmfHome, checkArgs)
         if checkArgs is False:
             createMFfiles(parameters)
-    except ArgError as e:
+    except zebraHelp.ArgError as e:
         prt_str = 'Invalid input: ' + e.value
         print(prt_str)
         return prt_str
