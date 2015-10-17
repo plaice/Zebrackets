@@ -131,7 +131,7 @@ def countDelimiters(params, delims, buf):
                 w.denominator = 7
 
 # TODO: Document
-def printDeclarations(params, delims, buf):
+def printDeclarations(params, delims, buf, out_string):
     for k, w in delims.items():
         if params.denominator != -1:
             w.denominator = params.denominator
@@ -149,7 +149,7 @@ def printDeclarations(params, delims, buf):
                            int(params.fontSize)))
 
 # TODO: Document
-def printAndReplaceSymbols(params, delims, buf):
+def printAndReplaceSymbols(params, delims, buf, out_string):
     for k, w in delims.items():
        w.count = -1
        w.depth = 0
@@ -218,8 +218,6 @@ def generateFiles(params, delims, buf):
                 1.0,
                 params.texmfHome,
                 False)
-            '''
-            '''
 
 def zebraFilter(style, encoding, fontFamily, fontSize,
         numerator, denominator, texmfHome, string_tofilter, 
@@ -229,17 +227,26 @@ def zebraFilter(style, encoding, fontFamily, fontSize,
         parameters = Parameters(style, encoding, fontFamily, fontSize,
                          numerator, denominator, texmfHome, checkArgs)
         if checkArgs is False:
-            global out_string 
             out_string = io.StringIO()
             delimiters = dict(bracket = Delimiter('b', '[', ']'),
                               parenthesis = Delimiter('p', '(', ')'))
             countDelimiters(parameters, delimiters, string_tofilter)
-            printDeclarations(parameters, delimiters, string_tofilter)
-            printAndReplaceSymbols(parameters, delimiters, string_tofilter)
+            printDeclarations(
+                parameters,
+                delimiters,
+                string_tofilter,
+                out_string)
+            printAndReplaceSymbols(
+                parameters,
+                delimiters,
+                string_tofilter,
+                out_string)
             generateFiles(parameters, delimiters, string_tofilter)
-            return out_string.getvalue()
+            value =  out_string.getvalue()
+            out_string.close()
+            return value
 
-    except ArgError as e:
+    except zebraHelp.ArgError as e:
         print('Invalid input:', e.value)
 
 def zebraFilterParser(inputArguments = sys.argv[1:]):
