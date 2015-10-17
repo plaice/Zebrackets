@@ -82,14 +82,6 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     zebraHelp.check_size(params_doc_defaults, doc_args)
     zebraHelp.check_mag(params_doc_defaults, doc_args)
 
-
-    ## This definition is different from the one given in declareFont
-    ## Discuss with John to choose the correct one.
-#    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', doc_args)
-#    if m:
-#        params_doc_defaults.mag = m.group(1)
-#    ##
-
     zebraHelp.check_index(params_doc_defaults, doc_args)
     zebraHelp.check_numerator(params_doc_defaults, doc_args)
     zebraHelp.check_denominator(params_doc_defaults, doc_args)
@@ -109,14 +101,6 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     zebraHelp.check_family(params_font, font_args)
     zebraHelp.check_size(params_font, font_args)
     zebraHelp.check_mag(params_font, font_args)
-    
-#    m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', font_args)
-#    if m:
-#        mag = math.sqrt(float(m.group(1)))
-#    elif (params_doc_defaults.mag != ''):
-#        mag = math.sqrt(float(params_doc_defaults.mag))
-#    else:
-#        mag = 1.0
 
     zebraFont.zebraFont(
         params_font.type_,
@@ -141,24 +125,10 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_size(params_paragraph, par_args)
     zebraHelp.check_mag(params_paragraph, par_args)
 
-    ## This definition is different from the one given in declareFont
-    ## Discuss with John to choose the correct one.
-#    m = re.search(r'mag\w*=(\w+)[,\]]', par_args)
-#    if m:
-#        params_paragraph.mag = m.group(1)
-#    elif params_paragraph.mag == '':
-#        params_paragraph.mag = 1.0
-#    else:
-#        params_paragraph.mag = params_doc_defaults.mag
-    ##
-
     zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_numerator(params_paragraph, par_args)
     zebraHelp.check_denominator(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
-
-#    if params_paragraph.denominator == '':
-#        params_paragraph.denominator = -1
 
 
 def endZebrackets(params_doc_defaults, params_paragraph):
@@ -171,7 +141,6 @@ def endZebrackets(params_doc_defaults, params_paragraph):
 
     string_filtered = zebraFilter(
         params_paragraph.style,
-#        params_paragraph.encoding[0],
         params_paragraph.encoding,
         params_paragraph.family,
         params_paragraph.size,
@@ -211,7 +180,10 @@ def filterText(params_doc_defaults, params_paragraph):
             if m:
                 print("Going to beginZebrackets")
                 params_paragraph = copy.copy(params_doc_defaults)
-                beginZebrackets(params_doc_defaults, params_paragraph, m.group(1))
+                beginZebrackets(
+                    params_doc_defaults,
+                    params_paragraph,
+                    m.group(1))
                 continue
             # Process a normal line
             params_doc_defaults.outfile.write(line)
@@ -240,7 +212,7 @@ def zebraParser(args):
     else:
         params_doc_defaults.infile = args.input
 
-    # If not output file name is given, build it from the input file name.
+    # If no output file name is given, build it from the input file name.
     if args.output == None:
         out_file_name = in_base + ".tex"
         params_doc_defaults.outfile = open(out_file_name, 'w')
@@ -249,7 +221,9 @@ def zebraParser(args):
 
     # Looking for a valid TEXMFHOME
     try:
-        params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(args.texmfhome)
+        params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(
+            args.texmfhome
+        )
     except:
         return params_doc_defaults.texmfHome
 

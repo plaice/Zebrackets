@@ -92,33 +92,36 @@ def check_style(params, block_args):
 def check_stripes(params, block_args):
     m = re.search(r'str\w*=(\d+)[,\]]', block_args)
     if m:
-        params.stripes = int(m.group(1))
+        stripe = int(m.group(1))
+        if stripe not in validStripes:
+            raise ArgError("Error: " + stripe + " not a valid stripe number.")
+        else:
+            params.stripes = stripe
 
 def check_family(params, block_args):
     m = re.search(r'fam\w*=(\w+)[,\]]', block_args)
     if m:
         if m.group(1) not in validFontFamilies:
-            raise ArgError("Error: " + m.group(1) + "not a valid font family.")
+            raise ArgError("Error: " + m.group(1) + " not a valid font family.")
         else:
             params.family = m.group(1)
 
 def check_size(params, block_args):
     m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
     if m:
-        params.size = int(m.group(1))
+        size = int(m.group(1))
+        if size not in validFontSizes:
+            raise ArgError("Error: " + size + " not a valid font size.")
+        else:
+            params.size = int(m.group(1))
 
-#def check_mag(params_new, params_defaults, block_args):
 def check_mag(params, block_args):
     m = re.search(r'mag\w*=(\d+(\.\d+)*)[,\]]', block_args)
     if m:
         params.mag = math.sqrt(float(m.group(1)))
-#    elif (params_defaults.mag != ''):
-#        params_new.mag = math.sqrt(float(params_defaults.mag))
-#    else:
-#        params_new.mag = 1.0
 
 def check_index(params, block_args):
-#    m = re.search(r'ind\w*=([bdu])\w*[,\]]', block_args)
+    # Index is not being used for anything. John to check.
     m = re.search(r'ind\w*=([du])\w*[,\]]', block_args)
     if m:
         params.index = m.group(1)
@@ -141,9 +144,7 @@ def check_denominator(params, block_args):
     if m:
         params.denominator = int(m.group(1))
 
-# TODO: perhaps we can use 
 def check_encoding(params, block_args):
-#    m = re.search(r'enc\w*=(\w+)[,\]]', block_args)
     m = re.search(r'enc\w*=([ubdt])\w*[,\]]', block_args)
     if m:
         params.encoding = m.group(1)
