@@ -9,4 +9,4 @@ The purpose of the project is to have a package with three main modules.
 ## Status
 1. Currently reviewing the algorithm of `zebraFilter` to ensure that the input arguments are handled and processed properly. 
 2. We need to ensure consistency of terminology.
-3. Working also in ensuring a uniform error handling and testing infrastructure. 
+3. Standardize error handling and testing infrastructure. 
