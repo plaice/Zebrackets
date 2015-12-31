@@ -33,15 +33,15 @@ import zebraFontFiles
 import zebraHelp
 
 class Parameters:
-    def __init__(self, btype, style, stripes, fontFamily,
+    def __init__(self, kind, style, slots, fontFamily,
             fontSize, mag, texmfHome, checkArgs):
 
-        if btype not in zebraHelp.validTypes:
-            raise zebraHelp.ArgError('Invalid type')
+        if kind not in zebraHelp.validKinds:
+            raise zebraHelp.ArgError('Invalid kind')
         if style not in zebraHelp.validStyles:
             raise zebraHelp.ArgError('Invalid style')
-        if stripes not in zebraHelp.validStripes:
-            raise zebraHelp.ArgError('Invalid number of stripes')
+        if slots not in zebraHelp.validSlots:
+            raise zebraHelp.ArgError('Invalid number of slots')
         if fontFamily not in zebraHelp.validFontFamilies:
             raise zebraHelp.ArgError('Invalid Computer Modern font family')
         if fontSize not in zebraHelp.validFontSizes:
@@ -50,10 +50,10 @@ class Parameters:
             raise zebraHelp.ArgError('Invalid font family-size pair')
         texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
-        self.btype = btype
+        self.kind = kind
         self.style = style
-        self.stripes = stripes
-        self.stripesAsLetter = chr(ord('a') + self.stripes)
+        self.slots = slots
+        self.slotsAsLetter = chr(ord('a') + self.slots)
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.mag = mag
@@ -70,9 +70,10 @@ def callAndLog(args, log):
     except subprocess.CalledProcessError:
         sys.exit('System died when calling {0}'.format(*args))
 
-def createMFcontent(btype, style, stripes, sourceFont):
-    '''This method creates the header of the font file and returns it as a
-    string. John to verify truth of statement.
+# TODO: Check what is actually being generated:
+#       Reference to stripes.
+def createMFcontent(kind, style, slots, sourceFont):
+    '''This method creates the font file's header, returning it as string.
     '''
     styledict = { 'b' : '0', 'f' : '1',  'h' : '2' }
     textFormat = '''% Copied from rtest on p.311 of the MetaFont book.
@@ -86,8 +87,8 @@ stripes:={1};
 foreground:={2};
 input zeroman{3};'''
     text = textFormat.format(
-               sourceFont, stripes,
-               styledict[style], btype)
+               sourceFont, slots,
+               styledict[style], kind)
     return text
 
 def checkAndCreateFont(fileName, destMFdir, fileContent, texmfHome, log):
@@ -107,12 +108,12 @@ def createMFfiles(params):
     sourceFont = '{0}{1}'.format(params.fontFamily, int(params.fontSize))
     destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
     destMF = 'z{0}{1}{2}{3}'.format(
-                 params.btype, params.style,
-                 params.stripesAsLetter, sourceFont)
+                 params.kind, params.style,
+                 params.slotsAsLetter, sourceFont)
     destMFpath = '{0}/{1}.mf'.format(destMFdir, destMF)
     textMFfile = createMFcontent(
-                     params.btype, params.style,
-                     params.stripes, sourceFont)
+                     params.kind, params.style,
+                     params.slots, sourceFont)
 
     # Check that the master font exists in the TeX ecosystem.
     try:
@@ -190,11 +191,11 @@ def createMFfiles(params):
         for string in zetexFontsLog:
             zetexLogFile.write(string)
 
-def zebraFont(btype, style, stripes, fontFamily,
+def zebraFont(kind, style, slots, fontFamily,
               fontSize, mag, texmfHome, checkArgs):
 
     try:
-        parameters = Parameters(btype, style, stripes, fontFamily,
+        parameters = Parameters(kind, style, slots, fontFamily,
                          fontSize, mag, texmfHome, checkArgs)
         if checkArgs is False:
             createMFfiles(parameters)
@@ -207,28 +208,28 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
         description='Build a zebrackets font.',
         epilog="This module is part of the zebrackets package.")
-    parser.add_argument('--type', type=str, choices=zebraHelp.validTypes,
+    parser.add_argument('--kind', type=str, choices=zebraHelp.validKinds,
         required=True, help='b = bracket, p = parenthesis')
     parser.add_argument('--style', type=str, choices=zebraHelp.validStyles,
-        required=True, help='b = background, f = foreground, h=hybrid')
-    parser.add_argument('--stripes', type=int,
-        required=True, choices=zebraHelp.validStripes,
-        help='number of stripes in brackets')
+        required=True, help='b = background, f = foreground, h = hybrid')
+    parser.add_argument('--slots', type=int,
+        required=True, choices=zebraHelp.validSlots,
+        help='number of slots in brackets')
     parser.add_argument('--family', type=str,
         choices=zebraHelp.validFontFamilies,
         required=True, help='font family')
     parser.add_argument('--size', type=int,
         choices=zebraHelp.validFontSizes,
         required=True, help='font size')
-    parser.add_argument('--mag', type=float,
-        default=1.0, help='magnification')
+    parser.add_argument('--mag', type=int,
+        default=1, help='magnification')
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
 
     args = parser.parse_args(inputArguments)
-    return zebraFont(args.type, args.style, args.stripes, args.family,
+    return zebraFont(args.kind, args.style, args.slots, args.family,
         args.size, args.mag, args.texmfhome, args.checkargs)
 
 if __name__ == '__main__':
