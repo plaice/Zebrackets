@@ -44,15 +44,15 @@ valueFromFunctions = {
 
 # TODO: Document
 class Delimiter:
-    def __init__(self, type_, _left, _right):
-        self.type_ = type_
+    def __init__(self, kind, _left, _right):
+        self.kind = kind
         self.left = _left
         self.right = _right
         self.count = 0
-        self.index = 0
+        self.windex = 0
         self.depth = 0;
         self.used = False
-        self.denominator = -1
+        self.slots = -1
         self.highestCount = 0
         self.deepestDepth = 0
         self.broadestBreadth = 0
@@ -61,7 +61,7 @@ class Delimiter:
 # TODO: Document
 class Parameters:
     def __init__(self, style, encoding, fontFamily, fontSize,
-            numerator, denominator, texmfHome, checkArgs):
+            number, slots, index, texmfHome, checkArgs):
         if style not in zebraHelp.validStyles:
             raise zebraHelp.ArgError('Invalid style')
         if encoding not in zebraHelp.validEncodings:
@@ -72,23 +72,23 @@ class Parameters:
             raise zebraHelp.ArgError('Invalid font size')
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise zebraHelp.ArgError('Invalid font family-size pair')
+        if index == 'n':
+            if number < n:
+                raise zebraHelp.ArgError('Invalid number')
+        elif index not in zebraHelp.validIndices:
+            raise zebraHelp.ArgError('Invalid index')
+        
         texmfHome = zebraHelp.check_texmfhome(texmfHome)
-
-        ## TODO: JP why don't you need to use the command 'raise' ?
-        if numerator < 0:
-            if numerator < -3:
-                zebraHelp.ArgError('Invalid numerator')
-        elif denominator < 0:
-            zebraHelp.ArgError('Invalid denominator')
 
         self.style = style
         self.encoding = encoding
         self.valueToEncoding = valueToFunctions[encoding]
         self.valueFromEncoding = valueFromFunctions[encoding]
-        self.numerator = numerator
-        self.denominator = denominator
         self.fontFamily = fontFamily
         self.fontSize = fontSize
+        self.number = number
+        self.slots = slots
+        self.index = index
         self.texmfHome = texmfHome
         self.checkArgs = checkArgs
 
@@ -96,7 +96,7 @@ class Parameters:
 # TODO: Document
 def countDelimiters(params, delims, buf):
     '''Go through the buffer and count the (opening) delimiters
-    in case the automatic stripe denominator is requested.
+    in case the automatic slots counter is requested.
     '''
     for c in buf:
         for k, w in delims.items():
@@ -116,38 +116,38 @@ def countDelimiters(params, delims, buf):
             elif c == w.right:
                 w.depth -= 1
 
-    # Calculate all the denominators based upon the above tally.
+    # Calculate all the slots based upon the above tally.
     for k, w in delims.items():
         if w.used:
-            if params.numerator == -1:   # automatic (default) mode
-               w.denominator = w.highestCount
-            elif params.numerator == -2: # depth
-               w.denominator = w.deepestDepth
-            elif params.numerator == -3: # breadth
-               w.denominator = w.broadestBreadth
-            else:                        # manual numerator
-               w.denominator = params.denominator
-            w.denominator = params.valueFromEncoding(w.denominator)
-            if w.denominator > 7:
-                w.denominator = 7
+            if params.index == 'u':   # unique (default) mode
+               w.slots = w.highestCount
+            elif params.index == 'd': # depth
+               w.slots = w.deepestDepth
+            elif params.index == 'b': # breadth
+               w.slots = w.broadestBreadth
+            else:                     # manual number
+               w.slots = params.number
+            w.slots = params.valueFromEncoding(w.slots)
+            if w.slots > 7:
+                w.slots = 7
 
 # TODO: Document
 def printDeclarations(params, delims, buf, out_string):
     for k, w in delims.items():
-        if params.denominator != -1:
-            w.denominator = params.denominator
+        if params.slots != -1:
+            w.slots = params.slots
         if w.used:
             fontName = 'z{0}{1}{2}{3}'.format(
-                w.type_,
+                w.kind,
                 params.style,
-                chr(ord('a') + w.denominator),
+                chr(ord('a') + w.slots),
                 params.fontFamily
             )
             out_string.write(
                 '\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
                     format(fontName,
-                           chr(ord('A') - 1 + int(params.fontSize)),
-                           int(params.fontSize)))
+                           chr(ord('A') - 1 + params.fontSize),
+                           params.fontSize))
 
 # TODO: Document
 def printAndReplaceSymbols(params, delims, buf, out_string):
@@ -164,11 +164,11 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
                 endIsLeft = True
                 w.stack[w.depth] = w.count
                 w.depth += 1
-                w.index = 1
+                w.windex = 1
                 w.count += 1
             elif c == w.right:
                 endIsLeft = False
-                w.index -= 1
+                w.windex -= 1
                 w.depth -= 1
             else:
                 continue
@@ -177,31 +177,31 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
             break
 
         if replace:
-            if params.numerator == -1:       # automatic (default) mode
+            if params.index == 'u':       # unique (default) mode
                 if endIsLeft:
-                    numerator = wsaved.count
+                    number = wsaved.count
                 else:
-                    numerator = wsaved.stack[wsaved.depth] + 1
-            elif params.numerator == -2:     # depth
+                    number = wsaved.stack[wsaved.depth] + 1
+            elif params.index == 'd':     # depth
                 if endIsLeft:
-                    numerator = wsaved.depth -1
+                    number = wsaved.depth -1
                 else:
-                    numerator = wsaved.depth
-            elif params.numerator == -3:     # breadth
-                numerator = wsaved.index
-            else:                            # manual numerator
-                numerator = params.numerator
-            numerator = params.valueToEncoding(numerator)
+                    number = wsaved.depth
+            elif params.index == 'b':     # breadth
+                number = wsaved.windex
+            else:                         # manual number
+                number = params.number
+            number = params.valueToEncoding(number)
             if not endIsLeft:
-                numerator += pow(2, wsaved.denominator)
+                number += pow(2, wsaved.slots)
 
             out_string.write('{{\\z{0}{1}{2}{3}{4} \\symbol{{{5}}}}}'.
-                  format(wsaved.type_,
+                  format(wsaved.kind,
                          params.style,
-                         chr(ord('a') + wsaved.denominator),
+                         chr(ord('a') + wsaved.slots),
                          params.fontFamily,
-                         chr(ord('A') - 1 + int(params.fontSize)),
-                         numerator))
+                         chr(ord('A') - 1 + params.fontSize),
+                         number))
         else:
             out_string.write(c)
          
@@ -211,22 +211,22 @@ def generateFiles(params, delims, buf):
         if w.used:
             print("Generating fonts...")
             zebraFont(
-                w.type_,
+                w.kind,
                 params.style,
-                int(w.denominator),
+                w.slots,
                 params.fontFamily,
-                int(params.fontSize),
-                1.0,
+                params.fontSize,
+                1,
                 params.texmfHome,
                 False)
 
 def zebraFilter(style, encoding, fontFamily, fontSize,
-        numerator, denominator, texmfHome, string_tofilter, 
+        number, slots, index, texmfHome, string_tofilter, 
         checkArgs=False):
 
     try:
         parameters = Parameters(style, encoding, fontFamily, fontSize,
-                         numerator, denominator, texmfHome, checkArgs)
+                         number, slots, index, texmfHome, checkArgs)
         if checkArgs is False:
             out_string = io.StringIO()
             delimiters = dict(bracket = Delimiter('b', '[', ']'),
@@ -263,10 +263,14 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--size', type=int,
         choices=zebraHelp.validFontSizes,
         required=True, help='font size')
-    parser.add_argument('--numerator', type=int,
-        required=True, help='numerator')
-    parser.add_argument('--denominator', type=int,
-        required=True, help='denominator')
+    parser.add_argument('--number', type=int,
+        default=-1, help='number')
+    parser.add_argument('--slots', type=int,
+        choices=zebraHelp.validSlots,
+        default=-1, help='slots')
+    parser.add_argument('--index', type=str,
+        choices=zebraHelp.validIndices,
+        default='n', help='index')
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--string', type=str,
@@ -276,7 +280,7 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
         help='check validity of input arguments')
     args = parser.parse_args(inputArguments)
     zebraFilter(args.style, args.encoding, args.family, args.size,
-        args.numerator, args.denominator, args.texmfhome, args.checkargs)
+        args.number, args.slots, args.index, args.texmfhome, args.checkargs)
 
 # TODO: Document
 if __name__ == '__main__':
