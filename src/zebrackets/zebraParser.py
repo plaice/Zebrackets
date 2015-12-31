@@ -55,17 +55,15 @@ class Params:
     '''This init method should have a set of defaults. 
     '''
     def __init__(self):
-        self.type_ = 'p'
+        self.kind = 'p'
         self.style = 'h'
-        self.stripes = 7
+        self.slots = 7
         self.family = 'cmr'
         self.size = 10
-        self.mag = 1.0
+        self.mag = 1
 
         self.index = 'd'
-        self.numerator = ''
-        self.denominator = -1
-        self.encoding = ''
+        self.encoding = 'b'
 
         self.filterMode = False
 
@@ -74,17 +72,13 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     document, based in the '\zebracketsdefaults' directive in the input
     zetex file.
     '''
-
-    zebraHelp.check_type_(params_doc_defaults, doc_args)
+    zebraHelp.check_kind(params_doc_defaults, doc_args)
     zebraHelp.check_style(params_doc_defaults, doc_args)
-    zebraHelp.check_stripes(params_doc_defaults, doc_args)
+    zebraHelp.check_slots(params_doc_defaults, doc_args)
     zebraHelp.check_family(params_doc_defaults, doc_args)
     zebraHelp.check_size(params_doc_defaults, doc_args)
     zebraHelp.check_mag(params_doc_defaults, doc_args)
-
     zebraHelp.check_index(params_doc_defaults, doc_args)
-    zebraHelp.check_numerator(params_doc_defaults, doc_args)
-    zebraHelp.check_denominator(params_doc_defaults, doc_args)
     zebraHelp.check_encoding(params_doc_defaults, doc_args)
 
 
@@ -95,17 +89,17 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     '''
     params_font = copy.copy(params_doc_defaults)
 
-    zebraHelp.check_type_(params_font, font_args)
+    zebraHelp.check_kind(params_font, font_args)
     zebraHelp.check_style(params_font, font_args)
-    zebraHelp.check_stripes(params_font, font_args)
+    zebraHelp.check_slots(params_font, font_args)
     zebraHelp.check_family(params_font, font_args)
     zebraHelp.check_size(params_font, font_args)
     zebraHelp.check_mag(params_font, font_args)
 
     zebraFont.zebraFont(
-        params_font.type_,
+        params_font.kind,
         params_font.style,
-        params_font.stripes,
+        params_font.slots,
         params_font.family,
         params_font.size,
         params_font.mag,
@@ -124,10 +118,7 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
     zebraHelp.check_mag(params_paragraph, par_args)
-
     zebraHelp.check_index(params_paragraph, par_args)
-    zebraHelp.check_numerator(params_paragraph, par_args)
-    zebraHelp.check_denominator(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
 
 
@@ -144,8 +135,6 @@ def endZebrackets(params_doc_defaults, params_paragraph):
         params_paragraph.encoding,
         params_paragraph.family,
         params_paragraph.size,
-        params_paragraph.numerator,
-        params_paragraph.denominator,
         params_doc_defaults.texmfHome,
         string_tofilter,
         )
