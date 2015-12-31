@@ -8,17 +8,17 @@ sys.path.append('/home/mancilla/development/Zebrackets/src')
 
 from zebrackets import *
 
-full_cmd_1 = ['--type', 'b',
+full_cmd_1 = ['--kind', 'b',
               '--style', 'b',
-              '--stripes', '7',
+              '--slots', '7',
               '--family', 'cmb',
               '--size', '10',
               '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
-full_cmd_2 = ['--type', 'b',
+full_cmd_2 = ['--kind', 'b',
               '--style', 'b',
-              '--stripes', '5',
+              '--slots', '5',
               '--family', 'cmb',
               '--size', '17', 
               '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
@@ -58,11 +58,11 @@ class TestZebraFont(unittest.TestCase):
             pass
 
     ## Checking the actual call to create the fonts function
-    # Invalid number of stripes
+    # Invalid number of slots
     def test_zebrafont_func_1(self):
         self.assertEqual(zebraFont.zebraFont(
             'b', 'b', '7', 'cmb', '17', '/home/mancilla', '1', '--checkargs'), 
-            "Invalid input: Invalid number of stripes")
+            "Invalid input: Invalid number of slots")
 
 
 if __name__ == '__main__':
