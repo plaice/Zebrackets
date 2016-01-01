@@ -155,21 +155,21 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
        w.count = -1
        w.depth = 0
        for level in range(64):
-           w.stack[level] = 0
+           w.stack[level] = -1
 
     for c in buf:
         replace = False
         for k, w in delims.items():
             if c == w.left:
                 endIsLeft = True
-                w.stack[w.depth] = w.count
+                w.stack[w.depth] += 1
+                w.windex = w.stack[w.depth]
                 w.depth += 1
-                w.windex = 1
                 w.count += 1
             elif c == w.right:
                 endIsLeft = False
-                w.windex -= 1
                 w.depth -= 1
+                w.windex = w.stack[w.depth]
             else:
                 continue
             replace = True
@@ -184,7 +184,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
                     number = wsaved.stack[wsaved.depth] + 1
             elif params.index == 'd':     # depth
                 if endIsLeft:
-                    number = wsaved.depth -1
+                    number = wsaved.depth - 1
                 else:
                     number = wsaved.depth
             elif params.index == 'b':     # breadth
@@ -209,7 +209,6 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
 def generateFiles(params, delims, buf):
     for k, w in delims.items():
         if w.used:
-            print("Generating fonts...")
             zebraFont(
                 w.kind,
                 params.style,
