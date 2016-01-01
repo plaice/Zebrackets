@@ -73,7 +73,7 @@ class Parameters:
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise zebraHelp.ArgError('Invalid font family-size pair')
         if index == 'n':
-            if number < n:
+            if number < 0:
                 raise zebraHelp.ArgError('Invalid number')
         elif index not in zebraHelp.validIndices:
             raise zebraHelp.ArgError('Invalid index')
@@ -275,12 +275,16 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--string', type=str,
         required=True,
-        help='text between in the zebracket environment')
+        help='text within the zebrackets environment')
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
     args = parser.parse_args(inputArguments)
-    zebraFilter(args.style, args.encoding, args.family, args.size,
-        args.number, args.slots, args.index, args.texmfhome, args.checkargs)
+    filtered_string = zebraFilter(
+      args.style, args.encoding, args.family,
+      args.size, args.number, args.slots,
+      args.index, args.texmfhome,
+      args.string, args.checkargs)
+    print ('Output is: "', filtered_string, '"', sep='')
 
 # TODO: Document
 if __name__ == '__main__':

@@ -46,7 +46,7 @@ import os
 import re
 import sys
 import argparse
-sys.path.append('/home/mancilla/development/Zebrackets/src')
+#sys.path.append('/home/mancilla/development/Zebrackets/src')
 from zebrackets import zebraFont
 from zebrackets import zebraHelp
 from zebrackets.zebraFilter import zebraFilter
