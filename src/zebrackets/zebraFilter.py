@@ -49,8 +49,8 @@ class Delimiter:
         self.left = _left
         self.right = _right
         self.count = 0
-        self.windex = 0
         self.depth = 0;
+        self.breadth = 0
         self.used = False
         self.slots = -1
         self.highestCount = 0
@@ -163,13 +163,13 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
             if c == w.left:
                 endIsLeft = True
                 w.stack[w.depth] += 1
-                w.windex = w.stack[w.depth]
+                w.breadth = w.stack[w.depth]
                 w.depth += 1
                 w.count += 1
             elif c == w.right:
                 endIsLeft = False
                 w.depth -= 1
-                w.windex = w.stack[w.depth]
+                w.breadth = w.stack[w.depth]
             else:
                 continue
             replace = True
@@ -188,7 +188,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
                 else:
                     number = wsaved.depth
             elif params.index == 'b':     # breadth
-                number = wsaved.windex
+                number = wsaved.breadth
             else:                         # manual number
                 number = params.number
             number = params.valueToEncoding(number)
