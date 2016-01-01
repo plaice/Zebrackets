@@ -24,6 +24,7 @@ creates a new MetaFont file and then invokes it.
 import argparse
 import glob
 import io
+import math
 import os
 import re
 import subprocess
@@ -107,6 +108,8 @@ def createMFfiles(params):
     # Set up of diretories and files names
     sourceFont = '{0}{1}'.format(params.fontFamily, int(params.fontSize))
     destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
+    destTFMdir = '{0}/fonts/tfm/public/zetex'.format(params.texmfHome)
+    destPKdir = '{0}/fonts/pk/ljfour/public/zetex'.format(params.texmfHome)
     destMF = 'z{0}{1}{2}{3}'.format(
                  params.kind, params.style,
                  params.slotsAsLetter, sourceFont)
@@ -154,14 +157,12 @@ def createMFfiles(params):
     try:
         subprocess.check_output(['kpsewhich', '{0}.tfm'.format(destMF)])
     except subprocess.CalledProcessError:
-        callAndLog(
-            ['mktextfm', '--destdir', params.texmfHome, destMF],
-            zetexFontsLog)
+        callAndLog(['mktextfm', destMF], zetexFontsLog)
         callAndLog(
             ['mktexlsr', params.texmfHome], zetexFontsLog)
 
-    if params.mag != 1.0:
-        dpi = int(params.mag * params.mag * float(600) + .5)
+    if params.mag != 1:
+        dpi = params.mag * 600
         try:
             subprocess.check_output(
                 ['kpsewhich', '{0}.{1}pk'.format(destMF, dpi)])
@@ -176,7 +177,7 @@ def createMFfiles(params):
             callAndLog(['mf-nowin',
                         '-progname=mf',
                         '\\mode:=ljfour; mag:={0}; nonstopmode; input {1}'.
-                            format(params.mag, destMF)],
+                            format(math.sqrt(float(params.mag)), destMF)],
                        zetexFontsLog)
             callAndLog(['gftopk',
                         '{0}.{1}gf'.format(destMF, dpi),

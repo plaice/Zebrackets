@@ -80,17 +80,6 @@ class ArgError(Exception):
     def __str__(self):
         return repr(self.value)
 
-def check_texmfhome(texmfHome):
-    if texmfHome == None:
-        if 'TEXMFHOME' not in os.environ:
-            prt_str = 'Error: TEXMFHOME environment variable is not set.'
-            raise ArgError(prt_str)
-        texmfHome = os.environ['TEXMFHOME']
-    elif not os.path.isdir(texmfHome):
-        prt_str = "Error: Invalid texmf, path is not a directory."
-        raise ArgError(prt_str)
-    return texmfHome
-
 def check_kind(params, block_args):
     m = re.search(r'typ\w*=([bp])\w*[,\]]', block_args)
     if m:
@@ -171,3 +160,15 @@ def check_size(params, block_args):
             raise ArgError("Error: " + size + " not a valid font size.")
         else:
             params.size = size
+
+def check_texmfhome(texmfHome):
+    if texmfHome == None:
+        if 'TEXMFHOME' not in os.environ:
+            prt_str = 'Error: TEXMFHOME environment variable is not set.'
+            raise ArgError(prt_str)
+        texmfHome = os.environ['TEXMFHOME']
+    elif not os.path.isdir(texmfHome):
+        prt_str = "Error: Invalid texmf, path is not a directory."
+        raise ArgError(prt_str)
+    os.environ['TEXMFHOME'] = texmfHome
+    return texmfHome
