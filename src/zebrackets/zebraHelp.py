@@ -23,7 +23,6 @@ in zebrackets.
 
 import os
 import re
-import math
 
 # Kind is parenthesis, bracket
 validKinds = ['p', 'b']
@@ -134,6 +133,15 @@ def check_index(params, block_args):
         else:
             params.index = index
 
+def check_number(params, block_args):
+    m = re.search(r'num\w*=(\d+)[,\]]', block_args)
+    if m:
+        number = int(m.group(1))
+        if number < 0:
+            raise ArgError("Error: " + number + " not a valid glyph number.")
+        else:
+            params.number = number
+
 def check_mag(params, block_args):
     m = re.search(r'mag\w*=(\d+)[,\]]', block_args)
     if m:
@@ -141,7 +149,7 @@ def check_mag(params, block_args):
         if mag not in validMags:
             raise ArgError("Error: " + mag + " not a valid magnification.")
         else:
-            params.mag = math.sqrt(float(mag))
+            params.mag = mag
 
 def check_family(params, block_args):
     m = re.search(r'fam\w*=(\w+)[,\]]', block_args)

@@ -49,6 +49,8 @@ class Parameters:
             raise zebraHelp.ArgError('Invalid font size')
         if fontSize not in zebraHelp.validFontPairs[fontFamily]:
             raise zebraHelp.ArgError('Invalid font family-size pair')
+        if mag not in zebraHelp.validMags:
+            raise zebraHelp.ArgError('Invalid magnification')
         texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
         self.kind = kind
@@ -155,25 +157,33 @@ def createMFfiles(params):
     # generate the TFM font and install the file
     # generate the ls-R database used by the kpathsea library
     try:
+        print("Calling kpsewhich on", destMF + ".tfm")
         subprocess.check_output(['kpsewhich', '{0}.tfm'.format(destMF)])
     except subprocess.CalledProcessError:
+        print("Calling mktextfm on", destMF)
         callAndLog(['mktextfm', destMF], zetexFontsLog)
         callAndLog(
             ['mktexlsr', params.texmfHome], zetexFontsLog)
 
-    if params.mag != 1:
+    print("params.mag =", params.mag)
+    if int(params.mag) != 1:
+        print('Inside if statement')
         dpi = params.mag * 600
+        print('dpi =', dpi)
         try:
+            print("Calling kpsewhich on", destMF + "." + str(dpi) + "pk")
             subprocess.check_output(
                 ['kpsewhich', '{0}.{1}pk'.format(destMF, dpi)])
         except subprocess.CalledProcessError:
             try:
+                print("Calling kpsewhich on", destMF + ".600pk")
                 proc = subprocess.Popen(
                            ['kpsewhich', '{0}.600pk'.format(destMF)],
                             stdout=subprocess.PIPE, universal_newlines=True)
             except subprocess.CalledProcessError:
                 sys.exit('Could not find file {0}.600pk'.format(destMF))
             dpidir = re.sub('/[^/]*$', '', proc.stdout.read())
+            print("mag:=", math.sqrt(float(params.mag)))
             callAndLog(['mf-nowin',
                         '-progname=mf',
                         '\\mode:=ljfour; mag:={0}; nonstopmode; input {1}'.

@@ -63,6 +63,7 @@ class Params:
         self.mag = 1
 
         self.index = 'd'
+        self.number = -1
         self.encoding = 'b'
 
         self.filterMode = False
@@ -107,8 +108,35 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
         False)
 
 
+def replaceText(params_doc_defaults, params_paragraph, par_args,
+                string_tofilter):
+    '''This method parses the arguments in \\zebracketstext,
+    modifies the params_paragraph accordingly, and calls zebraFilter.
+    '''
+    zebraHelp.check_style(params_paragraph, par_args)
+    zebraHelp.check_family(params_paragraph, par_args)
+    zebraHelp.check_size(params_paragraph, par_args)
+    zebraHelp.check_mag(params_paragraph, par_args)
+    zebraHelp.check_slots(params_paragraph, par_args)
+    zebraHelp.check_index(params_paragraph, par_args)
+    zebraHelp.check_number(params_paragraph, par_args)
+    zebraHelp.check_encoding(params_paragraph, par_args)
+    string_filtered = zebraFilter(
+        params_paragraph.style,
+        params_paragraph.encoding,
+        params_paragraph.family,
+        params_paragraph.size,
+        params_paragraph.number,
+        params_paragraph.slots,
+        params_paragraph.index,
+        params_doc_defaults.texmfHome,
+        string_tofilter,
+        )
+    return string_filtered
+
+
 def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
-    '''This method parses the arguments in \begin{zebrabrackets}
+    '''This method parses the arguments in \\begin{zebrabrackets}
     and modifies the params_paragraph accordingly.
     '''
     params_paragraph.buf = io.StringIO()
@@ -120,13 +148,14 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_mag(params_paragraph, par_args)
     zebraHelp.check_slots(params_paragraph, par_args)
     zebraHelp.check_index(params_paragraph, par_args)
+    zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
 
 
 def endZebrackets(params_doc_defaults, params_paragraph):
     '''This method writes the buffer into the output file. The buffer has been
     accumulating the translation between normal parenthesis and zebrackets. 
-    zebraFilter is call to replace the glyphs. 
+    zebraFilter is called to replace the glyphs. 
     '''
     string_tofilter = params_paragraph.buf.getvalue()
     params_paragraph.buf.close()
@@ -136,7 +165,7 @@ def endZebrackets(params_doc_defaults, params_paragraph):
         params_paragraph.encoding,
         params_paragraph.family,
         params_paragraph.size,
-        -1,
+        params_paragraph.number,
         params_paragraph.slots,
         params_paragraph.index,
         params_doc_defaults.texmfHome,
@@ -178,6 +207,17 @@ def filterText(params_doc_defaults, params_paragraph):
                     params_paragraph,
                     m.group(1))
                 continue
+            m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
+            while m:
+                print("Going to replaceText")
+                # TODO: Find the replacement text, then sub back into line
+                params_paragraph = copy.copy(params_doc_defaults)
+                new_text = replaceText(params_doc_defaults, params_paragraph,
+                                       m.group(1), m.group(2))
+                print('The new text is:' , new_text)
+                line = re.sub(r'\\zebracketstext\[.*\]{.*}',
+                              repr(new_text).strip("'").rstrip("'"), line)
+                m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
             # Process a normal line
             params_doc_defaults.outfile.write(line)
         else:
