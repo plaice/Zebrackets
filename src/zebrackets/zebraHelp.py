@@ -110,7 +110,7 @@ def check_style(params, block_args):
 def check_slots(params, block_args):
     m = re.search(r'str\w*=(\d+)[,\]]', block_args)
     if m:
-        slots = m.group(1)
+        slots = int(m.group(1))
         if slots not in validSlots:
             raise ArgError("Error: " + slots + " not a valid number of slots.")
         else:
@@ -137,7 +137,7 @@ def check_index(params, block_args):
 def check_mag(params, block_args):
     m = re.search(r'mag\w*=(\d+)[,\]]', block_args)
     if m:
-        mag = m.group(1)
+        mag = int(m.group(1))
         if mag not in validMags:
             raise ArgError("Error: " + mag + " not a valid magnification.")
         else:
@@ -155,7 +155,7 @@ def check_family(params, block_args):
 def check_size(params, block_args):
     m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
     if m:
-        size = m.group(1)
+        size = int(m.group(1))
         if size not in validFontSizes:
             raise ArgError("Error: " + size + " not a valid font size.")
         else:

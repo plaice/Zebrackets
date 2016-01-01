@@ -118,6 +118,7 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
     zebraHelp.check_mag(params_paragraph, par_args)
+    zebraHelp.check_slots(params_paragraph, par_args)
     zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
 
@@ -135,6 +136,9 @@ def endZebrackets(params_doc_defaults, params_paragraph):
         params_paragraph.encoding,
         params_paragraph.family,
         params_paragraph.size,
+        -1,
+        params_paragraph.slots,
+        params_paragraph.index,
         params_doc_defaults.texmfHome,
         string_tofilter,
         )
