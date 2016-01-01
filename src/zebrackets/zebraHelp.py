@@ -80,7 +80,7 @@ class ArgError(Exception):
         return repr(self.value)
 
 def check_kind(params, block_args):
-    m = re.search(r'typ\w*=([bp])\w*[,\]]', block_args)
+    m = re.search(r'kin\w*=([bp])\w*[,\]]', block_args)
     if m:
         kind = m.group(1)
         if kind not in validKinds:
@@ -89,7 +89,7 @@ def check_kind(params, block_args):
             params.kind = kind
 
 def check_kind_use(params, block_args):
-    m = re.search(r'typ\w*=([bdp])\w*[,\]]', block_args)
+    m = re.search(r'kin\w*=([bdp])\w*[,\]]', block_args)
     if m:
         kind = m.group(1)
         if kind not in validKindUses:
@@ -107,7 +107,7 @@ def check_style(params, block_args):
             params.style = style
 
 def check_slots(params, block_args):
-    m = re.search(r'str\w*=(\d+)[,\]]', block_args)
+    m = re.search(r'slo\w*=(\d+)[,\]]', block_args)
     if m:
         slots = int(m.group(1))
         if slots not in validSlots:

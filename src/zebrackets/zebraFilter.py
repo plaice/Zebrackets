@@ -177,7 +177,9 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
             break
 
         if replace:
-            if params.index == 'u':       # unique (default) mode
+            if params.number != -1:
+                number = params.number
+            elif params.index == 'u':       # unique (default) mode
                 if endIsLeft:
                     number = wsaved.count
                 else:
@@ -187,10 +189,8 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
                     number = wsaved.depth - 1
                 else:
                     number = wsaved.depth
-            elif params.index == 'b':     # breadth
+            else: #params.index == 'b'     # breadth
                 number = wsaved.breadth
-            else:                         # manual number
-                number = params.number
             number = params.valueToEncoding(number)
             if not endIsLeft:
                 number += pow(2, wsaved.slots)
@@ -222,6 +222,12 @@ def generateFiles(params, delims, buf):
 def zebraFilter(style, encoding, fontFamily, fontSize,
         number, slots, index, texmfHome, string_tofilter, 
         checkArgs=False):
+    print('zebraFilter: ',
+          'style', style, 'encoding', encoding,
+          'fontFamily', fontFamily, 'fontSize', fontSize,
+          'number', number, 'slots', slots,
+          'index', index, 'texmfHome', texmfHome,
+          'string_to_filter', string_tofilter)
 
     try:
         parameters = Parameters(style, encoding, fontFamily, fontSize,

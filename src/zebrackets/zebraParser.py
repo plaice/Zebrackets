@@ -113,6 +113,8 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     '''This method parses the arguments in \\zebracketstext,
     modifies the params_paragraph accordingly, and calls zebraFilter.
     '''
+    
+    print('replaceText: ', par_args)
     zebraHelp.check_style(params_paragraph, par_args)
     zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
@@ -121,6 +123,7 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
+    print('replaceText.slots: ', params_paragraph.slots)
     string_filtered = zebraFilter(
         params_paragraph.style,
         params_paragraph.encoding,
