@@ -34,13 +34,12 @@ import zebraHelp
 valueToFunctions = {
     'b' : (lambda value : value % 256),
     'u' : (lambda value : pow(2, (value % 8)) - 1),
-    'd' : (lambda value : pow(2, value % 7)) }
+    'd' : (lambda value : pow(2, (value - 1) % 7) if value else value) }
 
-# TODO: Document
 valueFromFunctions = {
     'b' : (lambda value : int(math.ceil(math.log(value, 2)))),
     'u' : (lambda value : value - 1),
-    'd' : (lambda value : value) }
+    'd' : (lambda value : value - 1) }
 
 # TODO: Document
 class Delimiter:
@@ -162,7 +161,10 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
         for k, w in delims.items():
             if c == w.left:
                 endIsLeft = True
-                w.stack[w.depth] += 1
+                if params.index == 'u':       # unique (default) mode
+                    w.stack[w.depth] = w.count
+                else:
+                    w.stack[w.depth] += 1
                 w.breadth = w.stack[w.depth]
                 w.depth += 1
                 w.count += 1
