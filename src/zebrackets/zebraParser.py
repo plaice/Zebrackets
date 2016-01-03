@@ -57,7 +57,7 @@ class Params:
     def __init__(self):
         self.kind = 'p'
         self.style = 'h'
-        self.slots = 7
+        self.slots = -1
         self.family = 'cmr'
         self.size = 10
         self.mag = 1

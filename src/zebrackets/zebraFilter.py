@@ -164,10 +164,12 @@ def printDeclarations(params, delims, buf, out_string):
                 params.fontFamily
             )
             out_string.write(
-                '\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
+                '\\ifundefined{{{0}{1}{2}}}\\newfont{{\\{0}{1}{2}}}{{{0}{3} scaled {4}000}}\\fi'.
                     format(fontName,
                            chr(ord('A') - 1 + params.fontSize),
-                           params.fontSize))
+                           chr(ord('A') - 1 + params.mag),
+                           params.fontSize,
+                           params.mag))
 
 # TODO: Document
 def printAndReplaceSymbols(params, delims, buf, out_string):
@@ -230,12 +232,13 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
             if not is_left:
                 number += pow(2, params.slots)
 
-            out_string.write('{{\\z{0}{1}{2}{3}{4} \\symbol{{{5}}}}}'.
+            out_string.write('{{\\z{0}{1}{2}{3}{4}{5} \\symbol{{{6}}}}}'.
                   format(c_kind,
                          params.style,
                          chr(ord('a') + params.slots),
                          params.fontFamily,
                          chr(ord('A') - 1 + params.fontSize),
+                         chr(ord('A') - 1 + params.mag),
                          number))
         else:
             out_string.write(c)
