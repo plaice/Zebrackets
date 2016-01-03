@@ -114,7 +114,6 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     modifies the params_paragraph accordingly, and calls zebraFilter.
     '''
     
-    print('replaceText: ', par_args)
     zebraHelp.check_style(params_paragraph, par_args)
     zebraHelp.check_family(params_paragraph, par_args)
     zebraHelp.check_size(params_paragraph, par_args)
@@ -123,12 +122,12 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
-    print('replaceText.slots: ', params_paragraph.slots)
     string_filtered = zebraFilter(
         params_paragraph.style,
         params_paragraph.encoding,
         params_paragraph.family,
         params_paragraph.size,
+        params_paragraph.mag,
         params_paragraph.number,
         params_paragraph.slots,
         params_paragraph.index,
@@ -168,6 +167,7 @@ def endZebrackets(params_doc_defaults, params_paragraph):
         params_paragraph.encoding,
         params_paragraph.family,
         params_paragraph.size,
+        params_paragraph.mag,
         params_paragraph.number,
         params_paragraph.slots,
         params_paragraph.index,
@@ -176,7 +176,6 @@ def endZebrackets(params_doc_defaults, params_paragraph):
         )
     ## Here we can check if the string_filtered contains an error message.
     ## If so, write to the log file and exit graciously.
-    print(string_filtered)
     params_doc_defaults.filterMode = False
     params_doc_defaults.outfile.write(string_filtered)
 
@@ -193,17 +192,14 @@ def filterText(params_doc_defaults, params_paragraph):
         if not params_doc_defaults.filterMode:
             m = re.search(r'^\\zebracketsdefaults(\[.*\])', line)
             if m:
-                print("Going to setDefaults")
                 setDefaults(params_doc_defaults, params_paragraph, m.group(1))
                 continue
             m = re.search(r'^\\zebracketsfont(\[.*\])', line)
             if m:
-                print("Going to declareFonts")
                 declareFont(params_doc_defaults, params_paragraph, m.group(1))
                 continue
             m = re.search(r'^\\begin{zebrackets}(\[.*])', line)
             if m:
-                print("Going to beginZebrackets")
                 params_paragraph = copy.copy(params_doc_defaults)
                 beginZebrackets(
                     params_doc_defaults,
@@ -212,12 +208,10 @@ def filterText(params_doc_defaults, params_paragraph):
                 continue
             m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
             while m:
-                print("Going to replaceText")
                 # TODO: Find the replacement text, then sub back into line
                 params_paragraph = copy.copy(params_doc_defaults)
                 new_text = replaceText(params_doc_defaults, params_paragraph,
                                        m.group(1), m.group(2))
-                print('The new text is:' , new_text)
                 line = re.sub(r'\\zebracketstext\[.*\]{.*}',
                               repr(new_text).strip("'").rstrip("'"), line)
                 m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
@@ -226,7 +220,6 @@ def filterText(params_doc_defaults, params_paragraph):
         else:
             m = re.search(r'^\\end{zebrackets}', line)
             if m:
-                print("Going to endZebrackets")
                 endZebrackets(params_doc_defaults, params_paragraph)
                 continue
             # Process a normal line
@@ -264,7 +257,6 @@ def zebraParser(args):
         return params_doc_defaults.texmfHome
 
     if args.checkargs is False:
-        print("Ok, here we go!")
         filterText(params_doc_defaults, params_paragraph)
         params_doc_defaults.infile.close()
         params_doc_defaults.outfile.close()
@@ -284,11 +276,7 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
         help='check validity of input arguments')
 
     args = parser.parse_args(inputArguments)
-    print(args.input.name)
-    print(args.output)
-    print(args.texmfhome)
-    print(args.checkargs)
-    return zebraParser(args)
+    zebraParser(args)
 
 if __name__ == '__main__':
-    print(zebraParserParser())
+    zebraParserParser()

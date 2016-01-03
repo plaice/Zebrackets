@@ -157,33 +157,25 @@ def createMFfiles(params):
     # generate the TFM font and install the file
     # generate the ls-R database used by the kpathsea library
     try:
-        print("Calling kpsewhich on", destMF + ".tfm")
         subprocess.check_output(['kpsewhich', '{0}.tfm'.format(destMF)])
     except subprocess.CalledProcessError:
-        print("Calling mktextfm on", destMF)
         callAndLog(['mktextfm', destMF], zetexFontsLog)
         callAndLog(
             ['mktexlsr', params.texmfHome], zetexFontsLog)
 
-    print("params.mag =", params.mag)
     if int(params.mag) != 1:
-        print('Inside if statement')
         dpi = params.mag * 600
-        print('dpi =', dpi)
         try:
-            print("Calling kpsewhich on", destMF + "." + str(dpi) + "pk")
             subprocess.check_output(
                 ['kpsewhich', '{0}.{1}pk'.format(destMF, dpi)])
         except subprocess.CalledProcessError:
             try:
-                print("Calling kpsewhich on", destMF + ".600pk")
                 proc = subprocess.Popen(
                            ['kpsewhich', '{0}.600pk'.format(destMF)],
                             stdout=subprocess.PIPE, universal_newlines=True)
             except subprocess.CalledProcessError:
                 sys.exit('Could not find file {0}.600pk'.format(destMF))
             dpidir = re.sub('/[^/]*$', '', proc.stdout.read())
-            print("mag:=", math.sqrt(float(params.mag)))
             callAndLog(['mf-nowin',
                         '-progname=mf',
                         '\\mode:=ljfour; mag:={0}; nonstopmode; input {1}'.
@@ -212,7 +204,6 @@ def zebraFont(kind, style, slots, fontFamily,
             createMFfiles(parameters)
     except zebraHelp.ArgError as e:
         prt_str = 'Invalid input: ' + e.value
-        print(prt_str)
         return prt_str
 
 def zebraFontParser(inputArguments = sys.argv[1:]):
@@ -244,5 +235,4 @@ def zebraFontParser(inputArguments = sys.argv[1:]):
         args.size, args.mag, args.texmfhome, args.checkargs)
 
 if __name__ == '__main__':
-    print(sys.argv)
     zebraFontParser()
