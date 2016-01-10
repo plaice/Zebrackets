@@ -2,7 +2,7 @@
 
 # File zebraFilter.py
 #
-# Copyright (c) John Plaice, 2015
+# Copyright (c) John Plaice and Blanca Mancilla, 2015
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,274 +17,317 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+'''This filter is run on a region of text.
+Its arguments dictate translation of parentheses in the region.
+'''
+
 import argparse
 import math
 import os
+import io
 import subprocess
 import sys
-from zebrackets import zebraFont
+from zebrackets.zebraFont import zebraFont
+import zebraHelp
 
-validStyles = ['b', 'f', 'h']
-validEncodings = ['b', 'u', 'd']
-validFontFamilies = [
-    'cmb', 'cmbtt', 'cmbx', 'cmbxsl', 'cmdunh', 'cmff',
-    'cmfib', 'cmr', 'cmsl', 'cmsltt', 'cmss', 'cmssbx',
-    'cmssdc', 'cmssi', 'cmssq', 'cmssqi', 'cmtt', 'cmttb', 'cmvtt']
-validFontSizes = [5, 6, 7, 8, 9, 10, 12, 17]
-validFontPairs = {
-    'cmb':    [10],
-    'cmbtt':  [8, 9, 10],
-    'cmbx':   [5, 6, 7, 8, 9, 10, 12],
-    'cmbxsl': [10],
-    'cmdunh': [10],
-    'cmff':   [10],
-    'cmfib':  [8],
-    'cmr':    [5, 6, 7, 8, 9, 10, 12, 17],
-    'cmsl':   [8, 9, 10, 12],
-    'cmsltt': [10],
-    'cmss':   [8, 9, 10, 12, 17],
-    'cmssbx': [10],
-    'cmssdc': [10],
-    'cmssi':  [8, 9, 10, 12, 17],
-    'cmssq':  [8],
-    'cmssqi': [8],
-    'cmtt':   [8, 9, 10, 12],
-    'cmttb':  [10],
-    'cmvtt':  [10] }
-
-# This filter is run on a region of text.
-#  Its arguments dictate translation of parentheses in the region.
-
-# TODO: Document
 valueToFunctions = {
     'b' : (lambda value : value % 256),
     'u' : (lambda value : pow(2, (value % 8)) - 1),
-    'd' : (lambda value : pow(2, value % 7)) }
+    'd' : (lambda value : pow(2, (value - 1) % 7) if value else value) }
 
-# TODO: Document
-valueFromFunctions = {
-    'b' : (lambda value : int(math.ceil(math.log(value, 2)))),
-    'u' : (lambda value : value - 1),
-    'd' : (lambda value : value) }
+#valueFromFunctions = {
+#    'b' : (lambda value : int(math.ceil(math.log(value, 2)))),
+#    'u' : (lambda value : value - 1),
+#    'd' : (lambda value : value - 1) }
 
 # TODO: Document
 class Delimiter:
-    def __init__(self, _kind, _left, _right):
-        self.kind = _kind
-        self.left = _left
-        self.right = _right
-        self.count = 0
-        self.index = 0
-        self.depth = 0;
+    def __init__(self, kind, left, right):
+        self.kind = kind
+        self.left = left
+        self.right = right
         self.used = False
-        self.denominator = -1
-        self.highestCount = 0
-        self.deepestDepth = 0
-        self.broadestBreadth = 0
-        self.stack = [0 for level in range(64)]
+
+class Active:
+    def __init__(self, expected_right, kind, count, depth, breadth):
+        self.expected_right = expected_right
+        self.kind = kind
+        self.count = count
+        self.depth = depth
+        self.breadth = breadth
+
+    def __repr__(self):
+        return "<Active expected:%s, kind:%s, count:%s, depth:%s, breadth:%s>" % (self.expected_right, self.kind, self.count, self.depth, self.breadth)
 
 # TODO: Document
 class Parameters:
-    def __init__(self, style, encoding, fontFamily, fontSize,
-            numerator, denominator, texmfHome, checkArgs):
-        if style not in validStyles:
-            raise ArgError('Invalid style')
-        if encoding not in validEncodings:
-            raise ArgError('Invalid encoding')
-        if fontFamily not in validFontFamilies:
-            raise ArgError('Invalid Computer Modern font family')
-        if fontSize not in validFontSizes:
-            raise ArgError('Invalid font size')
-        if fontSize not in validFontPairs[fontFamily]:
-            raise ArgError('Invalid font family-size pair')
-        if texmfHome is None:
-            if 'TEXMFHOME' not in os.environ:
-                raise ArgError('TEXMFHOME environment variable is not set')
-            texmfHome = os.environ['TEXMFHOME']
-
-        if numerator < 0:
-            if numerator < -3:
-                ArgError('Invalid numerator')
-        elif denominator < 0:
-            ArgError('Invalid denominator')
+    def __init__(self, style, encoding, fontFamily, fontSize, mag,
+            number, slots, index, texmfHome, checkArgs):
+        if style not in zebraHelp.validStyles:
+            raise zebraHelp.ArgError('Invalid style')
+        if encoding not in zebraHelp.validEncodings:
+            raise zebraHelp.ArgError('Invalid encoding')
+        if fontFamily not in zebraHelp.validFontFamilies:
+            raise zebraHelp.ArgError('Invalid Computer Modern font family')
+        if fontSize not in zebraHelp.validFontSizes:
+            raise zebraHelp.ArgError('Invalid font size')
+        if fontSize not in zebraHelp.validFontPairs[fontFamily]:
+            raise zebraHelp.ArgError('Invalid font family-size pair')
+        if mag not in zebraHelp.validMags:
+            raise zebraHelp.ArgError('Invalid magnification')
+        if index == 'n':
+            if number < 0:
+                raise zebraHelp.ArgError('Invalid number')
+        elif index not in zebraHelp.validIndices:
+            raise zebraHelp.ArgError('Invalid index')
+        if number >= 0:
+            index = 'n'
+        
+        texmfHome = zebraHelp.check_texmfhome(texmfHome)
 
         self.style = style
         self.encoding = encoding
         self.valueToEncoding = valueToFunctions[encoding]
-        self.valueFromEncoding = valueFromFunctions[encoding]
-        self.numerator = numerator
-        self.denominator = denominator
+#        self.valueFromEncoding = valueFromFunctions[encoding]
         self.fontFamily = fontFamily
         self.fontSize = fontSize
+        self.mag = mag
+        self.number = number
+        self.slots = slots
+        self.index = index
         self.texmfHome = texmfHome
         self.checkArgs = checkArgs
 
-# TODO: Document
-def readInput():
-    return sys.stdin.read()
+        self.highestCount = -1
+        self.deepestDepth = -1
+        self.broadestBreadth = -1
+
 
 # TODO: Document
 def countDelimiters(params, delims, buf):
-    # Go through the buffer and count the (opening) delimiters
-    # in case the automatic stripe denominator is requested.
+    '''Go through the buffer and count the (opening) delimiters
+    in case the automatic slots counter is requested.
+    '''
+
+    delim_opens = ['(', '[']
+    max_stack = []
+    active_stack = []
+    count = -1
+    depth = -1
+    expected_right = None
+    
+    # Each entry in active_stack
     for c in buf:
-        for k, w in delims.items():
-            if c == w.left:
-                w.used = True
-                w.count += 1
-                if w.highestCount < w.count:
-                    w.highestCount = w.count
-                w.depth += 1
-                if w.depth > 63:
-                    sys.exit('Depth is too greath (> 63)')
-                w.stack[w.depth] += 1
-                if w.deepestDepth < w.depth:
-                    w.deepestDepth = w.depth
-                if w.broadestBreadth < w.stack[w.depth]:
-                    w.broadestBreadth = w.stack[w.depth]
-            elif c == w.right:
-                w.depth -= 1
+        if c in delim_opens:
+            delims[c].used = True
+            count += 1
+            if params.highestCount < count:
+                params.highestCount = count
+            depth += 1
+            if params.deepestDepth < depth:
+                params.deepestDepth = depth
+            if len(max_stack) == depth:
+                max_stack.append(-1)
+                active_stack.append(None)
+            max_stack[depth] += 1
+            active_stack[depth] = Active(expected_right, delims[c].kind,
+                                         count, depth, max_stack[depth])
+            expected_right = delims[c].right
+            if params.broadestBreadth < max_stack[depth]:
+                params.broadestBreadth = max_stack[depth]
+        elif c == expected_right:
+            expected_right = active_stack[depth].expected_right
+            active_stack[depth] = None
+            depth -= 1
 
-    # Calculate all the denominators based upon the above tally.
-    for k, w in delims.items():
-        if w.used:
-            if params.numerator == -1:   # automatic (default) mode
-               w.denominator = w.highestCount
-            elif params.numerator == -2: # depth
-               w.denominator = w.deepestDepth
-            elif params.numerator == -3: # breadth
-               w.denominator = w.broadestBreadth
-            else:                        # manual numerator
-               w.denominator = params.denominator
-            w.denominator = params.valueFromEncoding(w.denominator)
-            if w.denominator > 7:
-                w.denominator = 7
-
-# TODO: Document
-def printDeclarations(params, delims, buf):
-    for k, w in delims.items():
-        if params.denominator != -1:
-            w.denominator = params.denominator
-        if w.used:
-            fontName = 'z{0}{1}{2}{3}'.format(w.kind,
-                                              params.style,
-                                              chr(ord('a') + w.denominator),
-                                              params.fontFamily)
-            print('\\ifundefined{{{0}{1}}}\\newfont{{\\{0}{1}}}{{{0}{2}}}\\fi'.
-                  format(fontName,
-                         chr(ord('A') - 1 + int(params.fontSize)),
-                         int(params.fontSize)))
+    # Calculate all the slots based upon the above tally.
+    if params.slots == -1:
+        if params.index == 'u':
+            params.slots = params.highestCount
+        elif params.index == 'd':
+            params.slots = params.deepestDepth
+        elif params.index == 'b':
+            params.slots = params.broadestBreadth
+        else:
+            params.slots = params.number
+    if params.slots > 7:
+        params.slots = 7
 
 # TODO: Document
-def printAndReplaceSymbols(params, delims, buf):
+def printDeclarations(params, delims, buf, out_string):
     for k, w in delims.items():
-       w.count = -1
-       w.depth = 0
-       for level in range(64):
-           w.stack[level] = 0
+        if w.used:
+            fontName = 'z{0}{1}{2}{3}'.format(
+                w.kind,
+                params.style,
+                chr(ord('a') + params.slots),
+                params.fontFamily
+            )
+            out_string.write(
+                '\\ifundefined{{{0}{1}{2}}}\\newfont{{\\{0}{1}{2}}}{{{0}{3} scaled {4}000}}\\fi'.
+                    format(fontName,
+                           chr(ord('A') - 1 + params.fontSize),
+                           chr(ord('A') - 1 + params.mag),
+                           params.fontSize,
+                           params.mag))
 
+# TODO: Document
+def printAndReplaceSymbols(params, delims, buf, out_string):
+
+    delim_opens = ['(', '[']
+    delim_chars = ['(', ')', '[', ']']
+    max_stack = []
+    active_stack = []
+    count = -1
+    depth = -1
+    expected_right = None
+    active = None
+    
+    # Each entry in active_stack
     for c in buf:
         replace = False
-        for k, w in delims.items():
-            if c == w.left:
-                endIsLeft = True
-                w.stack[w.depth] = w.count
-                w.depth += 1
-                w.index = 1
-                w.count += 1
-            elif c == w.right:
-                endIsLeft = False
-                w.index -= 1
-                w.depth -= 1
-            else:
-                continue
+        if params.number != -1 and c in delim_chars:
             replace = True
-            wsaved = w
-            break
+            is_left = c in delim_opens
+            c_kind = delims[c].kind
+        elif c in delim_opens:
+            delims[c].used = True
+            count += 1
+            if params.highestCount < count:
+                params.highestCount = count
+            depth += 1
+            if params.deepestDepth < depth:
+                params.deepestDepth = depth
+            if len(max_stack) == depth:
+                max_stack.append(-1)
+                active_stack.append(None)
+            max_stack[depth] += 1
+            active_stack[depth] = Active(expected_right, delims[c].kind,
+                                         count, depth, max_stack[depth])
+            expected_right = delims[c].right
+            if params.broadestBreadth < max_stack[depth]:
+                params.broadestBreadth = max_stack[depth]
+            replace = True
+            is_left = True
+            active = active_stack[depth]
+            c_kind = active.kind
+        elif c == expected_right:
+            expected_right = active_stack[depth].expected_right
+            active = active_stack[depth]
+            c_kind = active.kind
+            depth -= 1
+            replace = True
+            is_left = False
 
         if replace:
-            if params.numerator == -1:       # automatic (default) mode
-                if endIsLeft:
-                    numerator = wsaved.count
-                else:
-                    numerator = wsaved.stack[wsaved.depth] + 1
-            elif params.numerator == -2:     # depth
-                if endIsLeft:
-                    numerator = wsaved.depth -1
-                else:
-                    numerator = wsaved.depth
-            elif params.numerator == -3:     # breadth
-                numerator = wsaved.index
-            else:                            # manual numerator
-                numerator = params.numerator
-            numerator = params.valueToEncoding(numerator)
-            if not endIsLeft:
-                numerator += pow(2, wsaved.denominator)
+            if params.index == 'u':
+                number = active.count
+            elif params.index == 'd':
+                number = active.depth
+            elif params.index == 'b':
+                number = active.breadth
+            else:
+                number = params.number
+            number = params.valueToEncoding(number)
+            if not is_left:
+                number += pow(2, params.slots)
 
-            print('{{\\z{0}{1}{2}{3}{4} \\symbol{{{5}}}}}'.
-                  format(wsaved.kind,
+            out_string.write('{{\\z{0}{1}{2}{3}{4}{5} \\symbol{{{6}}}}}'.
+                  format(c_kind,
                          params.style,
-                         chr(ord('a') + wsaved.denominator),
+                         chr(ord('a') + params.slots),
                          params.fontFamily,
-                         chr(ord('A') - 1 + int(params.fontSize)),
-                         numerator), end='')
+                         chr(ord('A') - 1 + params.fontSize),
+                         chr(ord('A') - 1 + params.mag),
+                         number))
         else:
-            print(c, end='')
-         
+            out_string.write(c)
+
 # TODO: Document
 def generateFiles(params, delims, buf):
     for k, w in delims.items():
         if w.used:
-            zebraFont.zebraFont(
+            zebraFont(
                 w.kind,
                 params.style,
-                int(w.denominator),
+                params.slots,
                 params.fontFamily,
-                int(params.fontSize),
-                1.0,
+                params.fontSize,
+                params.mag,
                 params.texmfHome,
                 False)
 
-def zebraFilter(style, encoding, fontFamily, fontSize,
-        numerator, denominator, texmfHome, checkArgs):
+def zebraFilter(style, encoding, fontFamily, fontSize, mag,
+        number, slots, index, texmfHome, string_tofilter, 
+        checkArgs=False):
+
     try:
-        parameters = Parameters(style, encoding, fontFamily, fontSize,
-                         numerator, denominator, texmfHome, checkArgs)
+        parameters = Parameters(style, encoding, fontFamily, fontSize, mag,
+                         number, slots, index, texmfHome, checkArgs)
         if checkArgs is False:
-            delimiters = dict(bracket = Delimiter('b', '[', ']'),
-                              parenthesis = Delimiter('p', '(', ')'))
-            fileBuffer = readInput()
-            countDelimiters(parameters, delimiters, fileBuffer)
-            printDeclarations(parameters, delimiters, fileBuffer)
-            printAndReplaceSymbols(parameters, delimiters, fileBuffer)
-            generateFiles(parameters, delimiters, fileBuffer)
-    except ArgError as e:
+            out_string = io.StringIO()
+            delimiters = {}
+            delimiters['['] = Delimiter('b', '[', ']')
+            delimiters[']'] = Delimiter('b', '[', ']')
+            delimiters['('] = Delimiter('p', '(', ')')
+            delimiters[')'] = Delimiter('p', '(', ')')
+            countDelimiters(parameters, delimiters, string_tofilter)
+            printDeclarations(
+                parameters,
+                delimiters,
+                string_tofilter,
+                out_string)
+            printAndReplaceSymbols(
+                parameters,
+                delimiters,
+                string_tofilter,
+                out_string)
+            generateFiles(parameters, delimiters, string_tofilter)
+            value = out_string.getvalue()
+            out_string.close()
+            return value
+
+    except zebraHelp.ArgError as e:
         print('Invalid input:', e.value)
 
 def zebraFilterParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
                  description='Replace brackets by zebrackets in a text.')
-    parser.add_argument('--style', type=str, choices=validStyles,
+    parser.add_argument('--style', type=str, choices=zebraHelp.validStyles,
         required=True, help='b = background, f = foreground, h = hybrid')
-    parser.add_argument('--encoding', type=str, choices=validEncodings,
+    parser.add_argument('--encoding', type=str, choices=zebraHelp.validEncodings,
         required=True, help='b = binary, u = unary, d = demux')
     parser.add_argument('--family', type=str,
-        choices=validFontFamilies,
+        choices=zebraHelp.validFontFamilies,
         required=True, help='font family')
     parser.add_argument('--size', type=int,
-        choices=validFontSizes,
+        choices=zebraHelp.validFontSizes,
         required=True, help='font size')
-    parser.add_argument('--numerator', type=int,
-        required=True, help='numerator')
-    parser.add_argument('--denominator', type=int,
-        required=True, help='denominator')
+    parser.add_argument('--mag', type=int,
+        choices=zebraHelp.validMags,
+        default=1, help='magnification')
+    parser.add_argument('--number', type=int,
+        default=-1, help='number')
+    parser.add_argument('--slots', type=int,
+        choices=zebraHelp.validSlots,
+        default=-1, help='slots')
+    parser.add_argument('--index', type=str,
+        choices=zebraHelp.validIndices,
+        default='n', help='index')
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
+    parser.add_argument('--string', type=str,
+        required=True,
+        help='text within the zebrackets environment')
     parser.add_argument('--checkargs', action='store_true',
         help='check validity of input arguments')
     args = parser.parse_args(inputArguments)
-    zebraFilter(args.style, args.encoding, args.family, args.size,
-        args.numerator, args.denominator, args.texmfhome, args.checkargs)
+    filtered_string = zebraFilter(
+      args.style, args.encoding, args.family,
+      args.size, args.mag, args.number, args.slots,
+      args.index, args.texmfhome,
+      args.string, args.checkargs)
+#    print ('Output is: "', filtered_string, '"', sep='')
 
 # TODO: Document
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# src/test/test_zebraFont.pyc
+# src/test/test_zebraFont.py
 
 import unittest
 import sys
@@ -8,20 +8,20 @@ sys.path.append('/home/mancilla/development/Zebrackets/src')
 
 from zebrackets import *
 
-full_cmd_1 = ['--type', 'b',
+full_cmd_1 = ['--kind', 'b',
               '--style', 'b',
-              '--stripes', '7',
+              '--slots', '7',
               '--family', 'cmb',
               '--size', '10',
-              '--texmfhome', '/home/mancilla',
+              '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
-full_cmd_2 = ['--type', 'b',
+full_cmd_2 = ['--kind', 'b',
               '--style', 'b',
-              '--stripes', '5',
+              '--slots', '5',
               '--family', 'cmb',
               '--size', '17', 
-              '--texmfhome', '/home/mancilla',
+              '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
 
@@ -45,8 +45,9 @@ class TestZebraFont(unittest.TestCase):
         try:
             self.assertEqual(zebraFont.zebraFontParser(['--h']), None)
         except:
-            print(sys.exc_info()[0])
-            print(sys.exc_info())
+            pass
+#            print(sys.exc_info()[0])
+#            print(sys.exc_info())
 
     ## Checking the argparse parametrization, with no values
     # Argparse raises an exception so we need to catch it here
@@ -54,15 +55,14 @@ class TestZebraFont(unittest.TestCase):
         try:
             zebraFont.zebraFontParser()
         except:
-            print(sys.exc_info()[0])
-            print(sys.exc_info())
+            pass
 
     ## Checking the actual call to create the fonts function
-    # Invalid number of stripes
+    # Invalid number of slots
     def test_zebrafont_func_1(self):
         self.assertEqual(zebraFont.zebraFont(
             'b', 'b', '7', 'cmb', '17', '/home/mancilla', '1', '--checkargs'), 
-            "Invalid input: Invalid number of stripes")
+            "Invalid input: Invalid number of slots")
 
 
 if __name__ == '__main__':
