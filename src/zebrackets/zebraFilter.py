@@ -83,21 +83,28 @@ class Parameters:
 
 
 # TODO: Document
-def countDelimiters(params, delims, buf):
-    '''Go through the buffer and count the (opening) delimiters
-    in case the automatic slots counter is requested.
-    '''
+def printAndReplaceSymbols(params, delims, buf, out_string = None):
+    '''On the first pass, go through the buffer and count the (opening)
+       delimiters in case the automatic slots counter is requested.
+       On the second pass, generate the correct output.'''
 
     delim_opens = ['(', '[']
+    delim_chars = ['(', ')', '[', ']']
     max_stack = []
     active_stack = []
     count = -1
     depth = -1
     expected_right = None
+    active = None
     
     # Each entry in active_stack
     for c in buf:
-        if c in delim_opens:
+        replace = False
+        if out_string != None and params.number != -1 and c in delim_chars:
+            replace = True
+            is_left = c in delim_opens
+            c_kind = delims[c].kind
+        elif c in delim_opens:
             delims[c].used = True
             count += 1
             if params.highestCount < count:
@@ -114,23 +121,56 @@ def countDelimiters(params, delims, buf):
             expected_right = delims[c].right
             if params.broadestBreadth < max_stack[depth]:
                 params.broadestBreadth = max_stack[depth]
+            replace = True
+            is_left = True
+            active = active_stack[depth]
+            c_kind = active.kind
         elif c == expected_right:
             expected_right = active_stack[depth].expected_right
-            active_stack[depth] = None
+            active = active_stack[depth]
+            c_kind = active.kind
             depth -= 1
+            replace = True
+            is_left = False
+
+        if out_string != None:
+            if replace:
+                if params.index == 'u':
+                    number = active.count
+                elif params.index == 'd':
+                    number = active.depth
+                elif params.index == 'b':
+                    number = active.breadth
+                else:
+                    number = params.number
+                number = params.valueToEncoding(number)
+                if not is_left:
+                    number += pow(2, params.slots)
+    
+                out_string.write('{{\\z{0}{1}{2}{3}{4}{5} \\symbol{{{6}}}}}'.
+                      format(c_kind,
+                             params.style,
+                             chr(ord('a') + params.slots),
+                             params.family,
+                             chr(ord('A') - 1 + params.size),
+                             chr(ord('A') - 1 + params.mag),
+                             number))
+            else:
+                out_string.write(c)
 
     # Calculate all the slots based upon the above tally.
-    if params.slots == -1:
-        if params.index == 'u':
-            params.slots = params.highestCount
-        elif params.index == 'd':
-            params.slots = params.deepestDepth
-        elif params.index == 'b':
-            params.slots = params.broadestBreadth
-        else:
-            params.slots = params.number
-    if params.slots > 7:
-        params.slots = 7
+    if out_string == None:
+        if params.slots == -1:
+            if params.index == 'u':
+                params.slots = params.highestCount
+            elif params.index == 'd':
+                params.slots = params.deepestDepth
+            elif params.index == 'b':
+                params.slots = params.broadestBreadth
+            else:
+                params.slots = params.number
+        if params.slots > 7:
+            params.slots = 7
 
 # TODO: Document
 def printDeclarations(params, delims, buf, out_string):
@@ -166,78 +206,6 @@ def printDeclarations(params, delims, buf, out_string):
                     errors = errors + '\n' + res.result
     return errors
 
-# TODO: Document
-def printAndReplaceSymbols(params, delims, buf, out_string):
-
-    delim_opens = ['(', '[']
-    delim_chars = ['(', ')', '[', ']']
-    max_stack = []
-    active_stack = []
-    count = -1
-    depth = -1
-    expected_right = None
-    active = None
-    
-    # Each entry in active_stack
-    for c in buf:
-        replace = False
-        if params.number != -1 and c in delim_chars:
-            replace = True
-            is_left = c in delim_opens
-            c_kind = delims[c].kind
-        elif c in delim_opens:
-            delims[c].used = True
-            count += 1
-            if params.highestCount < count:
-                params.highestCount = count
-            depth += 1
-            if params.deepestDepth < depth:
-                params.deepestDepth = depth
-            if len(max_stack) == depth:
-                max_stack.append(-1)
-                active_stack.append(None)
-            max_stack[depth] += 1
-            active_stack[depth] = Active(expected_right, delims[c].kind,
-                                         count, depth, max_stack[depth])
-            expected_right = delims[c].right
-            if params.broadestBreadth < max_stack[depth]:
-                params.broadestBreadth = max_stack[depth]
-            replace = True
-            is_left = True
-            active = active_stack[depth]
-            c_kind = active.kind
-        elif c == expected_right:
-            expected_right = active_stack[depth].expected_right
-            active = active_stack[depth]
-            c_kind = active.kind
-            depth -= 1
-            replace = True
-            is_left = False
-
-        if replace:
-            if params.index == 'u':
-                number = active.count
-            elif params.index == 'd':
-                number = active.depth
-            elif params.index == 'b':
-                number = active.breadth
-            else:
-                number = params.number
-            number = params.valueToEncoding(number)
-            if not is_left:
-                number += pow(2, params.slots)
-
-            out_string.write('{{\\z{0}{1}{2}{3}{4}{5} \\symbol{{{6}}}}}'.
-                  format(c_kind,
-                         params.style,
-                         chr(ord('a') + params.slots),
-                         params.family,
-                         chr(ord('A') - 1 + params.size),
-                         chr(ord('A') - 1 + params.mag),
-                         number))
-        else:
-            out_string.write(c)
-
 def zebraFilter(style, encoding, family, size, mag,
         number, slots, index, texmfHome, string_tofilter, 
         checkArgs=False):
@@ -252,7 +220,10 @@ def zebraFilter(style, encoding, family, size, mag,
             delimiters[']'] = Delimiter('b', '[', ']')
             delimiters['('] = Delimiter('p', '(', ')')
             delimiters[')'] = Delimiter('p', '(', ')')
-            countDelimiters(parameters, delimiters, string_tofilter)
+            #countDelimiters(parameters, delimiters, string_tofilter)
+            printAndReplaceSymbols(parameters,
+                                   delimiters,
+                                   string_tofilter)
             errors = printDeclarations(parameters,
                                        delimiters,
                                        string_tofilter,
