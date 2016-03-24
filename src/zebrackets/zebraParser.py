@@ -63,8 +63,8 @@ class Params:
         self.mag = 1
 
         self.index = 'd'
-        self.number = -1
         self.encoding = 'b'
+        self.number = -1
 
         self.filterMode = False
 
@@ -120,8 +120,8 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     zebraHelp.check_mag(params_paragraph, par_args)
     zebraHelp.check_slots(params_paragraph, par_args)
     zebraHelp.check_index(params_paragraph, par_args)
-    zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
+    zebraHelp.check_number(params_paragraph, par_args)
     string_filtered = zebraFilter(
         params_paragraph.style,
         params_paragraph.encoding,
@@ -208,7 +208,7 @@ def filterText(params_doc_defaults, params_paragraph):
                 continue
             m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
             while m:
-                # TODO: Find the replacement text, then sub back into line
+                # Find the replacement text, then sub back into line
                 params_paragraph = copy.copy(params_doc_defaults)
                 new_text = replaceText(params_doc_defaults, params_paragraph,
                                        m.group(1), m.group(2))

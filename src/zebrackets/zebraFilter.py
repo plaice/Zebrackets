@@ -35,11 +35,6 @@ valueToFunctions = {
     'u' : (lambda value : pow(2, (value % 8)) - 1),
     'd' : (lambda value : pow(2, (value - 1) % 7) if value else value) }
 
-#valueFromFunctions = {
-#    'b' : (lambda value : int(math.ceil(math.log(value, 2)))),
-#    'u' : (lambda value : value - 1),
-#    'd' : (lambda value : value - 1) }
-
 # TODO: Document
 class Delimiter:
     def __init__(self, kind, left, right):
@@ -88,7 +83,6 @@ class Parameters:
         self.style = style
         self.encoding = encoding
         self.valueToEncoding = valueToFunctions[encoding]
-#        self.valueFromEncoding = valueFromFunctions[encoding]
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.mag = mag
@@ -327,7 +321,6 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
       args.size, args.mag, args.number, args.slots,
       args.index, args.texmfhome,
       args.string, args.checkargs)
-#    print ('Output is: "', filtered_string, '"', sep='')
 
 # TODO: Document
 if __name__ == '__main__':
