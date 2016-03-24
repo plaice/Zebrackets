@@ -97,16 +97,16 @@ def declareFont(params_doc_defaults, params_paragraph, font_args):
     zebraHelp.check_size(params_font, font_args)
     zebraHelp.check_mag(params_font, font_args)
 
-    zebraFont.zebraFont(
-        params_font.kind,
-        params_font.style,
-        params_font.slots,
-        params_font.family,
-        params_font.size,
-        params_font.mag,
-        params_doc_defaults.texmfHome,
-        False)
-
+    res = zebraFont.zebraFont(params_font.kind,
+                              params_font.style,
+                              params_font.slots,
+                              params_font.family,
+                              params_font.size,
+                              params_font.mag,
+                              params_doc_defaults.texmfHome,
+                              False)
+    if res.flag == False:
+        print(res.result)
 
 def replaceText(params_doc_defaults, params_paragraph, par_args,
                 string_tofilter):
@@ -122,19 +122,22 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     zebraHelp.check_index(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
     zebraHelp.check_number(params_paragraph, par_args)
-    string_filtered = zebraFilter(
-        params_paragraph.style,
-        params_paragraph.encoding,
-        params_paragraph.family,
-        params_paragraph.size,
-        params_paragraph.mag,
-        params_paragraph.number,
-        params_paragraph.slots,
-        params_paragraph.index,
-        params_doc_defaults.texmfHome,
-        string_tofilter,
-        )
-    return string_filtered
+
+    res = zebraFilter(params_paragraph.style,
+                      params_paragraph.encoding,
+                      params_paragraph.family,
+                      params_paragraph.size,
+                      params_paragraph.mag,
+                      params_paragraph.number,
+                      params_paragraph.slots,
+                      params_paragraph.index,
+                      params_doc_defaults.texmfHome,
+                      string_tofilter)
+    if res.flag == False:
+        print(res.result)
+        return ''
+    else:
+        return res.result
 
 
 def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
@@ -162,22 +165,21 @@ def endZebrackets(params_doc_defaults, params_paragraph):
     string_tofilter = params_paragraph.buf.getvalue()
     params_paragraph.buf.close()
 
-    string_filtered = zebraFilter(
-        params_paragraph.style,
-        params_paragraph.encoding,
-        params_paragraph.family,
-        params_paragraph.size,
-        params_paragraph.mag,
-        params_paragraph.number,
-        params_paragraph.slots,
-        params_paragraph.index,
-        params_doc_defaults.texmfHome,
-        string_tofilter,
-        )
-    ## Here we can check if the string_filtered contains an error message.
-    ## If so, write to the log file and exit graciously.
+    res = zebraFilter(params_paragraph.style,
+                      params_paragraph.encoding,
+                      params_paragraph.family,
+                      params_paragraph.size,
+                      params_paragraph.mag,
+                      params_paragraph.number,
+                      params_paragraph.slots,
+                      params_paragraph.index,
+                      params_doc_defaults.texmfHome,
+                      string_tofilter)
+    if res.flag == False:
+        print(res.result)
+    else:
+        params_doc_defaults.outfile.write(res.result)
     params_doc_defaults.filterMode = False
-    params_doc_defaults.outfile.write(string_filtered)
 
 
 def filterText(params_doc_defaults, params_paragraph):

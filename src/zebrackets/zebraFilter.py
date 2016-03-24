@@ -134,21 +134,37 @@ def countDelimiters(params, delims, buf):
 
 # TODO: Document
 def printDeclarations(params, delims, buf, out_string):
+    errors = ''
     for k, w in delims.items():
         if w.used:
-            fontName = 'z{0}{1}{2}{3}'.format(
-                w.kind,
-                params.style,
-                chr(ord('a') + params.slots),
-                params.family
-            )
-            out_string.write(
-                '\\ifundefined{{{0}{1}{2}}}\\newfont{{\\{0}{1}{2}}}{{{0}{3} scaled {4}000}}\\fi'.
-                    format(fontName,
-                           chr(ord('A') - 1 + params.size),
-                           chr(ord('A') - 1 + params.mag),
-                           params.size,
-                           params.mag))
+            res = zebraFont(w.kind,
+                               params.style,
+                               params.slots,
+                               params.family,
+                               params.size,
+                               params.mag,
+                               params.texmfHome,
+                               False)
+            if res.flag == True:
+                fontName = 'z{0}{1}{2}{3}'.format(
+                    w.kind,
+                    params.style,
+                    chr(ord('a') + params.slots),
+                    params.family
+                )
+                out_string.write(
+                    '\\ifundefined{{{0}{1}{2}}}\\newfont{{\\{0}{1}{2}}}{{{0}{3} scaled {4}000}}\\fi'.
+                        format(fontName,
+                               chr(ord('A') - 1 + params.size),
+                               chr(ord('A') - 1 + params.mag),
+                               params.size,
+                               params.mag))
+            else:
+                if errors == '':
+                    errors = res.result
+                else:
+                    errors = errors + '\n' + res.result
+    return errors
 
 # TODO: Document
 def printAndReplaceSymbols(params, delims, buf, out_string):
@@ -222,20 +238,6 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
         else:
             out_string.write(c)
 
-# TODO: Document
-def generateFiles(params, delims, buf):
-    for k, w in delims.items():
-        if w.used:
-            zebraFont(
-                w.kind,
-                params.style,
-                params.slots,
-                params.family,
-                params.size,
-                params.mag,
-                params.texmfHome,
-                False)
-
 def zebraFilter(style, encoding, family, size, mag,
         number, slots, index, texmfHome, string_tofilter, 
         checkArgs=False):
@@ -251,23 +253,24 @@ def zebraFilter(style, encoding, family, size, mag,
             delimiters['('] = Delimiter('p', '(', ')')
             delimiters[')'] = Delimiter('p', '(', ')')
             countDelimiters(parameters, delimiters, string_tofilter)
-            printDeclarations(
-                parameters,
-                delimiters,
-                string_tofilter,
-                out_string)
-            printAndReplaceSymbols(
-                parameters,
-                delimiters,
-                string_tofilter,
-                out_string)
-            generateFiles(parameters, delimiters, string_tofilter)
-            value = out_string.getvalue()
-            out_string.close()
-            return value
-
+            errors = printDeclarations(parameters,
+                                       delimiters,
+                                       string_tofilter,
+                                       out_string)
+            if errors == '':
+                printAndReplaceSymbols(parameters,
+                                       delimiters,
+                                       string_tofilter,
+                                       out_string)
+                value = out_string.getvalue()
+                out_string.close()
+                return zebraHelp.Result(True, value)
+            else:
+                out_string.close()
+                out_string.write(string_to_filter)
+                return zebraHelp.Result(False, errors)
     except zebraHelp.ArgError as e:
-        print('Invalid input:', e.value)
+        return zebraHelp.Result(False, "zebraFilter ArgError: " + e)
 
 def zebraFilterParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
