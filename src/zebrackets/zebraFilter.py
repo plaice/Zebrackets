@@ -54,6 +54,15 @@ class Active:
     def __repr__(self):
         return "<Active expected:%s, kind:%s, count:%s, depth:%s, breadth:%s>" % (self.expected_right, self.kind, self.count, self.depth, self.breadth)
 
+class Stacks:
+    def __init__(self):
+        self.max_stack = []
+        self.active_stack = []
+        self.count = -1
+        self.depth = -1
+        self.expected_right = None
+        self.active = None
+
 # TODO: Document
 class Parameters:
     def __init__(self, style, encoding, family, size, mag,
@@ -90,12 +99,9 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
 
     delim_opens = ['(', '[']
     delim_chars = ['(', ')', '[', ']']
-    max_stack = []
-    active_stack = []
-    count = -1
-    depth = -1
-    expected_right = None
-    active = None
+
+    # FIXME: These should go in a class.
+    sit = Stacks()
     
     # Each entry in active_stack
     for c in buf:
@@ -106,30 +112,33 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
             c_kind = delims[c].kind
         elif c in delim_opens:
             delims[c].used = True
-            count += 1
-            if params.highestCount < count:
-                params.highestCount = count
-            depth += 1
-            if params.deepestDepth < depth:
-                params.deepestDepth = depth
-            if len(max_stack) == depth:
-                max_stack.append(-1)
-                active_stack.append(None)
-            max_stack[depth] += 1
-            active_stack[depth] = Active(expected_right, delims[c].kind,
-                                         count, depth, max_stack[depth])
-            expected_right = delims[c].right
-            if params.broadestBreadth < max_stack[depth]:
-                params.broadestBreadth = max_stack[depth]
+            sit.count += 1
+            if params.highestCount < sit.count:
+                params.highestCount = sit.count
+            sit.depth += 1
+            if params.deepestDepth < sit.depth:
+                params.deepestDepth = sit.depth
+            if len(sit.max_stack) == sit.depth:
+                sit.max_stack.append(-1)
+                sit.active_stack.append(None)
+            sit.max_stack[sit.depth] += 1
+            sit.active_stack[sit.depth] = Active(sit.expected_right,
+                                                 delims[c].kind,
+                                                 sit.count,
+                                                 sit.depth,
+                                                 sit.max_stack[sit.depth])
+            if params.broadestBreadth < sit.max_stack[sit.depth]:
+                params.broadestBreadth = sit.max_stack[sit.depth]
+            sit.expected_right = delims[c].right
+            active = sit.active_stack[sit.depth]
+            c_kind = active.kind
             replace = True
             is_left = True
-            active = active_stack[depth]
+        elif c == sit.expected_right:
+            sit.expected_right = sit.active_stack[sit.depth].expected_right
+            active = sit.active_stack[sit.depth]
+            sit.depth -= 1
             c_kind = active.kind
-        elif c == expected_right:
-            expected_right = active_stack[depth].expected_right
-            active = active_stack[depth]
-            c_kind = active.kind
-            depth -= 1
             replace = True
             is_left = False
 
@@ -217,9 +226,9 @@ def zebraFilter(style, encoding, family, size, mag,
             out_string = io.StringIO()
             delimiters = {}
             delimiters['['] = Delimiter('b', '[', ']')
-            delimiters[']'] = Delimiter('b', '[', ']')
+            delimiters[']'] = delimiters['[']
             delimiters['('] = Delimiter('p', '(', ')')
-            delimiters[')'] = Delimiter('p', '(', ')')
+            delimiters[')'] = delimiters['(']
             #countDelimiters(parameters, delimiters, string_tofilter)
             printAndReplaceSymbols(parameters,
                                    delimiters,
