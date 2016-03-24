@@ -56,40 +56,25 @@ class Active:
 
 # TODO: Document
 class Parameters:
-    def __init__(self, style, encoding, fontFamily, fontSize, mag,
+    def __init__(self, style, encoding, family, size, mag,
             number, slots, index, texmfHome, checkArgs):
-        if style not in zebraHelp.validStyles:
-            raise zebraHelp.ArgError('Invalid style')
-        if encoding not in zebraHelp.validEncodings:
-            raise zebraHelp.ArgError('Invalid encoding')
-        if fontFamily not in zebraHelp.validFontFamilies:
-            raise zebraHelp.ArgError('Invalid Computer Modern font family')
-        if fontSize not in zebraHelp.validFontSizes:
-            raise zebraHelp.ArgError('Invalid font size')
-        if fontSize not in zebraHelp.validFontPairs[fontFamily]:
-            raise zebraHelp.ArgError('Invalid font family-size pair')
-        if mag not in zebraHelp.validMags:
-            raise zebraHelp.ArgError('Invalid magnification')
+        self.style = zebraHelp.validate_style(style)
+        self.encoding = zebraHelp.validate_encoding(encoding)
+        self.valueToEncoding = valueToFunctions[encoding]
+        self.slots = slots
+        self.family = zebraHelp.validate_family(family)
+        self.size = zebraHelp.validate_size(size)
+        zebraHelp.validate_family_size(family, size)
+        self.mag = zebraHelp.validate_mag(mag)
         if index == 'n':
-            if number < 0:
-                raise zebraHelp.ArgError('Invalid number')
-        elif index not in zebraHelp.validIndices:
-            raise zebraHelp.ArgError('Invalid index')
+            zebraHelp.validate_number(number)
+        else:
+            zebraHelp.validate_index(index)
         if number >= 0:
             index = 'n'
-        
-        texmfHome = zebraHelp.validate_texmfhome(texmfHome)
-
-        self.style = style
-        self.encoding = encoding
-        self.valueToEncoding = valueToFunctions[encoding]
-        self.fontFamily = fontFamily
-        self.fontSize = fontSize
-        self.mag = mag
         self.number = number
-        self.slots = slots
         self.index = index
-        self.texmfHome = texmfHome
+        self.texmfHome = zebraHelp.validate_texmfhome(texmfHome)
         self.checkArgs = checkArgs
 
         self.highestCount = -1
@@ -155,14 +140,14 @@ def printDeclarations(params, delims, buf, out_string):
                 w.kind,
                 params.style,
                 chr(ord('a') + params.slots),
-                params.fontFamily
+                params.family
             )
             out_string.write(
                 '\\ifundefined{{{0}{1}{2}}}\\newfont{{\\{0}{1}{2}}}{{{0}{3} scaled {4}000}}\\fi'.
                     format(fontName,
-                           chr(ord('A') - 1 + params.fontSize),
+                           chr(ord('A') - 1 + params.size),
                            chr(ord('A') - 1 + params.mag),
-                           params.fontSize,
+                           params.size,
                            params.mag))
 
 # TODO: Document
@@ -230,8 +215,8 @@ def printAndReplaceSymbols(params, delims, buf, out_string):
                   format(c_kind,
                          params.style,
                          chr(ord('a') + params.slots),
-                         params.fontFamily,
-                         chr(ord('A') - 1 + params.fontSize),
+                         params.family,
+                         chr(ord('A') - 1 + params.size),
                          chr(ord('A') - 1 + params.mag),
                          number))
         else:
@@ -245,18 +230,18 @@ def generateFiles(params, delims, buf):
                 w.kind,
                 params.style,
                 params.slots,
-                params.fontFamily,
-                params.fontSize,
+                params.family,
+                params.size,
                 params.mag,
                 params.texmfHome,
                 False)
 
-def zebraFilter(style, encoding, fontFamily, fontSize, mag,
+def zebraFilter(style, encoding, family, size, mag,
         number, slots, index, texmfHome, string_tofilter, 
         checkArgs=False):
 
     try:
-        parameters = Parameters(style, encoding, fontFamily, fontSize, mag,
+        parameters = Parameters(style, encoding, family, size, mag,
                          number, slots, index, texmfHome, checkArgs)
         if checkArgs is False:
             out_string = io.StringIO()
