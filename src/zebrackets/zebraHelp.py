@@ -24,6 +24,25 @@ in zebrackets.
 import os
 import re
 
+class ArgError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class CompError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class Result:
+    def __init__(self, flag, result):
+        self.flag = flag
+        self.result = result
+    def __str__(self):
+        return repr(self.result)
+
 # Kind is parenthesis, bracket
 validKinds = ['p', 'b']
 
@@ -73,110 +92,121 @@ validFontPairs = {
     'cmvtt':  [10],
 }
 
-class ArgError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
+def validate_kind(kind):
+    if kind not in validKinds:
+        raise ArgError('' + kind + ' not a valid kind.')
+    return kind
 
 def check_kind(params, block_args):
     m = re.search(r'kin\w*=([bp])\w*[,\]]', block_args)
     if m:
         kind = m.group(1)
-        if kind not in validKinds:
-            raise ArgError("Error: " + kind + " not a valid kind.")
-        else:
-            params.kind = kind
+        params.kind = validate_kind(kind)
 
 def check_kind_use(params, block_args):
     m = re.search(r'kin\w*=([bdp])\w*[,\]]', block_args)
     if m:
         kind = m.group(1)
-        if kind not in validKindUses:
-            raise ArgError("Error: " + kind + " not a valid kind.")
-        else:
-            params.kind = kind
+        params.kind = validate_kind(kind)
+
+def validate_style(style):
+    if style not in validStyles:
+        raise ArgError('' + style + ' not a valid number style.')
+    return style
 
 def check_style(params, block_args):
     m = re.search(r'sty\w*=([bfh])\w*[,\]]', block_args)
     if m:
         style = m.group(1)
-        if style not in validStyles:
-            raise ArgError("Error: " + style + " not a valid number style.")
-        else:
-            params.style = style
+        params.style = validate_style(style)
+
+def validate_slots(slots):
+    if slots not in validSlots:
+        raise ArgError('' + slots + ' not a valid number of slots.')
+    return slots
 
 def check_slots(params, block_args):
     m = re.search(r'slo\w*=(\d+)[,\]]', block_args)
     if m:
         slots = int(m.group(1))
-        if slots not in validSlots:
-            raise ArgError("Error: " + slots + " not a valid number of slots.")
-        else:
-            params.slots = slots
+        params.slots = validate_slots(slots)
+
+def validate_encoding(encoding):
+    if encoding not in validEncodings:
+        raise ArgError('' + encoding + ' not a valid encoding.')
+    return encoding
 
 def check_encoding(params, block_args):
     m = re.search(r'enc\w*=([bdu])\w*[,\]]', block_args)
     if m:
         encoding = m.group(1)
-        if encoding not in validEncodings:
-            raise ArgError("Error: " + encoding + " not a valid encoding.")
-        else:
-            params.encoding = encoding
+        params.encoding = validate_encoding(encoding)
+
+def validate_index(index):
+    if index not in validIndices:
+        raise ArgError('' + index + ' not a valid index.')
+    return index
 
 def check_index(params, block_args):
     m = re.search(r'ind\w*=([bdu])\w*[,\]]', block_args)
     if m:
         index = m.group(1)
-        if index not in validIndices:
-            raise ArgError("Error: " + index + " not a valid index.")
-        else:
-            params.index = index
+        params.index = validate_index(index)
+
+def validate_number(number):
+    if number < 0:
+        raise ArgError('' + number + ' not a valid glyph number.')
+    return number
 
 def check_number(params, block_args):
     m = re.search(r'num\w*=(\d+)[,\]]', block_args)
     if m:
         number = int(m.group(1))
-        if number < 0:
-            raise ArgError("Error: " + number + " not a valid glyph number.")
-        else:
-            params.number = number
+        params.number = validate_number(number)
+
+def validate_mag(mag):
+    if mag not in validMags:
+        raise ArgError('' + mag + ' not a valid magnification.')
+    return mag
 
 def check_mag(params, block_args):
     m = re.search(r'mag\w*=(\d+)[,\]]', block_args)
     if m:
         mag = int(m.group(1))
-        if mag not in validMags:
-            raise ArgError("Error: " + mag + " not a valid magnification.")
-        else:
-            params.mag = mag
+        params.mag = validate_mag(mag)
+
+def validate_family(family):
+    if family not in validFontFamilies:
+        raise ArgError('' + m.group(1) + ' not a valid font family.')
+    return family
 
 def check_family(params, block_args):
     m = re.search(r'fam\w*=(\w+)[,\]]', block_args)
     if m:
         family = m.group(1)
-        if family not in validFontFamilies:
-            raise ArgError("Error: " + m.group(1) + " not a valid font family.")
-        else:
-            params.family = family
+        params.family = validate_family(family)
+
+def validate_size(size):
+    if size not in validFontSizes:
+        raise ArgError('' + size + ' not a valid font size.')
+    return size
 
 def check_size(params, block_args):
     m = re.search(r'siz\w*=(\d+)[,\]]', block_args)
     if m:
         size = int(m.group(1))
-        if size not in validFontSizes:
-            raise ArgError("Error: " + size + " not a valid font size.")
-        else:
-            params.size = size
+        params.size = validate_size(size)
 
-def check_texmfhome(texmfHome):
+def validate_family_size(family, size):
+   if size not in validFontPairs[family]:
+        raise ArgError('' + size + ' not a valid font size.')
+
+def validate_texmfhome(texmfHome):
     if texmfHome == None:
         if 'TEXMFHOME' not in os.environ:
-            prt_str = 'Error: TEXMFHOME environment variable is not set.'
-            raise ArgError(prt_str)
+            raise ArgError('TEXMFHOME environment variable is not set.')
         texmfHome = os.environ['TEXMFHOME']
     elif not os.path.isdir(texmfHome):
-        prt_str = "Error: Invalid texmf, path is not a directory."
-        raise ArgError(prt_str)
+        raise ArgError('Invalid texmf path, not a directory.')
     os.environ['TEXMFHOME'] = texmfHome
     return texmfHome

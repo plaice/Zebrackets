@@ -78,7 +78,7 @@ class Parameters:
         if number >= 0:
             index = 'n'
         
-        texmfHome = zebraHelp.check_texmfhome(texmfHome)
+        texmfHome = zebraHelp.validate_texmfhome(texmfHome)
 
         self.style = style
         self.encoding = encoding

@@ -34,33 +34,17 @@ import zebraFontFiles
 import zebraHelp
 
 class Parameters:
-    def __init__(self, kind, style, slots, fontFamily,
-            fontSize, mag, texmfHome, checkArgs):
-
-        if kind not in zebraHelp.validKinds:
-            raise zebraHelp.ArgError('Invalid kind')
-        if style not in zebraHelp.validStyles:
-            raise zebraHelp.ArgError('Invalid style')
-        if slots not in zebraHelp.validSlots:
-            raise zebraHelp.ArgError('Invalid number of slots')
-        if fontFamily not in zebraHelp.validFontFamilies:
-            raise zebraHelp.ArgError('Invalid Computer Modern font family')
-        if fontSize not in zebraHelp.validFontSizes:
-            raise zebraHelp.ArgError('Invalid font size')
-        if fontSize not in zebraHelp.validFontPairs[fontFamily]:
-            raise zebraHelp.ArgError('Invalid font family-size pair')
-        if mag not in zebraHelp.validMags:
-            raise zebraHelp.ArgError('Invalid magnification')
-        texmfHome = zebraHelp.check_texmfhome(texmfHome)
-
-        self.kind = kind
-        self.style = style
-        self.slots = slots
+    def __init__(self, kind, style, slots, family,
+            size, mag, texmfHome, checkArgs):
+        self.kind = zebraHelp.validate_kind(kind)
+        self.style = zebraHelp.validate_style(style)
+        self.slots = zebraHelp.validate_slots(slots)
         self.slotsAsLetter = chr(ord('a') + self.slots)
-        self.fontFamily = fontFamily
-        self.fontSize = fontSize
-        self.mag = mag
-        self.texmfHome = texmfHome
+        self.family = zebraHelp.validate_family(family)
+        self.size = zebraHelp.validate_size(size)
+        zebraHelp.validate_family_size(family, size)
+        self.mag = zebraHelp.validate_mag(mag)
+        self.texmfHome = zebraHelp.validate_texmfhome(texmfHome)
         self.checkArgs = checkArgs
 
 def callAndLog(args, log):
@@ -71,7 +55,7 @@ def callAndLog(args, log):
         if output != '':
             log.append(output)
     except subprocess.CalledProcessError:
-        sys.exit('System died when calling {0}'.format(*args))
+        raise zebraHelp.CompError('System died when calling {0}'.format(*args))
 
 def createMFcontent(kind, style, slots, sourceFont):
     '''This method creates the font file's header, returning it as string.
@@ -106,7 +90,7 @@ def checkAndCreateFont(fileName, destMFdir, fileContent, texmfHome, log):
 
 def createMFfiles(params):
     # Set up of diretories and files names
-    sourceFont = '{0}{1}'.format(params.fontFamily, int(params.fontSize))
+    sourceFont = '{0}{1}'.format(params.family, int(params.size))
     destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
     destTFMdir = '{0}/fonts/tfm/public/zetex'.format(params.texmfHome)
     destPKdir = '{0}/fonts/pk/ljfour/public/zetex'.format(params.texmfHome)
@@ -122,7 +106,7 @@ def createMFfiles(params):
     try:
         subprocess.check_output(['kpsewhich', '{0}.mf'.format(sourceFont)])
     except subprocess.CalledProcessError:
-        sys.exit('File "{0}.mf" does not exist'.format(destMF))
+        raise zebraHelp.CompError('File "{0}.mf" does not exist'.format(destMF))
 
     # Create the directory where font files will be stored for this run.
     try:
@@ -172,7 +156,8 @@ def createMFfiles(params):
                            ['kpsewhich', '{0}.600pk'.format(destMF)],
                             stdout=subprocess.PIPE, universal_newlines=True)
             except subprocess.CalledProcessError:
-                sys.exit('Could not find file {0}.600pk'.format(destMF))
+                raise zebraHelp.CompError('Could not find file {0}.600pk'.
+                                          format(destMF))
             dpidir = re.sub('/[^/]*$', '', proc.stdout.read())
             callAndLog(['mf-nowin',
                         '-progname=mf',
@@ -192,17 +177,19 @@ def createMFfiles(params):
         for string in zetexFontsLog:
             zetexLogFile.write(string)
 
-def zebraFont(kind, style, slots, fontFamily,
-              fontSize, mag, texmfHome, checkArgs):
+def zebraFont(kind, style, slots, family,
+              size, mag, texmfHome, checkArgs):
 
     try:
-        parameters = Parameters(kind, style, slots, fontFamily,
-                         fontSize, mag, texmfHome, checkArgs)
+        parameters = Parameters(kind, style, slots, family,
+                         size, mag, texmfHome, checkArgs)
         if checkArgs is False:
             createMFfiles(parameters)
+        return zebraHelp.Result(True, "")
     except zebraHelp.ArgError as e:
-        prt_str = 'Invalid input: ' + e.value
-        return prt_str
+        return zebraHelp.Result(False, "zebraFont ArgError: " + e)
+    except zebraHelp.CompError as e:
+        return zebraHelp.Result(False, "zebraFont CompError: " + e)
 
 def zebraFontParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(

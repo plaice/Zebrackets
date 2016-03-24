@@ -250,7 +250,7 @@ def zebraParser(args):
 
     # Looking for a valid TEXMFHOME
     try:
-        params_doc_defaults.texmfHome = zebraHelp.check_texmfhome(
+        params_doc_defaults.texmfHome = zebraHelp.validate_texmfhome(
             args.texmfhome
         )
     except:
