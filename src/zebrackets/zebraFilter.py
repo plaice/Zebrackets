@@ -36,12 +36,22 @@ valueToFunctions = {
     'd' : (lambda value : pow(2, (value - 1) % 7) if value else value) }
 
 # TODO: Document
+class Stacks:
+    def __init__(self):
+        self.max_stack = []
+        self.active_stack = []
+        self.count = -1
+        self.depth = -1
+        self.expected_right = None
+        self.active = None
+
 class Delimiter:
     def __init__(self, kind, left, right):
         self.kind = kind
         self.left = left
         self.right = right
         self.used = False
+        self.stacks = None
 
 class Active:
     def __init__(self, expected_right, kind, count, depth, breadth):
@@ -54,19 +64,10 @@ class Active:
     def __repr__(self):
         return "<Active expected:%s, kind:%s, count:%s, depth:%s, breadth:%s>" % (self.expected_right, self.kind, self.count, self.depth, self.breadth)
 
-class Stacks:
-    def __init__(self):
-        self.max_stack = []
-        self.active_stack = []
-        self.count = -1
-        self.depth = -1
-        self.expected_right = None
-        self.active = None
-
 # TODO: Document
 class Parameters:
     def __init__(self, style, encoding, family, size, mag,
-            number, slots, index, texmfHome, checkArgs):
+            number, slots, index, mixcount, texmfHome, checkArgs):
         self.style = zebraHelp.validate_style(style)
         self.encoding = zebraHelp.validate_encoding(encoding)
         self.valueToEncoding = valueToFunctions[encoding]
@@ -83,6 +84,7 @@ class Parameters:
             index = 'n'
         self.number = number
         self.index = index
+        self.mixcount = mixcount
         self.texmfHome = zebraHelp.validate_texmfhome(texmfHome)
         self.checkArgs = checkArgs
 
@@ -98,9 +100,15 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
        On the second pass, generate the correct output.'''
 
     delim_opens = ['(', '[']
+    delim_closes = [')', ']']
     delim_chars = ['(', ')', '[', ']']
 
-    # FIXME: These should go in a class.
+    delims['('].stacks = Stacks()
+    if params.mixcount:
+        delims['['].stacks = delims['('].stacks
+    else:
+        delims['['].stacks = Stacks()
+    
     sit = Stacks()
     
     # Each entry in active_stack
@@ -111,6 +119,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
             is_left = c in delim_opens
             c_kind = delims[c].kind
         elif c in delim_opens:
+            sit = delims[c].stacks
             delims[c].used = True
             sit.count += 1
             if params.highestCount < sit.count:
@@ -134,14 +143,16 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
             c_kind = active.kind
             replace = True
             is_left = True
-        elif c == sit.expected_right:
-            sit.expected_right = sit.active_stack[sit.depth].expected_right
-            active = sit.active_stack[sit.depth]
-            sit.depth -= 1
-            c_kind = active.kind
-            replace = True
-            is_left = False
-
+        elif c in delim_closes:
+            sit = delims[c].stacks
+            if c == sit.expected_right:
+                sit.expected_right = sit.active_stack[sit.depth].expected_right
+                active = sit.active_stack[sit.depth]
+                sit.depth -= 1
+                c_kind = active.kind
+                replace = True
+                is_left = False
+    
         if out_string != None:
             if replace:
                 if params.index == 'u':
@@ -216,12 +227,13 @@ def printDeclarations(params, delims, buf, out_string):
     return errors
 
 def zebraFilter(style, encoding, family, size, mag,
-        number, slots, index, texmfHome, string_tofilter, 
+        number, slots, index, mixcount, texmfHome, string_tofilter, 
         checkArgs=False):
 
     try:
         parameters = Parameters(style, encoding, family, size, mag,
-                         number, slots, index, texmfHome, checkArgs)
+                                number, slots, index, mixcount,
+                                texmfHome, checkArgs)
         if checkArgs is False:
             out_string = io.StringIO()
             delimiters = {}
@@ -229,7 +241,6 @@ def zebraFilter(style, encoding, family, size, mag,
             delimiters[']'] = delimiters['[']
             delimiters['('] = Delimiter('p', '(', ')')
             delimiters[')'] = delimiters['(']
-            #countDelimiters(parameters, delimiters, string_tofilter)
             printAndReplaceSymbols(parameters,
                                    delimiters,
                                    string_tofilter)
@@ -276,6 +287,9 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--index', type=str,
         choices=zebraHelp.validIndices,
         default='n', help='index')
+    parser.add_argument('--mixcount', dest='mixcount', action='store_true')
+    parser.add_argument('--no-mixcount', dest='mixcount', action='store_false')
+    parser.set_defaults(mixcount=True)
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--string', type=str,
@@ -287,7 +301,7 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
     filtered_string = zebraFilter(
       args.style, args.encoding, args.family,
       args.size, args.mag, args.number, args.slots,
-      args.index, args.texmfhome,
+      args.index, args.mixcount, args.texmfhome,
       args.string, args.checkargs)
 
 # TODO: Document

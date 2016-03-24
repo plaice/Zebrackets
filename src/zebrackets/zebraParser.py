@@ -131,6 +131,7 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
                       params_paragraph.number,
                       params_paragraph.slots,
                       params_paragraph.index,
+                      params_doc_defaults.mixcount,
                       params_doc_defaults.texmfHome,
                       string_tofilter)
     if res.flag == False:
@@ -173,6 +174,7 @@ def endZebrackets(params_doc_defaults, params_paragraph):
                       params_paragraph.number,
                       params_paragraph.slots,
                       params_paragraph.index,
+                      params_doc_defaults.mixcount,
                       params_doc_defaults.texmfHome,
                       string_tofilter)
     if res.flag == False:
@@ -250,6 +252,8 @@ def zebraParser(args):
     else:
         params_doc_defaults.outfile = args.output
 
+    params_doc_defaults.mixcount = args.mixcount
+
     # Looking for a valid TEXMFHOME
     params_doc_defaults.texmfHome = zebraHelp.validate_texmfhome(args.texmfhome)
 
@@ -272,6 +276,9 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
         required=True)
     parser.add_argument('--output', '-o', type=argparse.FileType('w'), 
         help='output file name with extention .tex')
+    parser.add_argument('--mixcount', dest='mixcount', action='store_true')
+    parser.add_argument('--no-mixcount', dest='mixcount', action='store_false')
+    parser.set_defaults(mixcount=True)
     parser.add_argument('--texmfhome', '-t', 
         help='substitute for environment variable TEXMFHOME')
     parser.add_argument('--checkargs', '-c', action='store_true',
