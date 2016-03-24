@@ -210,3 +210,12 @@ def validate_texmfhome(texmfHome):
         raise ArgError('Invalid texmf path, not a directory.')
     os.environ['TEXMFHOME'] = texmfHome
     return texmfHome
+
+def check_mixcount(params, block_args):
+    m = re.search(r'mix\w*[,\]]', block_args)
+    if m:
+        params.mixcount = True
+    m = re.search(r'nomix\w*[,\]]', block_args)
+    if m:
+        params.mixcount = False
+
