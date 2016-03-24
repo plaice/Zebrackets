@@ -251,8 +251,7 @@ def zebraParser(args):
         params_doc_defaults.outfile = args.output
 
     # Looking for a valid TEXMFHOME
-    params_doc_defaults.texmfHome =
-        zebraHelp.validate_texmfhome(args.texmfhome)
+    params_doc_defaults.texmfHome = zebraHelp.validate_texmfhome(args.texmfhome)
 
     if args.checkargs is False:
         try:
