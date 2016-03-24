@@ -2,7 +2,7 @@
 
 # File zebraFont.py
 #
-# Copyright (c) John Plaice and Blanca Mancilla, 2015
+# Copyright (c) Blanca Mancilla, John Plaice, 2015, 2016
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -73,8 +73,6 @@ def callAndLog(args, log):
     except subprocess.CalledProcessError:
         sys.exit('System died when calling {0}'.format(*args))
 
-# TODO: Check what is actually being generated:
-#       Reference to stripes.
 def createMFcontent(kind, style, slots, sourceFont):
     '''This method creates the font file's header, returning it as string.
     '''
@@ -86,7 +84,7 @@ def generate suffix t = enddef;
 input {0}; font_setup;
 let iff = always_iff;
            
-stripes:={1};
+slots:={1};
 foreground:={2};
 input zeroman{3};'''
     text = textFormat.format(

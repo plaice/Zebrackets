@@ -2,7 +2,7 @@
 
 # File zebraFontFiles.py
 #
-# Copyright (c) Blanca Mancilla and John Plaice, 2015
+# Copyright (c) Blanca Mancilla, John Plaice, 2015, 2016
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -147,9 +147,9 @@ def rb(expr mark_count, total_count) =
     endchar;
 enddef;
 
-for s := 0 upto ((2**stripes)-1):
-  lb(s,stripes);
-  rb(s,stripes);
+for s := 0 upto ((2**slots)-1):
+  lb(s,slots);
+  rb(s,slots);
 endfor;
 '''
 
@@ -263,9 +263,9 @@ def rp(expr mark_count, total_count) =
     endchar;
 enddef;
 
-for s := 0 upto ((2**stripes)-1):
-    lp(s,stripes);
-    rp(s,stripes);
+for s := 0 upto ((2**slots)-1):
+    lp(s,slots);
+    rp(s,slots);
 endfor;
 
 %tracingequations:=tracingonline:=1;
