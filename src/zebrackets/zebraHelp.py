@@ -94,7 +94,7 @@ validFontPairs = {
 
 def validate_kind(kind):
     if kind not in validKinds:
-        raise ArgError('' + kind + ' not a valid kind.')
+        raise ArgError('' + str(kind) + ' not a valid kind.')
     return kind
 
 def check_kind(params, block_args):
@@ -111,7 +111,7 @@ def check_kind_use(params, block_args):
 
 def validate_style(style):
     if style not in validStyles:
-        raise ArgError('' + style + ' not a valid number style.')
+        raise ArgError('' + str(style) + ' not a valid number style.')
     return style
 
 def check_style(params, block_args):
@@ -122,7 +122,7 @@ def check_style(params, block_args):
 
 def validate_slots(slots):
     if slots not in validSlots:
-        raise ArgError('' + slots + ' not a valid number of slots.')
+        raise ArgError('' + str(slots) + ' not a valid number of slots.')
     return slots
 
 def check_slots(params, block_args):
@@ -133,7 +133,7 @@ def check_slots(params, block_args):
 
 def validate_encoding(encoding):
     if encoding not in validEncodings:
-        raise ArgError('' + encoding + ' not a valid encoding.')
+        raise ArgError('' + str(encoding) + ' not a valid encoding.')
     return encoding
 
 def check_encoding(params, block_args):
@@ -144,7 +144,7 @@ def check_encoding(params, block_args):
 
 def validate_index(index):
     if index not in validIndices:
-        raise ArgError('' + index + ' not a valid index.')
+        raise ArgError('' + str(index) + ' not a valid index.')
     return index
 
 def check_index(params, block_args):
@@ -155,7 +155,7 @@ def check_index(params, block_args):
 
 def validate_number(number):
     if number < 0:
-        raise ArgError('' + number + ' not a valid glyph number.')
+        raise ArgError('' + str(number) + ' not a valid glyph number.')
     return number
 
 def check_number(params, block_args):
@@ -166,7 +166,7 @@ def check_number(params, block_args):
 
 def validate_mag(mag):
     if mag not in validMags:
-        raise ArgError('' + mag + ' not a valid magnification.')
+        raise ArgError('' + str(mag) + ' not a valid magnification.')
     return mag
 
 def check_mag(params, block_args):
@@ -177,7 +177,7 @@ def check_mag(params, block_args):
 
 def validate_family(family):
     if family not in validFontFamilies:
-        raise ArgError('' + m.group(1) + ' not a valid font family.')
+        raise ArgError('' + str(family) + ' not a valid font family.')
     return family
 
 def check_family(params, block_args):
@@ -188,7 +188,7 @@ def check_family(params, block_args):
 
 def validate_size(size):
     if size not in validFontSizes:
-        raise ArgError('' + size + ' not a valid font size.')
+        raise ArgError('' + str(size) + ' not a valid font size.')
     return size
 
 def check_size(params, block_args):
@@ -199,14 +199,14 @@ def check_size(params, block_args):
 
 def validate_family_size(family, size):
    if size not in validFontPairs[family]:
-        raise ArgError('' + size + ' not a valid font size.')
+        raise ArgError('' + str(size) + ' not a valid font size.')
 
 def validate_texmfhome(texmfHome):
     if texmfHome == None:
         if 'TEXMFHOME' not in os.environ:
             raise ArgError('TEXMFHOME environment variable is not set.')
         texmfHome = os.environ['TEXMFHOME']
-    elif not os.path.isdir(texmfHome):
+    if not os.path.isdir(texmfHome):
         raise ArgError('Invalid texmf path, not a directory.')
     os.environ['TEXMFHOME'] = texmfHome
     return texmfHome

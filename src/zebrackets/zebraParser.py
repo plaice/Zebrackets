@@ -251,17 +251,18 @@ def zebraParser(args):
         params_doc_defaults.outfile = args.output
 
     # Looking for a valid TEXMFHOME
-    try:
-        params_doc_defaults.texmfHome = zebraHelp.validate_texmfhome(
-            args.texmfhome
-        )
-    except:
-        return params_doc_defaults.texmfHome
+    params_doc_defaults.texmfHome =
+        zebraHelp.validate_texmfhome(args.texmfhome)
 
     if args.checkargs is False:
-        filterText(params_doc_defaults, params_paragraph)
-        params_doc_defaults.infile.close()
-        params_doc_defaults.outfile.close()
+        try:
+            filterText(params_doc_defaults, params_paragraph)
+            params_doc_defaults.infile.close()
+            params_doc_defaults.outfile.close()
+        except zebraHelp.ArgError as e:
+            params_doc_defaults.infile.close()
+            params_doc_defaults.outfile.close()
+            print ('zebraParse ArgError: ' + e)
 
 def zebraParserParser(inputArguments = sys.argv[1:]):
     parser = argparse.ArgumentParser(
