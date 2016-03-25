@@ -167,13 +167,17 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
                 if not is_left:
                     number += pow(2, params.slots)
     
+                if params.mag > 26:
+                    mag_as_letter = chr(params.mag - 27 + ord('a'))
+                else:
+                    mag_as_letter = chr(params.mag - 1 + ord('A'))
                 out_string.write('{{\\z{0}{1}{2}{3}{4}{5} \\symbol{{{6}}}}}'.
                       format(c_kind,
                              params.style,
                              chr(ord('a') + params.slots),
                              params.family,
                              chr(ord('A') - 1 + params.size),
-                             chr(ord('A') - 1 + params.mag),
+                             mag_as_letter,
                              number))
             else:
                 out_string.write(c)
@@ -212,11 +216,15 @@ def printDeclarations(params, delims, buf, out_string):
                     chr(ord('a') + params.slots),
                     params.family
                 )
+                if params.mag > 26:
+                    mag_as_letter = chr(params.mag - 27 + ord('a'))
+                else:
+                    mag_as_letter = chr(params.mag - 1 + ord('A'))
                 out_string.write(
                     '\\ifundefined{{{0}{1}{2}}}\\newfont{{\\{0}{1}{2}}}{{{0}{3} scaled {4}000}}\\fi'.
                         format(fontName,
                                chr(ord('A') - 1 + params.size),
-                               chr(ord('A') - 1 + params.mag),
+                               mag_as_letter,
                                params.size,
                                params.mag))
             else:
