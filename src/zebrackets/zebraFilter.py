@@ -28,12 +28,8 @@ import io
 import subprocess
 import sys
 from zebrackets.zebraFont import zebraFont
+from zebrackets.zebraBinaries import binaries
 import zebraHelp
-
-valueToFunctions = {
-    'b' : (lambda value : value % 256),
-    'u' : (lambda value : pow(2, (value % 8)) - 1),
-    'd' : (lambda value : pow(2, (value - 1) % 7) if value else value) }
 
 # TODO: Document
 class Stacks:
@@ -67,10 +63,10 @@ class Active:
 # TODO: Document
 class Parameters:
     def __init__(self, style, encoding, family, size, mag,
-            number, slots, index, mixcount, texmfHome, checkArgs):
+            number, slots, index, mixcount, mirror,
+            zerocount, topcount, texmfHome, checkArgs):
         self.style = zebraHelp.validate_style(style)
         self.encoding = zebraHelp.validate_encoding(encoding)
-        self.valueToEncoding = valueToFunctions[encoding]
         self.slots = slots
         self.family = zebraHelp.validate_family(family)
         self.size = zebraHelp.validate_size(size)
@@ -85,6 +81,9 @@ class Parameters:
         self.number = number
         self.index = index
         self.mixcount = mixcount
+        self.mirror = mirror
+        self.zerocount = zerocount
+        self.topcount = topcount
         self.texmfHome = zebraHelp.validate_texmfhome(texmfHome)
         self.checkArgs = checkArgs
 
@@ -163,7 +162,18 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
                     number = active.breadth
                 else:
                     number = params.number
-                number = params.valueToEncoding(number)
+                if not params.zerocount:
+                    number = number + 1
+                if params.encoding == 'b':
+                    number = number % pow(2, params.slots)
+                elif params.encoding == 'u':
+                    number = pow(2, number % (params.slots + 1)) - 1
+                elif number % (params.slots + 1):
+                    number = pow(2, (number - 1) % (params.slots + 1))
+                else:
+                    number = 0
+                if not params.topcount:
+                    number = binaries[params.slots][number]
                 if not is_left:
                     number += pow(2, params.slots)
     
@@ -235,12 +245,14 @@ def printDeclarations(params, delims, buf, out_string):
     return errors
 
 def zebraFilter(style, encoding, family, size, mag,
-        number, slots, index, mixcount, texmfHome, string_tofilter, 
+        number, slots, index, mixcount, mirror,
+        zerocount, topcount, texmfHome, string_tofilter, 
         checkArgs=False):
 
     try:
         parameters = Parameters(style, encoding, family, size, mag,
                                 number, slots, index, mixcount,
+                                mirror, zerocount, topcount,
                                 texmfHome, checkArgs)
         if checkArgs is False:
             out_string = io.StringIO()
@@ -297,6 +309,12 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
         default='n', help='index')
     parser.add_argument('--mixcount', dest='mixcount', action='store_true')
     parser.add_argument('--no-mixcount', dest='mixcount', action='store_false')
+    parser.add_argument('--mirror', dest='mirror', action='store_true')
+    parser.add_argument('--no-mirror', dest='mirror', action='store_false')
+    parser.add_argument('--zerocount', dest='zerocount', action='store_true')
+    parser.add_argument('--onecount', dest='zerocount', action='store_false')
+    parser.add_argument('--tocount', dest='topcount', action='store_true')
+    parser.add_argument('--bottomcount', dest='topcount', action='store_false')
     parser.set_defaults(mixcount=True)
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
@@ -309,7 +327,8 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
     filtered_string = zebraFilter(
       args.style, args.encoding, args.family,
       args.size, args.mag, args.number, args.slots,
-      args.index, args.mixcount, args.texmfhome,
+      args.index, args.mixcount, args.mirror,
+      args.zerocount, args.topcount, args.texmfhome,
       args.string, args.checkargs)
 
 # TODO: Document

@@ -223,3 +223,27 @@ def check_mixcount(params, block_args):
     if m:
         params.mixcount = False
 
+def check_mirror(params, block_args):
+    m = re.search(r'mir\w*[,\]]', block_args)
+    if m:
+        params.mirror = True
+    m = re.search(r'nomir\w*[,\]]', block_args)
+    if m:
+        params.mirror = False
+
+def check_zerocount(params, block_args):
+    m = re.search(r'zer\w*[,\]]', block_args)
+    if m:
+        params.zerocount = True
+    m = re.search(r'one\w*[,\]]', block_args)
+    if m:
+        params.zerocount = False
+
+def check_topcount(params, block_args):
+    m = re.search(r'top\w*[,\]]', block_args)
+    if m:
+        params.topcount = True
+    m = re.search(r'bot\w*[,\]]', block_args)
+    if m:
+        params.topcount = False
+

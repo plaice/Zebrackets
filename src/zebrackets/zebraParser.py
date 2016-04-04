@@ -66,6 +66,9 @@ class Params:
         self.encoding = 'b'
         self.number = -1
         self.mixcount = True
+        self.mirror = False
+        self.zerocount = True
+        self.topcount = True
 
         self.filterMode = False
 
@@ -125,6 +128,9 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     zebraHelp.check_encoding(params_paragraph, par_args)
     zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_mixcount(params_paragraph, par_args)
+    zebraHelp.check_mirror(params_paragraph, par_args)
+    zebraHelp.check_zerocount(params_paragraph, par_args)
+    zebraHelp.check_topcount(params_paragraph, par_args)
 
     res = zebraFilter(params_paragraph.style,
                       params_paragraph.encoding,
@@ -135,6 +141,9 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
                       params_paragraph.slots,
                       params_paragraph.index,
                       params_paragraph.mixcount,
+                      params_paragraph.mirror,
+                      params_paragraph.zerocount,
+                      params_paragraph.topcount,
                       params_doc_defaults.texmfHome,
                       string_tofilter)
     if res.flag == False:
@@ -160,6 +169,9 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_encoding(params_paragraph, par_args)
     zebraHelp.check_mixcount(params_paragraph, par_args)
+    zebraHelp.check_mirror(params_paragraph, par_args)
+    zebraHelp.check_zerocount(params_paragraph, par_args)
+    zebraHelp.check_topcount(params_paragraph, par_args)
 
 
 def endZebrackets(params_doc_defaults, params_paragraph):
@@ -179,6 +191,9 @@ def endZebrackets(params_doc_defaults, params_paragraph):
                       params_paragraph.slots,
                       params_paragraph.index,
                       params_paragraph.mixcount,
+                      params_paragraph.mirror,
+                      params_paragraph.zerocount,
+                      params_paragraph.topcount,
                       params_doc_defaults.texmfHome,
                       string_tofilter)
     if res.flag == False:
