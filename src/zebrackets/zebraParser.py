@@ -72,7 +72,7 @@ class Params:
 
         self.filterMode = False
 
-def setDefaults(params_doc_defaults, params_paragraph, doc_args):
+def setDefaults(params_doc_defaults, doc_args):
     '''This method sets the zebrackets default arguments for the entire
     document, based in the '\zebracketsdefaults' directive in the input
     zetex file.
@@ -86,9 +86,12 @@ def setDefaults(params_doc_defaults, params_paragraph, doc_args):
     zebraHelp.check_index(params_doc_defaults, doc_args)
     zebraHelp.check_encoding(params_doc_defaults, doc_args)
     zebraHelp.check_mixcount(params_doc_defaults, doc_args)
+    zebraHelp.check_mirror(params_doc_defaults, doc_args)
+    zebraHelp.check_topcount(params_doc_defaults, doc_args)
+    zebraHelp.check_zerocount(params_doc_defaults, doc_args)
 
 
-def declareFont(params_doc_defaults, params_paragraph, font_args):
+def declareFont(params_doc_defaults, font_args):
     '''This method is called everytime the directive '\zebracketsfont'
     is found in the input .zetex file. After the parsing of the values,
     the zebraFont module is called to create the corresponsing font file. 
@@ -141,7 +144,6 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
                       params_paragraph.slots,
                       params_paragraph.index,
                       params_paragraph.mixcount,
-                      params_paragraph.mirror,
                       params_paragraph.zerocount,
                       params_paragraph.topcount,
                       params_doc_defaults.texmfHome,
@@ -191,7 +193,6 @@ def endZebrackets(params_doc_defaults, params_paragraph):
                       params_paragraph.slots,
                       params_paragraph.index,
                       params_paragraph.mixcount,
-                      params_paragraph.mirror,
                       params_paragraph.zerocount,
                       params_paragraph.topcount,
                       params_doc_defaults.texmfHome,
@@ -207,19 +208,22 @@ def filterText(params_doc_defaults, params_paragraph):
     '''This method parses the input file and captures all of the zebrackets
     directive, calls the corresponding method, and if necessary, for
     zebracketsfont, zebracketsdefaults, supresses the line from the output.
-    * zebracketsdefaults only happens once.
-    * zebracketsfont could happen many times but at least once (?).
     '''
     params_doc_defaults.filterMode = False
     for line in params_doc_defaults.infile:
+        saveline = line
         if not params_doc_defaults.filterMode:
             m = re.search(r'^\\zebracketsdefaults(\[.*\])', line)
             if m:
-                setDefaults(params_doc_defaults, params_paragraph, m.group(1))
+                setDefaults(params_doc_defaults, m.group(1))
+                if params_doc_defaults.mirror:
+                    params_doc_defaults.outfile.write('%' + saveline)
                 continue
             m = re.search(r'^\\zebracketsfont(\[.*\])', line)
             if m:
-                declareFont(params_doc_defaults, params_paragraph, m.group(1))
+                declareFont(params_doc_defaults, m.group(1))
+                if params_doc_defaults.mirror:
+                    params_doc_defaults.outfile.write('%' + saveline)
                 continue
             m = re.search(r'^\\begin{zebrackets}(\[.*])', line)
             if m:
@@ -228,19 +232,28 @@ def filterText(params_doc_defaults, params_paragraph):
                     params_doc_defaults,
                     params_paragraph,
                     m.group(1))
+                if params_paragraph.mirror:
+                    params_doc_defaults.outfile.write('%' + saveline)
                 continue
             m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
+            mirror_line = False
             while m:
                 # Find the replacement text, then sub back into line
                 params_paragraph = copy.copy(params_doc_defaults)
                 new_text = replaceText(params_doc_defaults, params_paragraph,
                                        m.group(1), m.group(2))
+                if params_paragraph.mirror:
+                    mirror_line = True
                 line = re.sub(r'\\zebracketstext\[.*\]{.*}',
                               repr(new_text).strip("'").rstrip("'"), line)
                 m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
             # Process a normal line
+            if mirror_line:
+                params_doc_defaults.outfile.write('%' + saveline)
             params_doc_defaults.outfile.write(line)
         else:
+            if params_paragraph.mirror:
+                params_doc_defaults.outfile.write('%' + saveline)
             m = re.search(r'^\\end{zebrackets}', line)
             if m:
                 endZebrackets(params_doc_defaults, params_paragraph)

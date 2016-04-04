@@ -63,7 +63,7 @@ class Active:
 # TODO: Document
 class Parameters:
     def __init__(self, style, encoding, family, size, mag,
-            number, slots, index, mixcount, mirror,
+            number, slots, index, mixcount,
             zerocount, topcount, texmfHome, checkArgs):
         self.style = zebraHelp.validate_style(style)
         self.encoding = zebraHelp.validate_encoding(encoding)
@@ -81,7 +81,6 @@ class Parameters:
         self.number = number
         self.index = index
         self.mixcount = mixcount
-        self.mirror = mirror
         self.zerocount = zerocount
         self.topcount = topcount
         self.texmfHome = zebraHelp.validate_texmfhome(texmfHome)
@@ -107,9 +106,9 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
         delims['['].stacks = delims['('].stacks
     else:
         delims['['].stacks = Stacks()
-    
+
     sit = Stacks()
-    
+
     # Each entry in active_stack
     for c in buf:
         replace = False
@@ -151,7 +150,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
                 c_kind = active.kind
                 replace = True
                 is_left = False
-    
+
         if out_string != None:
             if replace:
                 if params.index == 'u':
@@ -176,7 +175,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
                     number = binaries[params.slots][number]
                 if not is_left:
                     number += pow(2, params.slots)
-    
+
                 if params.mag > 26:
                     mag_as_letter = chr(params.mag - 27 + ord('a'))
                 else:
@@ -245,14 +244,14 @@ def printDeclarations(params, delims, buf, out_string):
     return errors
 
 def zebraFilter(style, encoding, family, size, mag,
-        number, slots, index, mixcount, mirror,
-        zerocount, topcount, texmfHome, string_tofilter, 
+        number, slots, index, mixcount,
+        zerocount, topcount, texmfHome, string_tofilter,
         checkArgs=False):
 
     try:
         parameters = Parameters(style, encoding, family, size, mag,
                                 number, slots, index, mixcount,
-                                mirror, zerocount, topcount,
+                                zerocount, topcount,
                                 texmfHome, checkArgs)
         if checkArgs is False:
             out_string = io.StringIO()
@@ -309,8 +308,6 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
         default='n', help='index')
     parser.add_argument('--mixcount', dest='mixcount', action='store_true')
     parser.add_argument('--no-mixcount', dest='mixcount', action='store_false')
-    parser.add_argument('--mirror', dest='mirror', action='store_true')
-    parser.add_argument('--no-mirror', dest='mirror', action='store_false')
     parser.add_argument('--zerocount', dest='zerocount', action='store_true')
     parser.add_argument('--onecount', dest='zerocount', action='store_false')
     parser.add_argument('--tocount', dest='topcount', action='store_true')
@@ -327,7 +324,7 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
     filtered_string = zebraFilter(
       args.style, args.encoding, args.family,
       args.size, args.mag, args.number, args.slots,
-      args.index, args.mixcount, args.mirror,
+      args.index, args.mixcount,
       args.zerocount, args.topcount, args.texmfhome,
       args.string, args.checkargs)
 
