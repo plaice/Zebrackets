@@ -14,4 +14,4 @@
 #./zebraParser.py --input somefile --output otherfile --texmfhome
 #/home/mancilla/development/Zebrackets/src --checkargs
 
-#./zebraParser.py --input file.zetex --texmfhome /home/mancilla
+#./zebraParser.py --input file.zbtex --texmfhome /home/mancilla

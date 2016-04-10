@@ -75,7 +75,7 @@ class Params:
 def setDefaults(params_doc_defaults, doc_args):
     '''This method sets the zebrackets default arguments for the entire
     document, based in the '\zebracketsdefaults' directive in the input
-    zetex file.
+    zbtex file.
     '''
     zebraHelp.check_kind(params_doc_defaults, doc_args)
     zebraHelp.check_style(params_doc_defaults, doc_args)
@@ -93,7 +93,7 @@ def setDefaults(params_doc_defaults, doc_args):
 
 def declareFont(params_doc_defaults, font_args):
     '''This method is called everytime the directive '\zebracketsfont'
-    is found in the input .zetex file. After the parsing of the values,
+    is found in the input .zbtex file. After the parsing of the values,
     the zebraFont module is called to create the corresponsing font file. 
     '''
     params_font = copy.copy(params_doc_defaults)
@@ -272,8 +272,8 @@ def zebraParser(args):
     # Assigning the input file if the input is correct
     in_name = os.path.basename(args.input.name)
     in_base, in_ext = os.path.splitext(in_name)
-    if in_ext != ".zetex":
-        return "Error: Invalid input file, zetex extension required."
+    if in_ext != ".zbtex":
+        return "Error: Invalid input file, zbtex extension required."
     else:
         params_doc_defaults.infile = args.input
 
@@ -302,7 +302,7 @@ def zebraParserParser(inputArguments = sys.argv[1:]):
         description="Handle zebrackets directives in input file.",
         epilog="This module is part of the zebrackets package.")
     parser.add_argument('--input', '-i', type=argparse.FileType('r'), 
-        help='input file with extension .zetex',
+        help='input file with extension .zbtex',
         required=True)
     parser.add_argument('--output', '-o', type=argparse.FileType('w'), 
         help='output file name with extention .tex')

@@ -22,14 +22,14 @@ full_cmd_2 = ['--input', 'somenonfile',
               '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
-full_cmd_3 = ['--input', 'somefile.zetex',
+full_cmd_3 = ['--input', 'somefile.zbtex',
               '--texmfhome', '/home/other',
               '--checkargs']
 
-full_cmd_4 = ['--input', 'somefile.zetex',
+full_cmd_4 = ['--input', 'somefile.zbtex',
               '--checkargs']
 
-full_cmd_5 = ['--input', 'somefile.zetex',
+full_cmd_5 = ['--input', 'somefile.zbtex',
               '--texmfhome', '/home/mancilla/development/Zebrackets/src/test',
               '--checkargs']
 
@@ -49,7 +49,7 @@ class TestZebraParser(unittest.TestCase):
         begin_test("test_zebraparser_cmd1")
         self.assertEqual(
             zebraParser.zebraParserParser(full_cmd_1), 
-            'Error: Invalid input file, zetex extension required.')
+            'Error: Invalid input file, zbtex extension required.')
 
     ## Checking the argparse parametrization, checking for file extensions
     def test_zebraparser_cmd2(self):

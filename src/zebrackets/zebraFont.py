@@ -91,9 +91,9 @@ def checkAndCreateFont(fileName, destMFdir, fileContent, texmfHome, log):
 def createMFfiles(params):
     # Set up of diretories and files names
     sourceFont = '{0}{1}'.format(params.family, int(params.size))
-    destMFdir = '{0}/fonts/source/public/zetex'.format(params.texmfHome)
-    destTFMdir = '{0}/fonts/tfm/public/zetex'.format(params.texmfHome)
-    destPKdir = '{0}/fonts/pk/ljfour/public/zetex'.format(params.texmfHome)
+    destMFdir = '{0}/fonts/source/public/zbtex'.format(params.texmfHome)
+    destTFMdir = '{0}/fonts/tfm/public/zbtex'.format(params.texmfHome)
+    destPKdir = '{0}/fonts/pk/ljfour/public/zbtex'.format(params.texmfHome)
     destMF = 'z{0}{1}{2}{3}'.format(
                  params.kind, params.style,
                  params.slotsAsLetter, sourceFont)
@@ -114,25 +114,25 @@ def createMFfiles(params):
     except FileExistsError:
         pass
 
-    zetexFontsLog = []
+    zbtexFontsLog = []
 
     ## This is now outside in def method
     # Check if the font file exists already, and not create it. 
     # Write the content in the file. 
     checkAndCreateFont(
-        destMF, destMFdir, textMFfile, params.texmfHome, zetexFontsLog)
+        destMF, destMFdir, textMFfile, params.texmfHome, zbtexFontsLog)
     checkAndCreateFont(
         'zepunctb', destMFdir, zebraFontFiles.str_zepunctb,
-        params.texmfHome, zetexFontsLog)
+        params.texmfHome, zbtexFontsLog)
     checkAndCreateFont(
         'zepunctp', destMFdir, zebraFontFiles.str_zepunctp,
-        params.texmfHome, zetexFontsLog)
+        params.texmfHome, zbtexFontsLog)
     checkAndCreateFont(
         'zeromanb', destMFdir, zebraFontFiles.str_zeromanb,
-        params.texmfHome, zetexFontsLog)
+        params.texmfHome, zbtexFontsLog)
     checkAndCreateFont(
         'zeromanp', destMFdir, zebraFontFiles.str_zeromanp,
-        params.texmfHome, zetexFontsLog)
+        params.texmfHome, zbtexFontsLog)
 
     # Checking main fonts exists
 
@@ -141,9 +141,9 @@ def createMFfiles(params):
     try:
         subprocess.check_output(['kpsewhich', '{0}.tfm'.format(destMF)])
     except subprocess.CalledProcessError:
-        callAndLog(['mktextfm', destMF], zetexFontsLog)
+        callAndLog(['mktextfm', destMF], zbtexFontsLog)
         callAndLog(
-            ['mktexlsr', params.texmfHome], zetexFontsLog)
+            ['mktexlsr', params.texmfHome], zbtexFontsLog)
 
     if int(params.mag) != 1:
         dpi = params.mag * 600
@@ -163,19 +163,19 @@ def createMFfiles(params):
                         '-progname=mf',
                         '\\mode:=ljfour; mag:={0}; nonstopmode; input {1}'.
                             format(math.sqrt(float(params.mag)), destMF)],
-                       zetexFontsLog)
+                       zbtexFontsLog)
             callAndLog(['gftopk',
                         '{0}.{1}gf'.format(destMF, dpi),
                         '{0}.{1}pk'.format(destMF, dpi)],
-                       zetexFontsLog)
+                       zbtexFontsLog)
             shutil.move('{0}.{1}pk'.format(destMF, dpi), dpidir)
-            callAndLog(['mktexlsr', params.texmfHome], zetexFontsLog)
+            callAndLog(['mktexlsr', params.texmfHome], zbtexFontsLog)
             for file in glob.glob('{0}.*'.format(destMF)):
                 os.unlink(file)
 
-    with open('zetexfonts.log', 'a') as zetexLogFile:
-        for string in zetexFontsLog:
-            zetexLogFile.write(string)
+    with open('zbtexfonts.log', 'a') as zbtexLogFile:
+        for string in zbtexFontsLog:
+            zbtexLogFile.write(string)
 
 def zebraFont(kind, style, slots, family,
               size, mag, texmfHome, checkArgs):
