@@ -1,0 +1,394 @@
+\documentclass{beamer}
+\usepackage{etex}
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{00B0}{$^\circ$}
+\DeclareUnicodeCharacter{0115}{\u{e}}
+\DeclareUnicodeCharacter{014D}{\=o}
+\input viewtable
+\input viewtablescaled
+
+\usetheme{Montpellier}
+\usepackage{graphicx}
+
+\def\ifundefined#1{\expandafter\ifx\csname#1\endcsname\relax}
+\zebracketsdefaults[size=10,family=cmr,index=unique]
+\zebracketsfont[kind=p,style=h,slots=4,size=12,family=cmr]
+\zebracketsfont[kind=p,style=h,slots=4,size=12,family=cmr,mag=2]
+\zebracketsfont[kind=p,style=h,slots=4,size=12,family=cmr,mag=4]
+\zebracketsfont[kind=p,style=h,slots=4,size=12,family=cmr,mag=8]
+\zebracketsfont[kind=b,style=f,slots=3,size=12,family=cmtt]
+\zebracketsfont[kind=p,style=f,slots=2,size=12,family=cmr]
+
+\setbeamercovered{transparent}
+
+\title{Zebrackets: A Score of Years and Delimiters}
+\author{Michael Cohen, Blanca Mancilla, and John Plaice}
+\institute{U.Aizu, Mentel, GrammaTech and UNSW Australia}
+\date{TUG meeting, July 2016}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+% FIXME: Associate the letters with sounds.
+% During the presentation, sounds would come up as the brackets are read.
+% Is there audio support in some pdf?
+\begin{frame}[fragile]
+\frametitle{Zebrackets: striated parentheses and brackets}
+\begin{center}
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=4,slots=5]
+[ (a [b (c) d] [e (f) g]) \\
+\mbox{}\\
+\hspace*{10mm} (a [b (c) d] [e (f) g]) ]
+\end{zebrackets}
+\end{center}
+
+\bigskip
+
+In expressions with many parentheses and brackets, striations
+can be added programmatically to better distinguish matching pairs
+in a specified region of a text.
+
+\medskip
+
+In this example, the delimiters are four times normal size to
+accentuate the striations.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{A bit of history}
+\begin{itemize}
+\item \emph{TUG 1993}: Cohen presented the paper
+“A pseudo-dynamic contextually adaptive font.”
+His implementation used a combination of Perl,~C,~and~sh.
+\item 2014: Plaice and Cohen revived this work.
+\item 2016: Mancilla and Plaice reworked the
+whole system in Python to make it more flexible and usable.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Another look at our example}
+\begin{center}
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=4,slots=5]
+[ (a [b (c) d] [e (f) g]) \\
+\mbox{}\\
+\hspace*{10mm} (a [b (c) d] [e (f) g]) ]
+\end{zebrackets} \\
+
+\bigskip
+
+% FIXME: mixcounting? integrated? think about it.
+\begin{tabular}{ll}
+font = cmr &
+size = 10 \\
+magnification = 4 &
+style = foreground \\
+encoding = binary &
+index = unique \\
+slots = 5 & mixcount \\
+zerocount & topcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+%FIXME: Extend manuscript as per here.
+%FIXME: Are there defaults? Explain, and annotate.
+%FIXME: Explain what remains constant (here unary encoding, etc.)
+%FIXME: Need a better example for breadth.
+\begin{frame}[fragile]
+\frametitle{Index}
+
+\medskip
+
+\begin{tabular}{ll}
+unique: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+depth: &
+\begin{zebrackets}[index=depth,enc=unary,style=f,mag=2]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+breadth: &
+\begin{zebrackets}[index=breadth,enc=unary,style=f,mag=2]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+\phantom{background:} &
+\end{tabular}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{ll}
+encoding = unary &
+style = foreground \\
+magnification = 2 &
+mixcount \\
+zerocount & topcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Style}
+
+\medskip
+
+\begin{tabular}{ll}
+foreground: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+background: &
+\begin{zebrackets}[index=unique,enc=unary,style=b,mag=2]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+hybrid: &
+\begin{zebrackets}[index=unique,enc=unary,style=h,mag=2]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+\phantom{background:} &
+\end{tabular}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{ll}
+encoding = unary &
+index = unique \\
+magnification = 2 &
+mixcount \\
+zerocount & topcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Encoding}
+
+\medskip
+
+\begin{tabular}{ll}
+unary: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2, slots=3]
+(a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
+\end{zebrackets}
+\\
+binary: &
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3]
+(a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
+\end{zebrackets}
+\\
+demux: &
+\begin{zebrackets}[index=unique,enc=demux,style=f,mag=2, slots=3]
+(a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
+\end{zebrackets}
+\\
+\phantom{background:} &
+\end{tabular}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{ll}
+index = unique &
+style = foreground \\
+magnification = 2 &
+mixcount \\
+zerocount & topcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Mix- or nomix-counting}
+\begin{itemize}
+\item mixcounting:
+\begin{center}
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2,slots=5]
+[ (a [b (c) d] [e (f) g]) \\
+\mbox{}\\
+\hspace*{5mm} (a [b (c) d] [e (f) g]) ]
+\end{zebrackets}
+\end{center}
+
+\medskip
+
+\item nomixcounting:
+\begin{center}
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2,slots=5,nomix]
+[ (a [b (c) d] [e (f) g]) \\
+\mbox{}\\
+\hspace*{5mm} (a [b (c) d] [e (f) g]) ]
+\end{zebrackets}
+\end{center}
+\end{itemize}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{ll}
+index = unique &
+style = foreground \\
+magnification = 2 &
+encoding = binary \\
+zerocount & topcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Zero- or one-counting}
+\begin{tabular}{ll}
+zerocount: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2,zerocount]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\\
+onecount: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2,onecount]
+(a (b (c) d) (e (f) g)) \\
+\end{zebrackets}
+\phantom{background:} &
+\end{tabular}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{ll}
+index = unique &
+style = foreground \\
+magnification = 2 &
+encoding = binary \\
+topcount & mixcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Top- or bottom-counting}
+\begin{tabular}{ll}
+top: &
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3,top]
+(a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
+\end{zebrackets}
+\\
+bottom: &
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3,bot]
+(a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
+\end{zebrackets}
+\\
+\phantom{background:} &
+\end{tabular}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{ll}
+index = unique &
+style = foreground \\
+magnification = 2 &
+encoding = binary \\
+zerocount & mixcount
+\end{tabular} \\
+\end{center}
+\end{frame}
+
+
+
+%FIXME: Explain that we can do explicit or implicit choices.
+%FIXME: We begin with explicit ...
+%FIXME: Including examples where brackets and parens are not
+% "properly nested." (Violation of stack property.)
+%FIXME: ACM DocEng?
+
+
+\begin{frame}[fragile]
+\frametitle{Fonts}
+\viewtablescaledBE{zphecmr12}{2000}
+\begin{verbatim}
+    python3 zebrackets/zebraFont.py
+            --kind parenthesis --style foreground
+            --slots 3 --size 12 --family cmr
+            --magnification 2
+\end{verbatim}
+
+\bigskip
+
+Magnification = $n$ means $\bigl(2^{\frac{1}{2}}\bigr)^n$.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Architecture of system}
+\begin{itemize}
+\item The user writes a \LaTeX\ file with suffix \texttt{.zbtex}.
+\item In this file, the user makes annotations
+of the form \texttt{\char92zebracketstext\char123}$\cdots$\texttt{\char125},
+or delimited by \texttt{\char92begin\char123zebrackets\char125}$\cdots$%
+\texttt{\char92end\char123zebrackets\char125} pairs,
+with appropriate parameters.
+\item These annotations designate regions of text in which delimiters
+are to be transformed with striated glyphs.
+\item This striation is done by explicitly designating which glyph in
+a font should be used, or automatically.
+\item For explicit striation, fonts must be created explicitly
+using the \texttt{\char92zebracketsfonts} command.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Automatic striation}
+\begin{itemize}
+\item There is a two-pass algorithm over the text in that region.
+\item Unless the slots and glyphs are specified explicitly,
+the first pass computes the number of slots (maximum~7) needed to
+striate all of the delimiters in that region of text, Should, in theory,
+more slots than~7 be needed, then 7~are chosen, and the counting
+for striation purposes wraps through~0 in the appropriate encoding.
+\item The second pass generates the transformed text, replacing
+delimiters in the text with specific glyphs in the new fonts,
+which are generated on-the-fly, as needed.
+\item All parameters have default values.
+\end{itemize}
+\end{frame}
+
+% FIXME: Examples from actual source.
+% FIXME: Error handling, how does it work?
+% FIXME: Our wish list includes the following things...
+% FIXME: Make it faster?
+% FIXME: Suggests desirability of everything going multidimensional.
+% FIXME: No way that this exponential explosion can be precached.
+% FIXME: Things must be generated on the fly.
+\begin{frame}[fragile]
+\frametitle{Conclusions}
+\begin{itemize}
+\item User adds annotations in the source file;
+these are interpreted by the \texttt{zebraParser.py}
+script to generate a \LaTeX\ file.
+\item Implementation is slow, because of use of Python,
+lack of caching of font information, and redundant error checking.
+\item Proof of concept is successful, future work
+requires a grand vision, probably not based on \TeX.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{center}
+\begin{zebrackets}[size=17,index=depth,enc=binary,style=h,mag=12,slots=3]
+[ ( ) ]
+\end{zebrackets}
+\end{center}
+
+\end{frame}
+
+\end{document}

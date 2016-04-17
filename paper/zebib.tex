@@ -1,0 +1,96 @@
+\makeatletter
+\newcounter{bracei}
+\newcounter{bracej}
+\newcounter{bracet}
+\newcounter{bibpage}
+\ifundefined{zbfhcmrJ}\newfont{\zbfhcmrJ}{zbfhcmr10}\fi
+
+\newcommand{\zecite}[2][]{\def\tmp{#1}\ifx\tmp\@empty\cite{#2}\else\cite[#1]{#2}\fi\zecitation{#2}}
+\newcommand{\zenocite}[1]{\nocite{#1}\zenocitation{#1}}
+
+\newcommand{\zecitation}[1]{%
+\setcounter{bibpage}{\value{page} - 900}%
+\ifundefined{c@ze:#1}%
+\newcounter{ze:#1}\setcounter{ze:#1}{0}%
+\newcounter{zeno:#1}\setcounter{zeno:#1}{128}%
+\fi%
+\setcounter{bracej}{1}%
+\forloop{bracei}{1}{\value{bracei} < \value{bibpage}}{%
+\ifthenelse{\value{bracej} < 64}{%
+\setcounter{bracej}{\value{bracej}*2}}{}}%
+\setcounter{bracei}{\value{ze:#1} / \value{bracej}}%
+\setcounter{bracet}{\value{bracei} * \value{bracej}}%
+\setcounter{bracei}{\value{bracei} / 2}%
+\setcounter{ze:#1}{\value{ze:#1} - \value{bracet}}%
+\addtocounter{bracei}{1}%
+\setcounter{bracei}{\value{bracei} * \value{bracej}}%
+\addtocounter{ze:#1}{\value{bracei}}%
+}
+
+\newcommand{\zenocitation}[1]{%
+\setcounter{bibpage}{\value{page} - 900}%
+\ifundefined{c@ze:#1}%
+\newcounter{ze:#1}\setcounter{ze:#1}{0}%
+\newcounter{zeno:#1}\setcounter{zeno:#1}{128}%
+\fi%
+\setcounter{bracej}{1}%
+\forloop{bracei}{1}{\value{bracei} < \value{bibpage}}{%
+\ifthenelse{\value{bracej} < 64}{%
+\setcounter{bracej}{\value{bracej}*2}}{}}%
+\setcounter{bracej}{1}%
+\forloop{bracei}{1}{\value{bracei} < \value{bibpage}}{%
+\ifthenelse{\value{bracej} < 64}{%
+\setcounter{bracej}{\value{bracej}*2}}{}}%
+\setcounter{zeno:#1}{\value{zeno:#1} - 128}%
+\setcounter{bracei}{\value{zeno:#1} / \value{bracej}}%
+\setcounter{bracet}{\value{bracei} * \value{bracej}}%
+\setcounter{bracei}{\value{bracei} / 2}%
+\setcounter{zeno:#1}{\value{zeno:#1} - \value{bracet}}%
+\addtocounter{bracei}{1}%
+\setcounter{bracei}{\value{bracei} * \value{bracej}}%
+\addtocounter{zeno:#1}{\value{bracei}}%
+\addtocounter{zeno:#1}{128}%
+}
+
+\def\@lbibitem[#1]#2{%
+\item[\@biblabel{{\zbfhcmrJ\symbol{\arabic{ze:#2}}}#1{\zbfhcmrJ\symbol{\arabic{zeno:#2}}}}\hfill]\if@filesw
+      {\let\protect\noexpand
+       \immediate
+       \write\@auxout{\string\bibleft{#2}{\arabic{ze:#2}}}%
+       \write\@auxout{\string\bibcite{#2}{#1}}%
+       \write\@auxout{\string\bibright{#2}{\arabic{zeno:#2}}}%
+      }\fi\ignorespaces}
+\def\@biblabel#1{#1}
+
+\gdef\@firstcite{}
+\xdef\@leftcite{}
+\xdef\@rightcite{}
+
+\def\outze#1{{\zbfhcmrJ\symbol{#1}}}
+
+\def\@citex[#1]#2{\leavevmode
+  \xdef\@leftcite{\char91}%
+  \xdef\@rightcite{\char93}%
+  \gdef\@firstcite{}%
+  \let\@citea\@empty
+  \@cite{\@for\@citeb:=#2\do
+    {\@citea\def\@citea{,\penalty\@m\ }%
+     \edef\@citeb{\expandafter\@firstofone\@citeb\@empty}%
+     \if@filesw\immediate\write\@auxout{\string\citation{\@citeb}}\fi%
+     \@ifundefined{b@\@citeb}{\hbox{\reset@font\bfseries ?}%
+       \G@refundefinedtrue
+       \@latex@warning
+         {Citation `\@citeb' on page \thepage \space undefined}}%
+       {%
+        \ifx\@firstcite\empty%
+        \xdef\@leftcite{\outze{\csname l@\@citeb\endcsname}}%
+        \xdef\@rightcite{\outze{\csname r@\@citeb\endcsname}}%
+        \gdef\@firstcite{no}%
+        \@leftcite\fi\@cite@ofmt{\csname b@\@citeb\endcsname}}}}{#1}{\@rightcite}}
+
+\newcommand{\bibleft}[2]{\expandafter\gdef\csname l@#1\endcsname{#2}}
+\newcommand{\bibright}[2]{\expandafter\gdef\csname r@#1\endcsname{#2}}
+
+\def\@cite#1#2#3{{#1\if@tempswa , #2\fi#3}}
+
+\makeatother
