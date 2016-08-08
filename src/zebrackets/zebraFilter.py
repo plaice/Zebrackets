@@ -64,7 +64,7 @@ class Active:
 class Parameters:
     def __init__(self, style, encoding, family, size, mag,
             number, slots, index, mixcount,
-            zerocount, topcount, texmfHome, checkArgs):
+            origin, direction, texmfHome, checkArgs):
         self.style = zebraHelp.validate_style(style)
         self.encoding = zebraHelp.validate_encoding(encoding)
         self.slots = slots
@@ -80,9 +80,9 @@ class Parameters:
             index = 'n'
         self.number = number
         self.index = index
-        self.mixcount = mixcount
-        self.zerocount = zerocount
-        self.topcount = topcount
+        self.mixcount = zebraHelp.validate_mixcount(mixcount)
+        self.origin = zebraHelp.validate_origin(origin)
+        self.direction = zebraHelp.validate_direction(direction)
         self.texmfHome = zebraHelp.validate_texmfhome(texmfHome)
         self.checkArgs = checkArgs
 
@@ -102,7 +102,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
     delim_chars = ['(', ')', '[', ']']
 
     delims['('].stacks = Stacks()
-    if params.mixcount:
+    if params.mixcount == 't':
         delims['['].stacks = delims['('].stacks
     else:
         delims['['].stacks = Stacks()
@@ -161,8 +161,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
                     number = active.breadth
                 else:
                     number = params.number
-                if not params.zerocount:
-                    number = number + 1
+                number = number + params.origin
                 if params.encoding == 'b':
                     number = number % pow(2, params.slots)
                 elif params.encoding == 'u':
@@ -171,7 +170,7 @@ def printAndReplaceSymbols(params, delims, buf, out_string = None):
                     number = pow(2, (number - 1) % (params.slots + 1))
                 else:
                     number = 0
-                if not params.topcount:
+                if params.direction != 't':
                     number = binaries[params.slots][number]
                 if not is_left:
                     number += pow(2, params.slots)
@@ -245,13 +244,13 @@ def printDeclarations(params, delims, buf, out_string):
 
 def zebraFilter(style, encoding, family, size, mag,
         number, slots, index, mixcount,
-        zerocount, topcount, texmfHome, string_tofilter,
+        origin, direction, texmfHome, string_tofilter,
         checkArgs=False):
 
     try:
         parameters = Parameters(style, encoding, family, size, mag,
                                 number, slots, index, mixcount,
-                                zerocount, topcount,
+                                origin, direction,
                                 texmfHome, checkArgs)
         if checkArgs is False:
             out_string = io.StringIO()
@@ -306,13 +305,15 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
     parser.add_argument('--index', type=str,
         choices=zebraHelp.validIndices,
         default='n', help='index')
-    parser.add_argument('--mixcount', dest='mixcount', action='store_true')
-    parser.add_argument('--no-mixcount', dest='mixcount', action='store_false')
-    parser.add_argument('--zerocount', dest='zerocount', action='store_true')
-    parser.add_argument('--onecount', dest='zerocount', action='store_false')
-    parser.add_argument('--tocount', dest='topcount', action='store_true')
-    parser.add_argument('--bottomcount', dest='topcount', action='store_false')
-    parser.set_defaults(mixcount=True)
+    parser.add_argument('--mixcount', type=str,
+        choices=zebraHelp.validMixcounts,
+        default='t', help='index')
+    parser.add_argument('--origin', type=int,
+        choices=zebraHelp.validOrigins,
+        default=0, help='slots')
+    parser.add_argument('--direction', type=str,
+        choices=zebraHelp.validDirections,
+        default='t', help='slots')
     parser.add_argument('--texmfhome', type=str,
         help='substitute for variable TEXMFHOME')
     parser.add_argument('--string', type=str,
@@ -325,7 +326,7 @@ def zebraFilterParser(inputArguments = sys.argv[1:]):
       args.style, args.encoding, args.family,
       args.size, args.mag, args.number, args.slots,
       args.index, args.mixcount,
-      args.zerocount, args.topcount, args.texmfhome,
+      args.origin, args.direction, args.texmfhome,
       args.string, args.checkargs)
 
 # TODO: Document
