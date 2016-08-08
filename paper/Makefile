@@ -1,4 +1,4 @@
-DIR = $HOME/soft/zebrackets-dir
+DIR = ${HOME}/soft/zebrackets-dir
 SCRIPTS = ${DIR}/zebrackets-git/src
 FONTS = ${DIR}/zebrackets-texmf
 PYTHONSCRIPT = ${SCRIPTS}/zebrackets/zebraParser.py
