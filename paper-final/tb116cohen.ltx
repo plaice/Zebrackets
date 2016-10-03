@@ -1,0 +1,928 @@
+\documentclass[final]{ltugboat}
+\usepackage{microtype}
+%\usepackage{fontspec}
+%\defaultfontfeatures{Ligatures=TeX}
+%\setmainfont{Latin Modern Roman}
+\usepackage{forloop}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage{array,amsfonts,mflogo,url}
+\usepackage[utf8]{inputenc}
+\input viewtable
+\input viewtablescaled
+
+\def\ifundefined#1{\expandafter\ifx\csname#1\endcsname\relax}
+\input zebib
+\newcommand{\initials}[1]{\acro{\uppercase{#1}}}
+%\renewcommand{\zecite}[1]{\cite{#1}}
+%\newcommand{\zenocite}[1]{\nocite{#1}}
+
+\setcounter{dbltopnumber}{4}
+\renewcommand{\dbltopfraction}{0.9}
+\begin{document}
+\pdfpkresolution=600 % not going to remake all the fonts
+\hfuzz=2.1pt
+\title{Zebrackets: A score of years and delimiters}
+
+\author{Michael Cohen}
+\address{University of Aizu, Japan}
+\netaddress{mcohen (at) u-aizu.ac.jp}
+\author{Blanca Mancilla}
+\address{Mentel, Montreal, Canada}
+\netaddress{blancalmancilla (at) gmail.com}
+\author{John~Plaice}
+\address{Grammatech, Ithaca, USA; \\UNSW, Sydney, Australia}
+\netaddress{johnplaice (at) gmail.com}
+\date{
+v.\,21:
+Thurs.\ Aug 4 2016
+}
+\maketitle
+
+
+\def\ifundefined#1{\expandafter\ifx\csname#1\endcsname\relax}
+\ifundefined{zbfhcmrJA}\newfont{\zbfhcmrJA}{zbfhcmr10 scaled 1000}\fi
+\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi
+
+\section{Introduction}
+\label{sec:intro}
+
+% \zecite{Cohen:nesting}
+
+%\noindent
+%\zecite[p.123]{Cohen:nesting}.
+%
+%\noindent
+%\zecite{Cohen:nesting,Cohen:TUGboat-zebrackets,Cohen:TUG94-zebrackets}.
+%
+%\noindent
+%\zecite[p.123]{Cohen:nesting,Cohen:TUGboat-zebrackets,Cohen:TUG94-zebrackets}.
+
+In this paper, we present the resurrection of the \emph{Zebrackets}
+project, originally initiated by the first author 20~years ago,
+with which parentheses and brackets
+are \emph{zebra-striped} with context information.
+There are two reasons for this innovation:
+first, to improve visual presentation of the necessary
+linearization of hierarchical structures in text, and second, to make
+a first step away from the assumption that documents must be built up from
+a set of unchanging atoms called characters.
+
+Parentheses and other pairwise delimiters are important because they are the
+primary way by which text, which is serialized, can denote
+higher-order dimensionality.  For example, two-dimensional structures
+can be directly expressed,
+as in $\left(
+\begin{array}{cc}
+a_{11} & a_{12} \\ a_{21} & a_{22}
+\end{array}
+\right)$.
+For \initials{2d} data structures such as matrices,
+such graphical expression is natural, but unnecessary, as serial expression is
+logically equivalent, albeit less perspicuous, as in
+$((a_{11}\:a_{12})\:(a_{21}\:a_{22}))$,
+and generalizable to arbitrary rank and dimension, as in
+$(a_1\;(a_{21}\;a_{22})\;(a_{31}\;(a_{321}\:a_{322})))$.
+Such notation usually assumes ``row-major'' order,
+in which the horizontal index changes fastest in a canonical (depth-first) enumeration.
+This convention can be made explicit, by introducing grouping delimiters,
+as in
+$\left(\begin{array}{cc}
+(a_{11} & a_{12}) \\ (a_{21} & a_{22})
+\end{array}\right)$.
+%or $\left(\begin{array}{cc}
+%(a_{11} & a_{12}) \\ (a_{21} & a_{22})
+%\end{array} \right)$.
+The transpose (``column-major'') representation, is given by
+$\left(\begin{array}{cc}\left(
+	\begin{array}{c}
+		a_{11} \\
+		a_{12}
+	\end{array}
+	\right)
+	&
+	\left(
+	\begin{array}{c}
+		a_{21}  \\
+		a_{22}
+	\end{array}\right)
+\end{array}
+\right)$.
+
+Zebrackets\footnote{The name,
+suggested by Bob Alverson, is a play on words as
+the delimiters resemble zebra stripes:
+\ifundefined{zphccmrIA}\newfont{\zphccmrIA}{zphccmr9 scaled 1000}\fi\ifundefined{zphccmrIA}\newfont{\zphccmrIA}{zphccmr9 scaled 1000}\fi{{\zphccmrIA \symbol{1}}}ze%
+\ifundefined{zphccmrIA}\newfont{\zphccmrIA}{zphccmr9 scaled 1000}\fi\ifundefined{zphccmrIA}\newfont{\zphccmrIA}{zphccmr9 scaled 1000}\fi{{\zphccmrIA \symbol{2}}}bra%
+{{\zphccmrIA \symbol{5}}}kets%
+{{\zphccmrIA \symbol{6}}}%
+.}
+were originally developed more than a score~(20) of years
+ago, demonstrating the expressive power of microarticulated
+glyphs~\zecite{Cohen:nesting}
+\zecite{Cohen:TUGboat-zebrackets}
+\zecite{Cohen:TUG94-zebrackets}.
+The basic idea is to allow parentheses 
+\zecite{Lennard:But}
+and square brackets to take on stripes and slits
+(``poles 'n' holes'')
+to carry extended information,
+such as functional r\^{o}le, logical position, and nesting level in an expression.
+Pairwise delimiters are ``scored'', by cutting aligned typographical grooves,
+to associate balanced mates and ease visual parsing.
+
+Below, we show one possible scoring of this sample text:
+\begin{center}
+[ (a [b (c) d] [e (f) g]) (a [b (c) d] [e (f) g]) ]
+\end{center}
+Here it is, with greatly magnified brackets and parentheses:
+\begin{center}\advance\lineskip by 10pt
+\ifundefined{zbffcmrJD}\newfont{\zbffcmrJD}{zbffcmr10 scaled 4000}\fi\ifundefined{zpffcmrJD}\newfont{\zpffcmrJD}{zpffcmr10 scaled 4000}\fi\ifundefined{zbffcmrJD}\newfont{\zbffcmrJD}{zbffcmr10 scaled 4000}\fi\ifundefined{zpffcmrJD}\newfont{\zpffcmrJD}{zpffcmr10 scaled 4000}\fi{\zbffcmrJD \symbol{0}} {\zpffcmrJD \symbol{1}}a {\zbffcmrJD \symbol{2}}b {\zpffcmrJD \symbol{3}}c{\zpffcmrJD \symbol{35}} d{\zbffcmrJD \symbol{34}} {\zbffcmrJD \symbol{4}}e {\zpffcmrJD \symbol{5}}f{\zpffcmrJD \symbol{37}} g{\zbffcmrJD \symbol{36}}{\zpffcmrJD \symbol{33}} {\zpffcmrJD \symbol{6}}a {\zbffcmrJD \symbol{7}}b {\zpffcmrJD \symbol{8}}c{\zpffcmrJD \symbol{40}} d{\zbffcmrJD \symbol{39}} {\zbffcmrJD \symbol{9}}e {\zpffcmrJD \symbol{10}}f{\zpffcmrJD \symbol{42}} g{\zbffcmrJD \symbol{41}}{\zpffcmrJD \symbol{38}} {\zbffcmrJD \symbol{32}}
+\end{center}
+
+\medskip
+
+Table~\ref{tab:examples} shows a number of examples of the use of
+the Zebrackets infrastructure on the same sample text.
+
+The intervening score of years has not been especially kind to the original implementation:
+it was hardly sturdier than a ``paper-clips and bubble-gum'' contraption
+in the first place, and the slide into deprecation and disuse of {\MF},
+accelerated by the emergence of \initials{pdf} as the interchange format of choice,
+which cannot natively use characters generated by {\MF},
+hastened the obsolescence of the Zebrackets prototype.
+Adobe's ``Multiple Masters''
+(such as Adobe Sans and Adobe Serif)
+and Apple's TrueType \initials{gx}
+were similarly ahead of their time,
+and failed to achieve critical mass and widespread adoption.
+Jacques Andr\'{e}'s contextual fonts,
+dynamic fonts
+\zecite{Andre+Ostromoukhov:Punk}
+\zecite{Andre+Borghi:Dynamic_fonts},
+and
+Scrabble font \zecite{Andre:Scrabble}
+were Type 3, so also withered.
+
+Nevertheless, we believe that the principles underlying the system are still valid.
+There is a huge multidimensional space of potential characters and glyphs,
+too big to be precompiled,
+and so a lazy, demand-driven, image-time generation, both of fonts and glyphs,
+with caching or memoization,
+as is used in dynamic programming,
+is the only practicable solution.
+Contemporary assumptions about fonts do not allow this possibility \zecite{Haralambous:Fonts_and_Encodings},
+so reviving the existing implementation strategy is still of relevance.
+The presentation here presents the font structure, and the use,
+both implicit and explicit, of these fonts.
+
+\begin{table*}
+\caption{Stripes, slits, and slots:
+Examples of zebrackets with various arguments.
+Each zebracket has a set of slots (here computed
+automatically), which can be striped according
+to the chosen style: plain ``foreground'' stripes (style~‘f’ in the table);
+more subtle, erasing ``background'' slits (style~‘b’);
+or ``hybrid'' (style~‘h’), which creates a slit for each
+slot, then places foreground stripes on top thereof.
+Stripes generation can automatically count unique pairs
+or track nesting depth, or count unique pairs at a
+given depth (``breadth'').
+The encoding can be unary, binary, or ``demultiplexing'',
+up through the maximum as calculated by initial pass of a parser.
+Note that all encodings have~0 as origin,
+but the rendered index origin can be changed to unity.}
+
+\medskip
+\centering
+
+\begin{tabular}{|c||c||m{3.4cm}|m{3.4cm}|m{3.4cm}|}\hline
+\texttt{enc}oding & \texttt{style}
+                  & \multicolumn{1}{c|}{\texttt{index} = unique}
+                  & \multicolumn{1}{c|}{\texttt{index} = depth}
+                  & \multicolumn{1}{c|}{\texttt{index} = breadth}
+                  \\\hline\hline
+& b&
+%\begin{zebrackets}[index=unique,enc=unary,style=b,mirror=t]
+%(a (b (c) d) (e (f) g))
+%\end{zebrackets}
+\ifundefined{zpbecmrJA}\newfont{\zpbecmrJA}{zpbecmr10 scaled 1000}\fi\ifundefined{zpbecmrJA}\newfont{\zpbecmrJA}{zpbecmr10 scaled 1000}\fi{\zpbecmrJA \symbol{0}}a {\zpbecmrJA \symbol{1}}b {\zpbecmrJA \symbol{3}}c{\zpbecmrJA \symbol{19}} d{\zpbecmrJA \symbol{17}} {\zpbecmrJA \symbol{7}}e {\zpbecmrJA \symbol{15}}f{\zpbecmrJA \symbol{31}} g{\zpbecmrJA \symbol{23}}{\zpbecmrJA \symbol{16}}
+&
+\ifundefined{zpbccmrJA}\newfont{\zpbccmrJA}{zpbccmr10 scaled 1000}\fi\ifundefined{zpbccmrJA}\newfont{\zpbccmrJA}{zpbccmr10 scaled 1000}\fi{\zpbccmrJA \symbol{0}}a {\zpbccmrJA \symbol{1}}b {\zpbccmrJA \symbol{3}}c{\zpbccmrJA \symbol{7}} d{\zpbccmrJA \symbol{5}} {\zpbccmrJA \symbol{1}}e {\zpbccmrJA \symbol{3}}f{\zpbccmrJA \symbol{7}} g{\zpbccmrJA \symbol{5}}{\zpbccmrJA \symbol{4}}
+&
+\ifundefined{zpbbcmrJA}\newfont{\zpbbcmrJA}{zpbbcmr10 scaled 1000}\fi\ifundefined{zpbbcmrJA}\newfont{\zpbbcmrJA}{zpbbcmr10 scaled 1000}\fi{\zpbbcmrJA \symbol{0}}a {\zpbbcmrJA \symbol{0}}b {\zpbbcmrJA \symbol{0}}c{\zpbbcmrJA \symbol{2}} d{\zpbbcmrJA \symbol{2}} {\zpbbcmrJA \symbol{1}}e {\zpbbcmrJA \symbol{1}}f{\zpbbcmrJA \symbol{3}} g{\zpbbcmrJA \symbol{3}}{\zpbbcmrJA \symbol{2}}
+\\\cline{2-5}
+unary & f &
+\ifundefined{zpfecmrJA}\newfont{\zpfecmrJA}{zpfecmr10 scaled 1000}\fi\ifundefined{zpfecmrJA}\newfont{\zpfecmrJA}{zpfecmr10 scaled 1000}\fi{\zpfecmrJA \symbol{0}}a {\zpfecmrJA \symbol{1}}b {\zpfecmrJA \symbol{3}}c{\zpfecmrJA \symbol{19}} d{\zpfecmrJA \symbol{17}} {\zpfecmrJA \symbol{7}}e {\zpfecmrJA \symbol{15}}f{\zpfecmrJA \symbol{31}} g{\zpfecmrJA \symbol{23}}{\zpfecmrJA \symbol{16}}
+&
+\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi{\zpfccmrJA \symbol{0}}a {\zpfccmrJA \symbol{1}}b {\zpfccmrJA \symbol{3}}c{\zpfccmrJA \symbol{7}} d{\zpfccmrJA \symbol{5}} {\zpfccmrJA \symbol{1}}e {\zpfccmrJA \symbol{3}}f{\zpfccmrJA \symbol{7}} g{\zpfccmrJA \symbol{5}}{\zpfccmrJA \symbol{4}}
+&
+\ifundefined{zpfbcmrJA}\newfont{\zpfbcmrJA}{zpfbcmr10 scaled 1000}\fi\ifundefined{zpfbcmrJA}\newfont{\zpfbcmrJA}{zpfbcmr10 scaled 1000}\fi{\zpfbcmrJA \symbol{0}}a {\zpfbcmrJA \symbol{0}}b {\zpfbcmrJA \symbol{0}}c{\zpfbcmrJA \symbol{2}} d{\zpfbcmrJA \symbol{2}} {\zpfbcmrJA \symbol{1}}e {\zpfbcmrJA \symbol{1}}f{\zpfbcmrJA \symbol{3}} g{\zpfbcmrJA \symbol{3}}{\zpfbcmrJA \symbol{2}}
+\\\cline{2-5}
+& h &
+\ifundefined{zphecmrJA}\newfont{\zphecmrJA}{zphecmr10 scaled 1000}\fi\ifundefined{zphecmrJA}\newfont{\zphecmrJA}{zphecmr10 scaled 1000}\fi{\zphecmrJA \symbol{0}}a {\zphecmrJA \symbol{1}}b {\zphecmrJA \symbol{3}}c{\zphecmrJA \symbol{19}} d{\zphecmrJA \symbol{17}} {\zphecmrJA \symbol{7}}e {\zphecmrJA \symbol{15}}f{\zphecmrJA \symbol{31}} g{\zphecmrJA \symbol{23}}{\zphecmrJA \symbol{16}}
+&
+\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi{\zphccmrJA \symbol{0}}a {\zphccmrJA \symbol{1}}b {\zphccmrJA \symbol{3}}c{\zphccmrJA \symbol{7}} d{\zphccmrJA \symbol{5}} {\zphccmrJA \symbol{1}}e {\zphccmrJA \symbol{3}}f{\zphccmrJA \symbol{7}} g{\zphccmrJA \symbol{5}}{\zphccmrJA \symbol{4}}
+&
+\ifundefined{zphbcmrJA}\newfont{\zphbcmrJA}{zphbcmr10 scaled 1000}\fi\ifundefined{zphbcmrJA}\newfont{\zphbcmrJA}{zphbcmr10 scaled 1000}\fi{\zphbcmrJA \symbol{0}}a {\zphbcmrJA \symbol{0}}b {\zphbcmrJA \symbol{0}}c{\zphbcmrJA \symbol{2}} d{\zphbcmrJA \symbol{2}} {\zphbcmrJA \symbol{1}}e {\zphbcmrJA \symbol{1}}f{\zphbcmrJA \symbol{3}} g{\zphbcmrJA \symbol{3}}{\zphbcmrJA \symbol{2}}
+\\\hline
+& b &
+\ifundefined{zpbecmrJA}\newfont{\zpbecmrJA}{zpbecmr10 scaled 1000}\fi\ifundefined{zpbecmrJA}\newfont{\zpbecmrJA}{zpbecmr10 scaled 1000}\fi{\zpbecmrJA \symbol{0}}a {\zpbecmrJA \symbol{1}}b {\zpbecmrJA \symbol{2}}c{\zpbecmrJA \symbol{18}} d{\zpbecmrJA \symbol{17}} {\zpbecmrJA \symbol{3}}e {\zpbecmrJA \symbol{4}}f{\zpbecmrJA \symbol{20}} g{\zpbecmrJA \symbol{19}}{\zpbecmrJA \symbol{16}}
+&
+\ifundefined{zpbccmrJA}\newfont{\zpbccmrJA}{zpbccmr10 scaled 1000}\fi\ifundefined{zpbccmrJA}\newfont{\zpbccmrJA}{zpbccmr10 scaled 1000}\fi{\zpbccmrJA \symbol{0}}a {\zpbccmrJA \symbol{1}}b {\zpbccmrJA \symbol{2}}c{\zpbccmrJA \symbol{6}} d{\zpbccmrJA \symbol{5}} {\zpbccmrJA \symbol{1}}e {\zpbccmrJA \symbol{2}}f{\zpbccmrJA \symbol{6}} g{\zpbccmrJA \symbol{5}}{\zpbccmrJA \symbol{4}}
+&
+\ifundefined{zpbbcmrJA}\newfont{\zpbbcmrJA}{zpbbcmr10 scaled 1000}\fi\ifundefined{zpbbcmrJA}\newfont{\zpbbcmrJA}{zpbbcmr10 scaled 1000}\fi{\zpbbcmrJA \symbol{0}}a {\zpbbcmrJA \symbol{0}}b {\zpbbcmrJA \symbol{0}}c{\zpbbcmrJA \symbol{2}} d{\zpbbcmrJA \symbol{2}} {\zpbbcmrJA \symbol{1}}e {\zpbbcmrJA \symbol{1}}f{\zpbbcmrJA \symbol{3}} g{\zpbbcmrJA \symbol{3}}{\zpbbcmrJA \symbol{2}}
+\\\cline{2-5}
+binary & f &
+\ifundefined{zpfecmrJA}\newfont{\zpfecmrJA}{zpfecmr10 scaled 1000}\fi\ifundefined{zpfecmrJA}\newfont{\zpfecmrJA}{zpfecmr10 scaled 1000}\fi{\zpfecmrJA \symbol{0}}a {\zpfecmrJA \symbol{1}}b {\zpfecmrJA \symbol{2}}c{\zpfecmrJA \symbol{18}} d{\zpfecmrJA \symbol{17}} {\zpfecmrJA \symbol{3}}e {\zpfecmrJA \symbol{4}}f{\zpfecmrJA \symbol{20}} g{\zpfecmrJA \symbol{19}}{\zpfecmrJA \symbol{16}}
+&
+\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi{\zpfccmrJA \symbol{0}}a {\zpfccmrJA \symbol{1}}b {\zpfccmrJA \symbol{2}}c{\zpfccmrJA \symbol{6}} d{\zpfccmrJA \symbol{5}} {\zpfccmrJA \symbol{1}}e {\zpfccmrJA \symbol{2}}f{\zpfccmrJA \symbol{6}} g{\zpfccmrJA \symbol{5}}{\zpfccmrJA \symbol{4}}
+&
+\ifundefined{zpfbcmrJA}\newfont{\zpfbcmrJA}{zpfbcmr10 scaled 1000}\fi\ifundefined{zpfbcmrJA}\newfont{\zpfbcmrJA}{zpfbcmr10 scaled 1000}\fi{\zpfbcmrJA \symbol{0}}a {\zpfbcmrJA \symbol{0}}b {\zpfbcmrJA \symbol{0}}c{\zpfbcmrJA \symbol{2}} d{\zpfbcmrJA \symbol{2}} {\zpfbcmrJA \symbol{1}}e {\zpfbcmrJA \symbol{1}}f{\zpfbcmrJA \symbol{3}} g{\zpfbcmrJA \symbol{3}}{\zpfbcmrJA \symbol{2}}
+\\\cline{2-5}
+& h &
+\ifundefined{zphecmrJA}\newfont{\zphecmrJA}{zphecmr10 scaled 1000}\fi\ifundefined{zphecmrJA}\newfont{\zphecmrJA}{zphecmr10 scaled 1000}\fi{\zphecmrJA \symbol{0}}a {\zphecmrJA \symbol{1}}b {\zphecmrJA \symbol{2}}c{\zphecmrJA \symbol{18}} d{\zphecmrJA \symbol{17}} {\zphecmrJA \symbol{3}}e {\zphecmrJA \symbol{4}}f{\zphecmrJA \symbol{20}} g{\zphecmrJA \symbol{19}}{\zphecmrJA \symbol{16}}
+&
+\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi{\zphccmrJA \symbol{0}}a {\zphccmrJA \symbol{1}}b {\zphccmrJA \symbol{2}}c{\zphccmrJA \symbol{6}} d{\zphccmrJA \symbol{5}} {\zphccmrJA \symbol{1}}e {\zphccmrJA \symbol{2}}f{\zphccmrJA \symbol{6}} g{\zphccmrJA \symbol{5}}{\zphccmrJA \symbol{4}}
+&
+\ifundefined{zphbcmrJA}\newfont{\zphbcmrJA}{zphbcmr10 scaled 1000}\fi\ifundefined{zphbcmrJA}\newfont{\zphbcmrJA}{zphbcmr10 scaled 1000}\fi{\zphbcmrJA \symbol{0}}a {\zphbcmrJA \symbol{0}}b {\zphbcmrJA \symbol{0}}c{\zphbcmrJA \symbol{2}} d{\zphbcmrJA \symbol{2}} {\zphbcmrJA \symbol{1}}e {\zphbcmrJA \symbol{1}}f{\zphbcmrJA \symbol{3}} g{\zphbcmrJA \symbol{3}}{\zphbcmrJA \symbol{2}}
+\\\hline
+& b &
+\ifundefined{zpbecmrJA}\newfont{\zpbecmrJA}{zpbecmr10 scaled 1000}\fi\ifundefined{zpbecmrJA}\newfont{\zpbecmrJA}{zpbecmr10 scaled 1000}\fi{\zpbecmrJA \symbol{0}}a {\zpbecmrJA \symbol{1}}b {\zpbecmrJA \symbol{2}}c{\zpbecmrJA \symbol{18}} d{\zpbecmrJA \symbol{17}} {\zpbecmrJA \symbol{4}}e {\zpbecmrJA \symbol{8}}f{\zpbecmrJA \symbol{24}} g{\zpbecmrJA \symbol{20}}{\zpbecmrJA \symbol{16}}
+&
+\ifundefined{zpbccmrJA}\newfont{\zpbccmrJA}{zpbccmr10 scaled 1000}\fi\ifundefined{zpbccmrJA}\newfont{\zpbccmrJA}{zpbccmr10 scaled 1000}\fi{\zpbccmrJA \symbol{0}}a {\zpbccmrJA \symbol{1}}b {\zpbccmrJA \symbol{2}}c{\zpbccmrJA \symbol{6}} d{\zpbccmrJA \symbol{5}} {\zpbccmrJA \symbol{1}}e {\zpbccmrJA \symbol{2}}f{\zpbccmrJA \symbol{6}} g{\zpbccmrJA \symbol{5}}{\zpbccmrJA \symbol{4}}
+&
+\ifundefined{zpbbcmrJA}\newfont{\zpbbcmrJA}{zpbbcmr10 scaled 1000}\fi\ifundefined{zpbbcmrJA}\newfont{\zpbbcmrJA}{zpbbcmr10 scaled 1000}\fi{\zpbbcmrJA \symbol{0}}a {\zpbbcmrJA \symbol{0}}b {\zpbbcmrJA \symbol{0}}c{\zpbbcmrJA \symbol{2}} d{\zpbbcmrJA \symbol{2}} {\zpbbcmrJA \symbol{1}}e {\zpbbcmrJA \symbol{1}}f{\zpbbcmrJA \symbol{3}} g{\zpbbcmrJA \symbol{3}}{\zpbbcmrJA \symbol{2}}
+\\\cline{2-5}
+demux& f&
+\ifundefined{zpfecmrJA}\newfont{\zpfecmrJA}{zpfecmr10 scaled 1000}\fi\ifundefined{zpfecmrJA}\newfont{\zpfecmrJA}{zpfecmr10 scaled 1000}\fi{\zpfecmrJA \symbol{0}}a {\zpfecmrJA \symbol{1}}b {\zpfecmrJA \symbol{2}}c{\zpfecmrJA \symbol{18}} d{\zpfecmrJA \symbol{17}} {\zpfecmrJA \symbol{4}}e {\zpfecmrJA \symbol{8}}f{\zpfecmrJA \symbol{24}} g{\zpfecmrJA \symbol{20}}{\zpfecmrJA \symbol{16}}
+&
+\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi{\zpfccmrJA \symbol{0}}a {\zpfccmrJA \symbol{1}}b {\zpfccmrJA \symbol{2}}c{\zpfccmrJA \symbol{6}} d{\zpfccmrJA \symbol{5}} {\zpfccmrJA \symbol{1}}e {\zpfccmrJA \symbol{2}}f{\zpfccmrJA \symbol{6}} g{\zpfccmrJA \symbol{5}}{\zpfccmrJA \symbol{4}}
+&
+\ifundefined{zpfbcmrJA}\newfont{\zpfbcmrJA}{zpfbcmr10 scaled 1000}\fi\ifundefined{zpfbcmrJA}\newfont{\zpfbcmrJA}{zpfbcmr10 scaled 1000}\fi{\zpfbcmrJA \symbol{0}}a {\zpfbcmrJA \symbol{0}}b {\zpfbcmrJA \symbol{0}}c{\zpfbcmrJA \symbol{2}} d{\zpfbcmrJA \symbol{2}} {\zpfbcmrJA \symbol{1}}e {\zpfbcmrJA \symbol{1}}f{\zpfbcmrJA \symbol{3}} g{\zpfbcmrJA \symbol{3}}{\zpfbcmrJA \symbol{2}}
+\\\cline{2-5}
+& h &
+\ifundefined{zphecmrJA}\newfont{\zphecmrJA}{zphecmr10 scaled 1000}\fi\ifundefined{zphecmrJA}\newfont{\zphecmrJA}{zphecmr10 scaled 1000}\fi{\zphecmrJA \symbol{0}}a {\zphecmrJA \symbol{1}}b {\zphecmrJA \symbol{2}}c{\zphecmrJA \symbol{18}} d{\zphecmrJA \symbol{17}} {\zphecmrJA \symbol{4}}e {\zphecmrJA \symbol{8}}f{\zphecmrJA \symbol{24}} g{\zphecmrJA \symbol{20}}{\zphecmrJA \symbol{16}}
+&
+\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi\ifundefined{zphccmrJA}\newfont{\zphccmrJA}{zphccmr10 scaled 1000}\fi{\zphccmrJA \symbol{0}}a {\zphccmrJA \symbol{1}}b {\zphccmrJA \symbol{2}}c{\zphccmrJA \symbol{6}} d{\zphccmrJA \symbol{5}} {\zphccmrJA \symbol{1}}e {\zphccmrJA \symbol{2}}f{\zphccmrJA \symbol{6}} g{\zphccmrJA \symbol{5}}{\zphccmrJA \symbol{4}}
+&
+\ifundefined{zphbcmrJA}\newfont{\zphbcmrJA}{zphbcmr10 scaled 1000}\fi\ifundefined{zphbcmrJA}\newfont{\zphbcmrJA}{zphbcmr10 scaled 1000}\fi{\zphbcmrJA \symbol{0}}a {\zphbcmrJA \symbol{0}}b {\zphbcmrJA \symbol{0}}c{\zphbcmrJA \symbol{2}} d{\zphbcmrJA \symbol{2}} {\zphbcmrJA \symbol{1}}e {\zphbcmrJA \symbol{1}}f{\zphbcmrJA \symbol{3}} g{\zphbcmrJA \symbol{3}}{\zphbcmrJA \symbol{2}}
+\\\hline
+\end{tabular}
+\label{tab:examples}
+\end{table*}
+
+\begin{table*}
+\caption{Font \texttt{zphecmr12}.}
+\viewtableBE{zphecmr12}
+\label{tab:zphecmr12}
+\end{table*}
+
+\begin{table*}
+\caption{Font \texttt{zbfdcmtt12}.}
+\viewtableBD{zbfdcmtt12}
+\label{tab:zbfdcmtt12}
+\end{table*}
+
+\begin{table*}
+\caption{Font \texttt{zphecmr12, magnification~$2$}.}
+\viewtablescaledBE{zphecmr12}{2000}
+\label{tab:zphecmr12scaled2}
+\end{table*}
+
+\begin{table*}
+\caption{Font \texttt{zphecmr12, magnification~$4$}.}
+\viewtablescaledBE{zphecmr12}{4000}
+\label{tab:zphecmr12scaled4}
+\end{table*}
+
+\section{The fonts}
+\label{sec:fonts}
+
+\zenocite{Cohen:TUGboat-zebrackets}
+
+The Zebrackets project relies on a set of fonts generated from the
+\MF\ version of the Computer Modern fonts.  The names of the fonts are
+all of the form $\texttt{z}(a)(b)(c)(d)(e)$, where:
+\begin{enumerate}
+\item[$(a)$] is a single letter, either ‘\texttt{b}’ or ‘\texttt{p}’;
+the font contains either all brackets~(\texttt{b}) or all
+parentheses~(\texttt{p}).
+\item[$(b)$] is a single letter, one of ‘\texttt{b}’, ‘\texttt{f}',
+or ‘\texttt{h}’; the marks in the font are all either slots (\texttt{b}~for
+background), ticks (\texttt{f}~for foreground), or ticks within slots
+(\texttt{h}~for hybrid).
+\item[$(c)$] is a single letter, one of ‘\texttt{a}’ through '\texttt{h}’;
+the font will contain $2^m$ pairs of left and right delimiters, with
+$m\in 0..7$, where \texttt{a}~corresponds to~$m=0$ (i.e., 1~pair or 2~glyphs),
+\texttt{b}~corresponds to~$m=1$ (i.e., 2~pairs or 4~glyphs), \ldots,
+and \texttt{h}~corresponds to~$m=7$ (i.e., 128~pairs or 256~glyphs).
+\item[$(d)$] is the name of a Computer Modern font family,
+such as ‘\texttt{cmr}’.
+\item[$(e)$] is a font size, such as ‘\texttt{10}’.
+\end{enumerate}
+
+% original declaration
+
+We consider two examples.  In the first example, font \texttt{zphecmr12}
+(Table~\ref{tab:zphecmr12})
+was generated by calling the \texttt{zebraFont.py} script
+with arguments specifying parentheses striped in a hybrid visual style
+across 4 slots, using 12\,pt Computer Modern Roman as the base:
+\begin{verbatim}
+ python3 zebrackets/zebraFont.py
+ --kind parenthesis --style hybrid
+ --slots 4 --size 12 --family cmr
+\end{verbatim}
+
+The font contains exactly $2^{4+1} = 32 = \texttt{0x20}$ parentheses.
+In the first half of the table,
+for $i\in \texttt{0x00}\:..\:\texttt{0x0F}$, glyph~$i$ is an opening (left)
+parenthesis, encoding $i$ as a binary number with ticks placed
+in four always-drawn slots.
+Similarly,
+in the second half of the table,
+for $i\in \texttt{0x10}\:..\:\texttt{0x1F}$,
+glyph~$i$ is a closing (right) parenthesis encoding $(i-\texttt{0x10})$
+as a binary number.
+
+In the second example, font \texttt{zbfdcmtt12}
+(Table~\ref{tab:zbfdcmtt12}) was generated by:
+\begin{verbatim}
+ python3 zebrackets/zebraFont.py
+ --kind bracket --style foreground
+ --slots 3 --size 12 --family cmtt
+\end{verbatim}
+specifying
+square brackets
+striped, using a foreground style,
+across 3 slots,
+with the 12\,pt typewriter font as a base.
+The font contains exactly $2^{3+1} = 16 = \texttt{0x10}$ brackets.
+For $i\in \texttt{0x00}\:..\:\texttt{0x07}$ across the top of the table,
+glyph~$i$ is an opening
+bracket encoding $i$ as a binary number with ticks placed
+in three fixed slots.
+Similarly,
+in the bottom half of the table,
+for $i\in \texttt{0x08}\:..\:\texttt{0x0F}$,
+glyph~$i$ is a closing bracket encoding $(i-\texttt{0x08})$
+as a binary number.
+
+The \texttt{zebraFont.py} script generates a new \MF\ file whose name
+is the font name followed by \texttt{.mf}, placing that file in the directory
+\begin{verbatim}
+ $TEXMFHOME/fonts/source/public/zbtex
+\end{verbatim}
+then calling \texttt{mktextfm} on that font name,
+before finally calling \texttt{mktexlsr}
+to add the generated \texttt{.mf}, \texttt{.tfm}, and \texttt{.600pk} files
+to the cache for \verb|$TEXMFHOME|.
+
+Thus, for the second example above, the script \texttt{zebraFont.py}
+generates the \MF\ file:
+\begin{verbatim}
+ .../source/public/zbtex/zbfdcmtt12.mf
+\end{verbatim}
+and \texttt{mktextfm} generates files (assuming \texttt{ljfour}
+is the default output mode):
+\begin{verbatim}[\hfuzz=6pt]
+ .../tfm/public/zbtex/zbfdcmtt12.tfm
+ .../pk/ljfour/public/zbtex/zbfdcmtt12.600pk
+\end{verbatim}
+and \texttt{mktexlsr} updates the cache of the list of files:
+\begin{verbatim}
+ $TEXMFHOME/ls-R
+\end{verbatim}
+
+We can also make magnified versions of these fonts.
+Our third example (Table~\ref{tab:zphecmr12scaled2})
+is the \verb|zphecmr12| font with
+magnification~$2$, which corresponds to
+\TeX\ magnification $\sqrt{2} \approx 1.414$.
+The font was generated by:
+\begin{verbatim}
+ python3 zebrackets/zebraFont.py
+ --kind parenthesis --style foreground
+ --slots 3 --size 12 --family cmr
+ --magnification 2
+\end{verbatim}
+
+Our last example (Table~\ref{tab:zphecmr12scaled4}) shows the
+same font with magnification~$4$, corresponding to
+\TeX\ magnification~$2$.
+The font was generated by:
+\begin{verbatim}
+ python3 zebrackets/zebraFont.py
+ --kind parenthesis --style foreground
+ --slots 3 --size 12 --family cmr
+ --magnification 4
+\end{verbatim}
+
+When a magnification argument is passed to \texttt{zebraFont.py},
+the \texttt{mf-nowin} and \texttt{gftopk} scripts are called to produce
+larger versions of the fonts.  The magnification argument is
+multiplied by~$600$. Hence we get:
+
+\medskip
+
+\quad\begin{tabular}{ll}
+2 & \texttt{.../zbfdcmtt12.1200pk} \\
+4 & \texttt{.../zbfdcmtt12.2400pk} \\
+8 & \texttt{.../zbfdcmtt12.4800pk}
+\end{tabular}
+
+\medskip
+
+The \MF\ file that is created by the script \texttt{zebraFont.py} is an eight-line file.
+It inputs the base Computer Modern font, sets the parameters for the
+number of slots and whether the marks are foreground, background, or hybrid,
+then inputs a file for generating a set of parentheses or a set of brackets.
+For example, font \texttt{zpfbcmr10.mf} contains the following lines:
+
+\begin{verbatim}
+ if unknown cmbase: input cmbase fi
+ mode_setup;
+ def generate suffix t = enddef;
+ input cmr10; font_setup;
+ let iff = always_iff;
+ stripes:=1;
+ foreground:=1;
+ input zeromanp;
+\end{verbatim}
+
+The last file input, by the last line above,
+is \texttt{zeromanp.mf},
+which is derived from the original Computer Modern \texttt{roman.mf}
+(prefixing ``ze'' to indicate its adaptation to zebrackets).
+It is one of four \MF\ files distributed with the \emph{Zebrackets} project.
+The \texttt{zeromanp.mf} file sets some parameters,
+then inputs the punctuation file \texttt{zepunctp.mf},
+itself derived from the Computer Modern \texttt{punct.mf}.
+For brackets, there are corresponding files \texttt{zeromanb.mf} and \texttt{zepunctb.mf}.
+
+%Our last example is for the same font with
+%magnification~$8$, which corresponds to
+%\TeX\ magnification $2\sqrt{2} \approx 2.828$:
+%\viewtablescaledBE{zphecmr12}{8000}
+%\noindent
+%The font was generated by:
+%\begin{verbatim}
+% python3 zebrackets/zebraFont.py
+% --kind bracket --style foreground
+% --slots 3 --size 12 --family cmtt
+% --magnification 8
+%\end{verbatim}
+
+
+\section{Using the fonts explicitly}
+\label{sec:explicit}
+
+There are two ways to use the fonts generated by the \emph{Zebrackets}
+project: explicitly and implicitly. In this section, we present the explicit
+approach, and show how it is used to produce the bibliographic
+references of this article.
+
+% original generation
+
+Suppose that a font \texttt{zbfhcmr10} has been generated and we wish to use it.
+Then we need to declare the font and its size with a line like this\Dash
+the
+\texttt{J} encodes size~$10$ and the \texttt{A} encodes magnification~1:
+\begin{verbatim}
+ \ifundefined{zbfhcmrJA}
+ \newfont{\zbfhcmrJA}
+ {zbfhcmr10 scaled 1000}\fi
+\end{verbatim}
+Font \texttt{zbfhcmr10} is a font of 256 brackets,
+all with foreground ticks.
+To {\zbfhcmrJA\symbol{60}}~bracket some text~{\zbfhcmrJA\symbol{188}}
+with a pair of delimiters with four selected ticks
+(in this example, using all but two slots at the top and one at the bottom),
+the \texttt{.tex} source code can use
+\begin{verbatim}
+ {\zbfhcmrJA\symbol{60}} bracket some
+        text {\zbfhcmrJA\symbol{188}}
+\end{verbatim}
+since binary $0111100 = 2^5 + 2^4 + 2^3 + 2^2 = 60$ and
+$128 + 60 = 188$.
+
+To hint at the expressive flexibility of such functionality,
+the bibliographic references of the original article on Zebrackets
+\zecite{Cohen:TUGboat-zebrackets}
+placed a tick for each page
+in which a \verb|\cite|-ation appeared in the left bracket of the
+corresponding citation label and a tick for each page in which a
+\verb|\nocite|-ation appeared in the right bracket.
+%Since each bracket can hold up to seven separate ticks,
+%this approach only works for documents whose main body
+%has a maximum of seven pages.
+
+In this article,
+we show the same extension throughout (not just in the bibliographic References section),
+with the now explicit convention that should a document have
+more than seven pages, then all references beyond
+the seventh page activate the seventh tick.
+In the reference \zecite{Cohen:TUGboat-zebrackets},
+the activation of the first and fifth ticks
+in the opening bracket
+indicate that reference's citation on the $1^\textrm{\footnotesize{st}}$ page of this paper as well as here on the $4^\textrm{\footnotesize{th}}$ page.
+
+Below is some of the code needed for this functionality.
+There are two counters used as temporary variables:
+\begin{verbatim}
+ \newcounter{bracei}
+ \newcounter{bracej}
+\end{verbatim}
+For each citation~$x$, a pair of counters is set up,
+\texttt{ze:}$x$ for the left bracket, and
+\texttt{zeno:}$x$ for the right bracket.
+The \verb|\zecite| macro is like the standard \LaTeX\ \verb|\cite| macro,
+but it also calls \verb|\zecitation|, which bitwise-ors-in $2^{p-1}$ to counter
+\texttt{ze:}$x$ for the left bracket, should
+there be a \verb|\zecite{|$x$\verb|}| on page number~$p$:
+\begin{verbatim}
+ \newcommand{\zecite}[2][]%
+ {\def\tmp{#1}\ifx\tmp\@empty\cite{#2}%
+              \else\cite[#1]{#2}\fi
+  \zecitation{#2}}
+
+ \newcommand{\zecitation}[1]%
+ {\ifundefined{c@ze:#1}%
+  \newcounter{ze:#1}%
+  \setcounter{ze:#1}{0}%
+  \newcounter{zeno:#1}%
+  \setcounter{zeno:#1}{128}\fi
+  ...
+  \addtocounter{ze:#1}{...}}
+\end{verbatim}
+There are macros corresponding to \verb|\nocite|,
+namely \verb|\zenocite| and \verb|\zenocitation|,
+bitwise-oring-in $2^{p-1}$ to counter \texttt{zeno:}$x$ for the right bracket,
+should there be a \verb|\zenocite{|$x$\verb|}| on page number~$p$.
+
+Finally, the generation of the \verb|\bibitem| is extended,
+so that
+\begin{center}
+\verb|{\zbfhcmrJA\symbol{\arabic{ze:|$x$\verb|}}}|
+\end{center}
+appears as the citation's left bracket, and
+\begin{center}
+\verb|{\zbfhcmrJA\symbol{\arabic{zeno:|$x$\verb|}}}|
+\end{center}
+appears as its right bracket.
+
+\section{Using the fonts implicitly}
+\label{sec:implicit}
+
+Although providing an explicit interface to the Zebrackets infrastructure provides great flexibility,
+most of the time such invocation is ``under the hood'' and used implicitly,
+through the use of pseudo-\LaTeX\ commands appearing in a \LaTeX\ document.
+
+A Zebrackets-enabled \LaTeX\ file
+(with conventional extension \texttt{.zbtex})
+is passed through a preprocessor,
+\verb|zebraParser.py|, which recognizes four constructs:
+\begin{enumerate}
+\item \verb|\zebracketsfont| declares the need for a font, provoking its
+creation should it not exist.
+\item \verb|\zebracketsdefaults| sets default values for the parameters
+of the other two constructs.
+\item \verb|\zebracketstext| designates text
+in which the parentheses and brackets are to be replaced automatically with
+zebrackets (including ``zeparentheses'').
+\item \verb|\begin{zebrackets} |$\cdots$\verb| \end{zebrackets}| \\designates a
+block of text for the same treatment as for \verb|\zebracketstext|.
+\end{enumerate}
+Because of this precompilation,
+from \texttt{.zbtex} to \texttt{.tex},
+the workflow for such zebracketed word-smithing is not as convenient as with,
+for instance, TeXShop:\footnote{\url{http://pages.uoregon.edu/koch/texshop/}}
+Compilation can be managed in Unix-like shells with a \texttt{Makefile}
+to check dependencies and invoke the required processes,
+but there is no automatic preview, synchronization,
+or other accustomed conveniences.
+
+\subsection{The \cs{zebracketsfont} instruction}
+
+The previous section explained how Zebrackets fonts are generated by
+the \texttt{zebraFont.py} script. This script cannot be called directly
+from a \LaTeX\ document, but can be invoked indirectly through the
+\verb|\zebracketsfont| instruction.
+Consider, for example, the following call to \texttt{zebraFont.py}:
+\begin{verbatim}
+ python3 zebrackets/zebraFont.py
+ --kind parenthesis --style foreground
+ --slots 7 --size 10 --family cmr
+ --magnification 1
+\end{verbatim}
+The invocation of that call can be made implicitly in the \LaTeX\ document
+with the following line.
+\begin{verbatim}
+ \zebracketsfont[
+   kind=parenthesis,style=foreground,
+   slots=7,size=10,family=cmr,
+   magnification=1]
+\end{verbatim}
+As a prelude to \LaTeX\ compilation,
+the preprocessing script \texttt{zebraParser.py} reads and parses this line,
+directly calls \texttt{zebraFont.py} with the appropriate parameters,
+and removes the line from the \LaTeX\ document,
+which is exported with the usual \texttt{.tex} file extension.
+
+One need not include the full set of key--value arguments,
+as default values can be used (as explained below).
+Further, each of the parameter names can be abbreviated,
+down to just the first three letters,
+and the keyword arguments can also be abbreviated, as in:
+\begin{verbatim}
+ \zebracketsfont[kin=p,sty=f,slo=7,
+                 siz=10,fam=cmr,mag=1]
+\end{verbatim}
+
+The \verb|\zebracketsfont| instruction takes six arguments, which can
+appear in any order:
+\begin{enumerate}\raggedright
+\item \texttt{kind} can be either \texttt{parenthesis}~(\texttt{p}) or \texttt{bracket}~(\texttt{b}).
+\item \texttt{style} can be any one of \texttt{foreground}~(\texttt{f}),
+\texttt{background}~(\texttt{b}), or \texttt{hybrid}~(\texttt{h}).
+\item \texttt{slots} is a natural number between \texttt{0} and \texttt{7}, inclusive.
+\item \texttt{size} is a natural number for a font size, such as \texttt{10} or~\texttt{12}.
+\item \texttt{family} is a Computer Modern font family name, such as \texttt{cmr} or \texttt{cmtt}.
+\item \texttt{magnification} is a natural number between \texttt{1} and
+\texttt{32}, inclusive,
+representing the square of the \TeX\ font magnification, i.e., a power of~$\sqrt{2}$.
+\end{enumerate}
+
+\subsection{The \cs{zebracketsdefault} instruction}
+
+If Zebrackets is used extensively within a document,
+then a lot of calls thereto are made, perhaps with similar or even identical parameters.
+In order to reduce typing (and introduction of errors),
+default values for any of the Zebrackets parameter names
+can be assigned.
+
+For example, in the following lines, four fonts are declared,
+all of family \texttt{cmr}, size~\texttt{10}.
+All but one use parentheses,
+all but one are foreground style,
+and all but one have seven slots.
+\begin{verbatim}
+ \zebracketsdefaults
+   [size=10,family=cmr,
+    slots=7,kind=parenthesis,
+    style=foreground]
+ \zebracketsfont[]
+ \zebracketsfont[kind=bracket]
+ \zebracketsfont[style=background]
+ \zebracketsfont[slots=1]
+\end{verbatim}
+
+\subsection{The \texttt{zebrackets} environment}
+
+When \texttt{zebraParser.py} is called, whenever it parses text to be transformed
+(when the document contains either the \verb|\zebracketstext| command or
+the \texttt{zebrackets} pseudo-\LaTeX\ environment),
+then the \texttt{zebraFilter.py} script is called. The latter reads
+the text, determines what fonts are needed (invoking \texttt{zebraFont.py},
+as necessary), then replaces the brackets and parentheses in
+the text with font--symbol pair invocations.
+
+Consider the following example, presented in \S\ref{sec:explicit} with
+explicit font--symbol pairs:
+\begin{center}
+\ifundefined{zbfhcmrJA}\newfont{\zbfhcmrJA}{zbfhcmr10 scaled 1000}\fi\ifundefined{zbfhcmrJA}\newfont{\zbfhcmrJA}{zbfhcmr10 scaled 1000}\fi{\zbfhcmrJA \symbol{60}}
+bracket some text
+{\zbfhcmrJA \symbol{188}}
+\end{center}
+That example can also be generated implicitly, with the lines:
+\begin{verbatim}
+ \begin{zebrackets}
+   [style=f,number=60,
+    slots=7,encoding=binary]
+ [ bracket
+ some text ]
+ \end{zebrackets}
+\end{verbatim}
+The \texttt{number=60,slots=7} specifications in the parameter list
+summons a font using seven slots, from which
+glyph~\texttt{60} $(= 2^5 + 2^4 +2^3 + 2^2)$ and its partner \texttt{188}
+$(= 2^7 + 60)$ are drawn.
+
+For automatic processing, inputs are handled as follows:
+\begin{itemize}
+\item Parameter \texttt{index} can take one of three possible
+values\Dash \texttt{unique}, \texttt{depth}, \texttt{breadth}\Dash as exemplified
+in Table~\ref{tab:examples}.
+\item Parameter \texttt{number} overrides the settings for parameter \texttt{index}.
+When \texttt{number} is set, all parentheses and brackets in the text
+being processed get that specific glyph in the font.
+\item When a value for parameter \texttt{slots} is not provided, then the number
+of slots for the fonts is the minimum needed in order to encode all
+of the glyphs for the text (taking into account the value of the index parameter).
+\end{itemize}
+
+For example,
+\begin{center}
+\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi\ifundefined{zpfccmrJA}\newfont{\zpfccmrJA}{zpfccmr10 scaled 1000}\fi{\zpfccmrJA \symbol{0}}a {\zpfccmrJA \symbol{1}}b {\zpfccmrJA \symbol{3}}c{\zpfccmrJA \symbol{7}} d{\zpfccmrJA \symbol{5}} {\zpfccmrJA \symbol{1}}e {\zpfccmrJA \symbol{3}}f{\zpfccmrJA \symbol{7}} g{\zpfccmrJA \symbol{5}}{\zpfccmrJA \symbol{4}}
+\end{center}
+was generated by the lines:
+\begin{verbatim}
+ \begin{zebrackets}
+   [index=depth,enc=unary,style=f]
+ (a (b (c) d) (e (f) g))
+ \end{zebrackets}
+\end{verbatim}
+There are also three additional parameter pairs, each with two values:
+\begin{itemize}\raggedright
+\item \texttt{mixcount=true} states there should be a single
+counter for striping parentheses and
+square brackets; \texttt{mixcount=false}, two distinct counters.
+\item
+\texttt{origin=0} states that counting starts from zero;
+\texttt{origin=1}, from one.
+\item
+\texttt{direction=topdown} means that striping starts
+from the top of delimiters, whereas
+\texttt{direction=bottomup} starts from the bottom.
+\end{itemize}
+
+The automatic striping of delimiters in a region of text is done with
+a two-pass algorithm: a)~the maximal depth and breadth, and the number
+of distinct delimiter pairs are computed, in order to determine the
+number of distinct slots needed (maximum of~$7$), and b)~the correct fonts
+are generated, if need be, and the correct \LaTeX\ source is created.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The Zebrackets infrastructure does not assume that characters are
+changeless atoms, as standard computing infrastructures do.
+We consider below this innovation from several perspectives.
+
+\subsection{Representative characters}
+
+The idea of characters or words as pictures is of course not new.
+Most characters\Dash including Chinese characters, Japanese kana, and the Roman alphabet\Dash
+have origins in pictographic associations,
+albeit with prehistoric abbreviations and stylizations that make the original
+inspiration obscure or all but indiscernible.
+Illuminated manuscripts often embellished initials with vines, flowers, animals, and other inventions.
+%Among more modern antecedents,
+Almost a century ago, Apollinaire published books
+\zecite{Apollinaire:Calligrammes} featuring ``calligrams'',
+instances of ``concrete poetry'' or ``visual poetry'',
+in which the typeface and arrangement of words on a page informs the meaning of a poem as much as the words themselves.  Contemporary typography often plays with pictorial
+suggestions~\zecite{Klanten+:Playful-Type-2},
+%Victionary:Type\_Addicted
+especially for special-purpose or display faces.
+
+\subsection{Context sensitivity}
+
+\TeX{} has always featured non-locality, including ``but\hyph{}terfly-effect'' propagation,
+in which, for instance, a seemingly small change at the end of a document can affect layout at the beginning,
+especially in the presence of floating figures and tables.
+However, such effects are large-scale, macroscopic,
+rearranging the glyphs, but not mutating the glyphs themselves.
+Zebrackets suggests subatomic alteration,
+analog isotopes of the heretofore inviolate characters.
+A character is the smallest visual part of a notational system that has semantic value.
+A glyph is one possible representation of a character.
+Ligatures can be thought of as locally context-sensitive glyph adaptation,
+as can some kinds of accents,
+kerning, and hyphenation.
+But Zebrackets represents a larger context sensitivity,
+adapting symbols to the broader circumstances.
+In an extreme case,
+its filters could be applied to an entire document.
+
+\subsection{Analog articulation}
+
+Fonts can be thought of as embeddable in a manifold\footnote{\raggedright \url{http://vecg.cs.ucl.ac.uk/Projects/projects_fonts/projects_fonts.html}}
+\zecite{Campbell:2014:LMF:2601097.2601212},
+and perturbations on this manifold are equivalent to variations of the font characteristics.
+% Microtypography \cite[Frank Mittlebach, p.\,65]{Berry+Walden:TeX-People}
+Microtypography \zecite{Karow:TUGboat-zapf}
+is an unexploited aspect of font design and electronic publishing.
+Zebrackets challenges the assumption that a glyph is the smallest
+representation of a character that has semantic value.
+Such capability hints at giving glyphs depth,
+not in the sense of a \initials{3d}, sculptural sense
+\zecite{Anno:ABC}
+\zecite{fl@3311}
+\zecite{Heller+Fili:Shadow_Type},
+but logical depth,
+in the sense of alternate projections of a set of variations on a character.
+Current technology discourages such generality, and,
+since the character/\discretionary{}{}{}glyph/\discretionary{}{}{}font
+system is so deeply and tightly interwoven with
+any operating system, application, or program,
+traditional computer typography and character-handling have a lot of inertia.\footnote{Of course, for specialized purposes,
+such as display fonts and ``Word Art'' (as in Microsoft Word or PowerPoint),
+characters are unique.
+These are sort of ``one-off''s,
+with no attempt to optimize their rendering by caching them into \acro{OS} tables:
+singletons meant to be seen as much as read,
+leaning towards the pictorial and away from the purely textual.}
+Even the idioms for selection in contemporary viewers have a resolution (understandably enough) of the character level.
+It is impossible, for instance, to select just an accent
+(without also getting the letter to which it is attached).
+Even generating kerning tables for systems like zebrackets is somewhat daunting,
+suggesting the need for algorithmic kerning.
+
+\subsection{Charactles}
+
+Authors Mancilla and Plaice~\zecite{DBLP:conf/doceng/MancillaP12} proposed
+the \emph{charactle}\Dash a portmanteau word combining character and tuple\Dash
+as a generalization of characters and glyphs. A charactle consists of
+an index into a dictionary, along with some variant or versioning
+information; it incorporates the Unicode character as a special case.
+According to this model, a text would be a sequence of charactles.
+The zebrackets presented in this paper are
+completely consistent with this approach.
+
+\subsection{The future of literacy}
+
+% Moving forward embraces
+The ``take home message'' is not only the extensibility of parentheses and brackets,
+but the ability to articulate any character,
+like a meta{\MF}.
+Every glyph, stroke, mark, and pixel should be deliberately and explicitly determined
+for the exact circumstances of its apprehension.
+A character set should not be precompiled as an operating system resource,
+a cache of common letter forms.
+Such a model patronizes characters by treating them as cliches,
+overused forms of expression.
+Digital typography, electronic publishing, and computer displays
+allow generalization of such forms
+by considering characters as semi-custom instances of a richly expressive class,
+with factory (instantiation) specifications including not only such qualities
+as font family, size, and magnification,
+but also optical balance, reader characteristics and preferences,
+and arbitrary relations with any other document qualities,
+a kind of negotiation between aspects.
+Factors related to reading in the context of ubiquitous computing (``ubicomp'') and IoT (``internet of things'')\Dash
+such as ambient illumination, whether a reader is wearing glasses or not, and time of day\Dash
+should be referenced as parameters to optimize legibility and
+experience~\zecite{Cohen:Evolving_Literacy}.
+%As glyph adaptation emerges, feature articulation exponentially
+%explodes, and current technology cannot support such arbitrary
+%expressiveness.
+Such exponential explosion of expression space,
+a hoisting of a quantized model into a seemingly continuous one,
+can still run on a digital computer but requires virtually arbitrary smoothness,
+promoting, as it were, integers into reals,
+necessitating on-the-fly compilation.
+Such display is optimally realtime,
+but need not be,
+since a document browser could initially display unadorned versions of characters,
+perhaps preconditioned to reflect anticipated layout,
+dynamically and progressively refreshing by swinging in the embellished versions as they are generated.
+
+% Used in VSMM reading paper in "micro" section
+% However, as systems become ``softer,'' more ``analog,''
+% it is desirable and inevitable that documents heretofore static will
+% be generalized into imagery, animation, and dynamic
+% interactive information interfaces.  Ultimately, the act of reading will
+% approach cinematic experience.
+% Eye-trackers will sense our gaze,
+% and animate displays to enrich and enhance \mbox{reading.}
+
+% Used in VSMM reading paper, Section 2
+% Pretty printers such as Equation Builder and text editors have
+% related features: successive, pairwise colored parentheses for static
+% display (as in Excel's formula editor), or flashing matching delimiter
+% for dynamic display (as in Emacs).  Modern editors such as BBEdit and
+% TeXShop use various kinds of dynamic display: text between matching
+% parentheses can be highlighted, matching parentheses blinked, and
+% unmatched parentheses alerted
+% (via, for instance, flashed window background or audio beep).
+
+% Used in VSMM reading paper in "micro" section
+% In the future, every aspect of every character that we
+% read will be semi-customized for its precise circumstances.
+% The future of literacy is animation, in the sense of dynamic, colored,
+% arbitrarily shaped text.
+% Used in VSMM Concludion
+% This might seem like sacrilege
+% to traditionalists and purists,
+% but technology has progressed beyond the printing press,
+% and so shall we.
+
+\SetBibJustification{\raggedright
+  \advance\rightskip by 0pt plus4em
+  \advance\itemsep by 1pt plus1pt minus1pt }
+\bibliographystyle{alpha}
+\bibliography{db,personal,type,new}
+
+\advance\medskipamount by 2pt
+\medskip
+\makesignature
+
+%\begin{center}
+%\begin{zebrackets}[family=cmr,size=17,index=depth,enc=binary,style=h,mag=32,slots=3,mix]
+%[ ( ) ]
+%\end{zebrackets}
+%\end{center}
+
+\end{document}
