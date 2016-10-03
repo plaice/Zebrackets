@@ -81,7 +81,6 @@ whole system in Python to make it more flexible and usable.
 
 \bigskip
 
-% FIXME: mixcounting? integrated? think about it.
 \begin{tabular}{ll}
 font = cmr &
 size = 10 \\
@@ -89,8 +88,8 @@ magnification = 4 &
 style = foreground \\
 encoding = binary &
 index = unique \\
-slots = 5 & mixcount \\
-zerocount & topcount
+slots = 5 & mixcount = true \\
+origin = 0 & direction = topdown
 \end{tabular} \\
 \end{center}
 \end{frame}
@@ -100,7 +99,7 @@ zerocount & topcount
 %FIXME: Explain what remains constant (here unary encoding, etc.)
 %FIXME: Need a better example for breadth.
 \begin{frame}[fragile]
-\frametitle{Index}
+\frametitle{Index: unique, depth, or breadth}
 
 \medskip
 
@@ -110,7 +109,7 @@ unique: &
 (a (b (c) d) (e (f) g)) \\
 \end{zebrackets}
 \\
-depth: &
+\textbf{depth}: &
 \begin{zebrackets}[index=depth,enc=unary,style=f,mag=2]
 (a (b (c) d) (e (f) g)) \\
 \end{zebrackets}
@@ -130,19 +129,19 @@ breadth: &
 encoding = unary &
 style = foreground \\
 magnification = 2 &
-mixcount \\
-zerocount & topcount
+mixcount = true \\
+origin = 0 & direction = topdown
 \end{tabular} \\
 \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Style}
+\frametitle{Style: foreground, background, or hybrid}
 
 \medskip
 
 \begin{tabular}{ll}
-foreground: &
+\textbf{foreground}: &
 \begin{zebrackets}[index=unique,enc=unary,style=f,mag=2]
 (a (b (c) d) (e (f) g)) \\
 \end{zebrackets}
@@ -167,14 +166,14 @@ hybrid: &
 encoding = unary &
 index = unique \\
 magnification = 2 &
-mixcount \\
-zerocount & topcount
+mixcount = true \\
+origin = 0 & direction = topdown
 \end{tabular} \\
 \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Encoding}
+\frametitle{Encoding: unary, binary, or demux}
 
 \medskip
 
@@ -184,7 +183,7 @@ unary: &
 (a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
 \end{zebrackets}
 \\
-binary: &
+\textbf{binary}: &
 \begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3]
 (a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
 \end{zebrackets}
@@ -204,16 +203,18 @@ demux: &
 index = unique &
 style = foreground \\
 magnification = 2 &
-mixcount \\
-zerocount & topcount
+mixcount = true \\
+origin = 0 & direction = topdown
 \end{tabular} \\
 \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Mix- or nomix-counting}
-\begin{itemize}
-\item mixcounting:
+\frametitle{Mixcount: true or false}
+
+\medskip
+
+\textbf{true}:
 \begin{center}
 \begin{zebrackets}[index=unique,enc=binary,style=f,mag=2,slots=5]
 [ (a [b (c) d] [e (f) g]) \\
@@ -224,15 +225,14 @@ zerocount & topcount
 
 \medskip
 
-\item nomixcounting:
+false:
 \begin{center}
-\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2,slots=5,nomix]
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2,slots=5,mix=f]
 [ (a [b (c) d] [e (f) g]) \\
 \mbox{}\\
 \hspace*{5mm} (a [b (c) d] [e (f) g]) ]
 \end{zebrackets}
 \end{center}
-\end{itemize}
 
 \medskip
 
@@ -242,21 +242,21 @@ index = unique &
 style = foreground \\
 magnification = 2 &
 encoding = binary \\
-zerocount & topcount
+origin = 0 & direction = topdown
 \end{tabular} \\
 \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Zero- or one-counting}
+\frametitle{Origin: 0 or 1}
 \begin{tabular}{ll}
-zerocount: &
-\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2,zerocount]
+\textbf{0}: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2,origin=0]
 (a (b (c) d) (e (f) g)) \\
 \end{zebrackets}
 \\
-onecount: &
-\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2,onecount]
+1: &
+\begin{zebrackets}[index=unique,enc=unary,style=f,mag=2,origin=1]
 (a (b (c) d) (e (f) g)) \\
 \end{zebrackets}
 \phantom{background:} &
@@ -270,21 +270,21 @@ index = unique &
 style = foreground \\
 magnification = 2 &
 encoding = binary \\
-topcount & mixcount
+direction = topdown & mixcount = true
 \end{tabular} \\
 \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Top- or bottom-counting}
+\frametitle{Direction: topdown or bottomup}
 \begin{tabular}{ll}
-top: &
-\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3,top]
+\textbf{topdown}: &
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3,dir=t]
 (a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
 \end{zebrackets}
 \\
-bottom: &
-\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3,bot]
+bottomup: &
+\begin{zebrackets}[index=unique,enc=binary,style=f,mag=2, slots=3,dir=b]
 (a (b (c) d) (e (f) g)) (h (i (j) k) l) (m)\\
 \end{zebrackets}
 \\
@@ -299,7 +299,7 @@ index = unique &
 style = foreground \\
 magnification = 2 &
 encoding = binary \\
-zerocount & mixcount
+origin = 0 & mixcount = true
 \end{tabular} \\
 \end{center}
 \end{frame}

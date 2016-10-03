@@ -61,6 +61,19 @@ validEncodings = ['u', 'b', 'd']
 # Index is depth, unique, breadth
 validIndices = ['d', 'u', 'b']
 
+# Mirror is true, false
+validMirrors = ['t', 'f']
+
+# Mixcount is true, false
+validMixcounts = ['t', 'f']
+
+# Origin is 0, 1
+validOrigins = [0, 1]
+
+# Direction is topdown, bottomup
+validDirections = ['t', 'b']
+
+
 # Mag is a value in 1..8, inclusive
 #validMags = [1, 2, 3, 4, 5, 6, 7, 8]
 validMags = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -215,35 +228,46 @@ def validate_texmfhome(texmfHome):
     os.environ['TEXMFHOME'] = texmfHome
     return texmfHome
 
+def validate_mixcount(mixcount):
+    if mixcount not in validMixcounts:
+        raise ArgError('' + str(mixcount) + ' not a valid mixcount.')
+    return mixcount
+
 def check_mixcount(params, block_args):
-    m = re.search(r'mix\w*[,\]]', block_args)
+    m = re.search(r'mix\w*=([tf])\w*[,\]]', block_args)
     if m:
-        params.mixcount = True
-    m = re.search(r'nomix\w*[,\]]', block_args)
+        mixcount = m.group(1)
+        params.mixcount = validate_mixcount(mixcount)
+
+def validate_origin(origin):
+    if origin not in validOrigins:
+        raise ArgError('' + str(origin) + ' not a valid origin.')
+    return origin
+
+def check_origin(params, block_args):
+    m = re.search(r'ori\w*=(\d+)[,\]]', block_args)
     if m:
-        params.mixcount = False
+        origin = int(m.group(1))
+        params.origin = validate_origin(origin)
+
+def validate_direction(direction):
+    if direction not in validDirections:
+        raise ArgError('' + str(direction) + ' not a valid direction.')
+    return direction
+
+def check_direction(params, block_args):
+    m = re.search(r'dir\w*=([tb])\w*[,\]]', block_args)
+    if m:
+        direction = m.group(1)
+        params.direction = validate_direction(direction)
+
+def validate_mirror(mirror):
+    if mirror not in validMirrors:
+        raise ArgError('' + str(mirror) + ' not a valid mirror.')
+    return mirror
 
 def check_mirror(params, block_args):
-    m = re.search(r'mir\w*[,\]]', block_args)
+    m = re.search(r'mir\w*=([tf])\w*[,\]]', block_args)
     if m:
-        params.mirror = True
-    m = re.search(r'nomir\w*[,\]]', block_args)
-    if m:
-        params.mirror = False
-
-def check_zerocount(params, block_args):
-    m = re.search(r'zer\w*[,\]]', block_args)
-    if m:
-        params.zerocount = True
-    m = re.search(r'one\w*[,\]]', block_args)
-    if m:
-        params.zerocount = False
-
-def check_topcount(params, block_args):
-    m = re.search(r'top\w*[,\]]', block_args)
-    if m:
-        params.topcount = True
-    m = re.search(r'bot\w*[,\]]', block_args)
-    if m:
-        params.topcount = False
-
+        mirror = m.group(1)
+        params.mirror = validate_mirror(mirror)

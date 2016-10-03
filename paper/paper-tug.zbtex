@@ -32,8 +32,8 @@
 \address{Grammatech, Ithaca, USA; UNSW, Sydney, Australia}
 \netaddress{johnplaice@gmail.com}
 \date{
-v.\,19:
-Sun Apr 17 14:42:07 EDT 2016
+v.\,21:
+Thurs.\ Aug 4 2016
 }
 \maketitle
 
@@ -118,22 +118,24 @@ suggested by Bob Alverson, is a play on words as
 the delimiters resemble zebra stripes:
 \zebracketstext[size=9,number=1,slots=2]{(}ze%
 \zebracketstext[size=9,number=2,slots=2]{(}bra%
-\zebracketstext[size=9,number=2,slots=2]{)}kets%
-\zebracketstext[size=9,number=1,slots=2]{)}%
+\zebracketstext[size=9,number=1,slots=2]{)}kets%
+\zebracketstext[size=9,number=2,slots=2]{)}%
 .}
 were originally developed more than a score~(20) of years
 ago, demonstrating the expressive power of microarticulated
 glyphs~\zecite{Cohen:nesting}
 \zecite{Cohen:TUGboat-zebrackets}
 \zecite{Cohen:TUG94-zebrackets}.
-The basic idea is to allow parentheses and square brackets to take on stripes
-and slits (``poles 'n' holes'') to carry extended information, such as
-functional r\^{o}le, logical position, and nesting level in an
-expression.  Pairwise delimiters are ``scored,'' by cutting aligned
-typographical grooves, to associate balanced mates and ease visual
-parsing.
+The basic idea is to allow parentheses 
+\zecite{Lennard:But}
+and square brackets to take on stripes and slits
+(``poles 'n' holes'')
+to carry extended information,
+such as functional r\^{o}le, logical position, and nesting level in an expression.
+Pairwise delimiters are ``scored,'' by cutting aligned typographical grooves,
+to associate balanced mates and ease visual parsing.
 
-Below, we show one possible scoring of the text:
+Below, we show one possible scoring of sample text:
 \begin{center}
 [ (a [b (c) d] [e (f) g]) (a [b (c) d] [e (f) g]) ]
 \end{center}
@@ -145,11 +147,10 @@ Here it is, with greatly magnified brackets and parentheses:
 \end{center}
 
 Table~\ref{tab:examples} shows a number of examples of the use of
-the Zebrackets infrastructure on the same text, namely
-\mbox{(a (b (c) d) (e (f) g))}.
+the Zebrackets infrastructure on the same sample text.
 
 The intervening score of years has not been especially kind to the original implementation:
-it was hardly more than a ``paper-clips and bubble-gum'' contraption
+it was hardly sturdier than a ``paper-clips and bubble-gum'' contraption
 in the first place, and the slide into deprecation and disuse of {\MF},
 accelerated by the emergence as the interchange format of choice of the
 \initials{pdf} format,
@@ -170,10 +171,11 @@ were Type 3, so also withered.
 
 Nevertheless, we believe that the principles underlying the system are still valid.
 There is a huge multidimensional space of potential characters and glyphs,
+too big to be precompiled,
 and so a lazy, demand-driven, image-time generation, both of fonts and glyphs,
 with caching or memoization,
 as is used in dynamic programming,
-is the only solution.
+is the only practicable solution.
 Contemporary assumptions about fonts do not allow this possibility \zecite{Haralambous:Fonts_and_Encodings},
 so reviving the existing implementation strategy is still of relevance.
 The presentation here presents the font structure, and the use,
@@ -191,10 +193,10 @@ slot, then places foreground stripes on top thereof.
 Stripes generation can automatically count unique pairs
 or track nesting depth, or count unique pairs at a
 given depth (``breadth'').
-The encoding can be unary, binary, or ``demultiplexing'',
-up through the maximum as calculated by the initial pass of a parser.
-Note that all encodings have~0 as origin.}
-
+The encoding can be unary, binary, or ``demultiplexing,''
+up through the maximum as calculated by initial pass of a parser.
+Note that all encodings have~0 as origin,
+but the rendered index origin can be changed to unity.}
 
 \smallskip
 
@@ -205,11 +207,11 @@ Note that all encodings have~0 as origin.}
                   & \multicolumn{1}{c|}{\texttt{index} = breadth}
                   \\\hline\hline
 & b&
-\begin{zebrackets}[index=unique,enc=unary,style=b,mirror]
+\begin{zebrackets}[index=unique,enc=unary,style=b,mirror=t]
 (a (b (c) d) (e (f) g))
 \end{zebrackets}
 &
-\begin{zebrackets}[index=depth,enc=unary,style=b,nomirror]
+\begin{zebrackets}[index=depth,enc=unary,style=b,mirror=f]
 (a (b (c) d) (e (f) g))
 \end{zebrackets}
 &
@@ -358,14 +360,14 @@ The Zebrackets project relies on a set of fonts generated from the
 \MF\ version of the Computer Modern fonts.  The names of the fonts are
 all of the form $\texttt{z}(a)(b)(c)(d)(e)$, where:
 \begin{enumerate}
-\item[$(a)$] is a single letter, one of ‘\texttt{b}’ or ‘\texttt{p}’;
+\item[$(a)$] is a single letter, either ‘\texttt{b}’ or ‘\texttt{p}’;
 the font contains either all brackets~(\texttt{b}) or all
 parentheses~(\texttt{p}).
-\item[$(b)$] is a single letter, one of ‘\texttt{b}’, ‘\texttt{f}
+\item[$(b)$] is a single letter, one of ‘\texttt{b}’, ‘\texttt{f}',
 or ‘\texttt{h}’; the marks in the font are all either slots (\texttt{b}~for
 background), ticks (\texttt{f}~for foreground), or ticks within slots
 (\texttt{h}~for hybrid).
-\item[$(c)$] is a single letter, one of ‘\texttt{a}’ through \texttt{h}’;
+\item[$(c)$] is a single letter, one of ‘\texttt{a}’ through '\texttt{h}’;
 the font will contain $2^m$ pairs of left and right delimiters, with
 $m\in 0..7$, where \texttt{a}~corresponds to~$m=0$ (i.e., 1~pair or 2~glyphs),
 \texttt{b}~corresponds to~$m=1$ (i.e., 2~pairs or 4~glyphs), \ldots,
@@ -390,7 +392,7 @@ across 4 slots, using 12\,pt Computer Modern as the base:
 The font contains exactly $2^{4+1} = 32 = \texttt{0x20}$ parentheses.
 In the first half of the table,
 for $i\in \texttt{0x00}\:..\:\texttt{0x0F}$, glyph~$i$ is an opening (left)
-parenthesis encoding $i$ as a binary number with ticks placed
+parenthesis, encoding $i$ as a binary number with ticks placed
 in four always-drawn slots.
 Similarly,
 in the second half of the table,
@@ -589,7 +591,7 @@ For each citation~$x$, a pair of counters is set up,
 \texttt{ze:}$x$ for the left bracket, and
 \texttt{zeno:}$x$ for the right bracket.
 The \verb|\zecite| macro is like the standard \LaTeX\ \verb|\cite| macro,
-but it also calls \verb|\zecitation|, which adds $2^{p-1}$ to counter
+but it also calls \verb|\zecitation|, which bitwise-ors-in $2^{p-1}$ to counter
 \texttt{ze:}$x$ for the left bracket, should
 there be a \verb|\zecite{|$x$\verb|}| on page number~$p$:
 \begin{verbatim}
@@ -609,7 +611,7 @@ there be a \verb|\zecite{|$x$\verb|}| on page number~$p$:
 \end{verbatim}
 There are macros corresponding to \verb|\nocite|,
 namely \verb|\zenocite| and \verb|\zenocitation|,
-adding $2^{p-1}$ to counter \texttt{zeno:}$x$ for the right bracket,
+bitwise-oring-in $2^{p-1}$ to counter \texttt{zeno:}$x$ for the right bracket,
 should there be a \verb|\zenocite{|$x$\verb|}| on page number~$p$.
 
 Finally, the generation of the \verb|\bibitem| is extended,
@@ -642,7 +644,7 @@ of the other two constructs.
 \item \verb|\zebracketstext| designates some text,
 in which the parentheses and brackets are to be replaced automatically with
 zebrackets (including ``zeparentheses'').
-\item \verb|\begin{zebrackets}|--\verb|\end{zebrackets}| designates a
+\item \verb|\begin{zebrackets}|$\cdots$\verb|\end{zebrackets}| designates a
 block of text for the same treatment as for \verb|\zebracketstext|.
 \end{enumerate}
 Because of this precompilation,
@@ -790,22 +792,24 @@ was generated by the lines:
  (a (b (c) d) (e (f) g))
  \end{zebrackets}
 \end{verbatim}
-There are also three Boolean parameter pairs:
+There are also three additional parameter pairs, each with two values:
 \begin{itemize}
-\item \texttt{mixcount} states there should be a single counter for striping parentheses and
-square brackets, \texttt{nomixcount} two distinct counters.
+\item \texttt{mixcount=true} states there should be a single
+counter for striping parentheses and
+square brackets, \texttt{mixcount=false} two distinct counters.
 \item
-\texttt{zerocount} states that counting starts from zero,
-\texttt{onecount} from one.
+\texttt{origin=0} states that counting starts from zero,
+\texttt{origin=1} from one.
 \item
-\texttt{topcount} means that striping starts from the top of delimiters,
-\texttt{onecount} from the bottom.
+\texttt{direction=topdown} means that striping starts
+from the top of delimiters, whereas
+\texttt{direction=bottomup} starts from the bottom.
 \end{itemize}
 
 The automatic striping of delimiters in a region of text is done with
 a two-pass algorithm: a)~the maximal depth and breadth, and the number
 of distinct delimiters pairs are computed, in order to determine the
-number of distinct slots needed (maximum of~$7$) b)~the correct fonts
+number of distinct slots needed (maximum of~$7$), and b)~the correct fonts
 are generated, if need be, and the correct \LaTeX\ source is created.
 
 \section{Conclusion}
@@ -826,7 +830,7 @@ Illuminated manuscripts often embellished initials with vines, flowers, animals,
 %Among more modern antecedents,
 Almost a century ago, Apollinaire published books \zecite{Apollinaire:Calligrammes} featuring ``calligrams,''
 instances of ``concrete poetry'' or ``visual poetry,''
-in which the typeface and spatial arrangement of words on a page informs the meaning of a poem as much as the words themselves.  Contemporary typography often plays with pictorial
+in which the typeface and arrangement of words on a page informs the meaning of a poem as much as the words themselves.  Contemporary typography often plays with pictorial
 suggestions~\zecite{Klanten+:Playful-Type-2},
 %Victionary:Type\_Addicted
 especially for special-purpose or display faces.
@@ -861,7 +865,7 @@ is an unexploited aspect of font design and electronic publishing.
 Zebrackets challenges the assumption that a glyph is the smallest
 representation of a character that has semantic value.
 Such capability hints at giving glyphs depth,
-not in the sense of a 3\textsc{d}, spatial dimension
+not in the sense of a 3\textsc{d}, sculptural sense
 \zecite{Anno:ABC}
 \zecite{fl@3311}
 \zecite{Heller+Fili:Shadow_Type},
@@ -897,32 +901,71 @@ completely consistent with this approach.
 
 \subsection{The Future of Literacy}
 
-As glyph adaptation emerges, feature articulation exponentially
-explodes, and current technology cannot support such arbitrary
-expressiveness.  However, as systems become ``softer,'' more ``analog,''
-it is desirable and inevitable that documents heretofore static will
-be generalized into imagery, animation, and dynamic
-interactive information interfaces.  Ultimately, the act of reading will
-approach cinematic experience.
-Eye-trackers will sense our gaze,
-and animate displays to enrich and enhance \mbox{reading.}
+% Moving forward embraces
+The ``take home message'' is not only the extensibility of parentheses and brackets,
+but the ability to articulate any character,
+like a meta{\MF}.
+Every glyph, stroke, mark, and pixel should be deliberately and explicitly determined
+for the exact circumstances of its apprehension.
+A character set should not be precompiled as an operating system resource,
+a cache of common letter forms.
+Such a model patronizes characters by treating them as cliches,
+overused forms of expression.
+Digital typography, electronic publishing, and computer displays
+allow generalization of such forms
+by considering characters as semi-custom instances of a richly expressive class,
+with factory (instantiation) specifications including not only such qualities
+as font family, size, and magnification,
+but also optical balance, reader characteristics and preferences,
+and arbitrary relations with any other document qualities,
+a kind of negotiation between aspects.
+Factors related to reading in the context of ubiquitous computing (``ubicomp'') and IoT (``internet of things'')---
+such as ambient illumination, whether a reader is wearing glasses or not, and time of day---
+should be referenced as parameters to optimize legibility and experience
+\cite{Cohen:Evolving_Literacy}.
+%As glyph adaptation emerges, feature articulation exponentially
+%explodes, and current technology cannot support such arbitrary
+%expressiveness.
+Such exponential explosion of expression space,
+a hoisting of a quantized model into a seemingly continuous one,
+can still run on a digital computer but requires virtually arbitrary smoothness,
+promoting, as it were, integers into reals,
+necessitating on-the-fly compilation.
+Such display is optimally realtime,
+but need not be,
+since a document browser could initially display unadorned versions of characters,
+perhaps preconditioned to reflect anticipated layout,
+dynamically and progressively refreshing by swinging in the embellished versions as they are generated.
 
-Pretty printers such as Equation Builder and text editors have
-related features: successive, pairwise colored parentheses for static
-display (as in Excel's formula editor), or flashing matching delimiter
-for dynamic display (as in Emacs).  Modern editors such as BBEdit and
-TeXShop use various kinds of dynamic display: text between matching
-parentheses can be highlighted, matching parentheses blinked, and
-unmatched parentheses alerted
-(via, for instance, flashed window background or audio beep).
+% Used in VSMM reading paper in "micro" section
+% However, as systems become ``softer,'' more ``analog,''
+% it is desirable and inevitable that documents heretofore static will
+% be generalized into imagery, animation, and dynamic
+% interactive information interfaces.  Ultimately, the act of reading will
+% approach cinematic experience.
+% Eye-trackers will sense our gaze,
+% and animate displays to enrich and enhance \mbox{reading.}
 
-In the future, every aspect of every character that we
-read will be semi-customized for its precise circumstances.  The
-future of literacy is animation, in the sense of dynamic, colored,
-arbitrarily shaped text.  This might seem like sacrilege
-to traditionalists and purists,
-but technology has progressed beyond the printing press,
-and so shall we.
+% Used in VSMM reading paper, Section 2
+% Pretty printers such as Equation Builder and text editors have
+% related features: successive, pairwise colored parentheses for static
+% display (as in Excel's formula editor), or flashing matching delimiter
+% for dynamic display (as in Emacs).  Modern editors such as BBEdit and
+% TeXShop use various kinds of dynamic display: text between matching
+% parentheses can be highlighted, matching parentheses blinked, and
+% unmatched parentheses alerted
+% (via, for instance, flashed window background or audio beep).
+
+% Used in VSMM reading paper in "micro" section
+% In the future, every aspect of every character that we
+% read will be semi-customized for its precise circumstances.
+% The future of literacy is animation, in the sense of dynamic, colored,
+% arbitrarily shaped text.
+% Used in VSMM Concludion
+% This might seem like sacrilege
+% to traditionalists and purists,
+% but technology has progressed beyond the printing press,
+% and so shall we.
 
 \bibliographystyle{alpha}
 \bibliography{db,personal,type,new}

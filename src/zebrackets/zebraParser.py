@@ -65,10 +65,10 @@ class Params:
         self.index = 'd'
         self.encoding = 'b'
         self.number = -1
-        self.mixcount = True
-        self.mirror = False
-        self.zerocount = True
-        self.topcount = True
+        self.mixcount = 't'
+        self.mirror = 'f'
+        self.origin = 0
+        self.direction = 't'
 
         self.filterMode = False
 
@@ -87,8 +87,8 @@ def setDefaults(params_doc_defaults, doc_args):
     zebraHelp.check_encoding(params_doc_defaults, doc_args)
     zebraHelp.check_mixcount(params_doc_defaults, doc_args)
     zebraHelp.check_mirror(params_doc_defaults, doc_args)
-    zebraHelp.check_topcount(params_doc_defaults, doc_args)
-    zebraHelp.check_zerocount(params_doc_defaults, doc_args)
+    zebraHelp.check_direction(params_doc_defaults, doc_args)
+    zebraHelp.check_origin(params_doc_defaults, doc_args)
 
 
 def declareFont(params_doc_defaults, font_args):
@@ -132,8 +132,8 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
     zebraHelp.check_number(params_paragraph, par_args)
     zebraHelp.check_mixcount(params_paragraph, par_args)
     zebraHelp.check_mirror(params_paragraph, par_args)
-    zebraHelp.check_zerocount(params_paragraph, par_args)
-    zebraHelp.check_topcount(params_paragraph, par_args)
+    zebraHelp.check_origin(params_paragraph, par_args)
+    zebraHelp.check_direction(params_paragraph, par_args)
 
     res = zebraFilter(params_paragraph.style,
                       params_paragraph.encoding,
@@ -144,8 +144,8 @@ def replaceText(params_doc_defaults, params_paragraph, par_args,
                       params_paragraph.slots,
                       params_paragraph.index,
                       params_paragraph.mixcount,
-                      params_paragraph.zerocount,
-                      params_paragraph.topcount,
+                      params_paragraph.origin,
+                      params_paragraph.direction,
                       params_doc_defaults.texmfHome,
                       string_tofilter)
     if res.flag == False:
@@ -172,8 +172,8 @@ def beginZebrackets(params_doc_defaults, params_paragraph, par_args):
     zebraHelp.check_encoding(params_paragraph, par_args)
     zebraHelp.check_mixcount(params_paragraph, par_args)
     zebraHelp.check_mirror(params_paragraph, par_args)
-    zebraHelp.check_zerocount(params_paragraph, par_args)
-    zebraHelp.check_topcount(params_paragraph, par_args)
+    zebraHelp.check_origin(params_paragraph, par_args)
+    zebraHelp.check_direction(params_paragraph, par_args)
 
 
 def endZebrackets(params_doc_defaults, params_paragraph):
@@ -193,8 +193,8 @@ def endZebrackets(params_doc_defaults, params_paragraph):
                       params_paragraph.slots,
                       params_paragraph.index,
                       params_paragraph.mixcount,
-                      params_paragraph.zerocount,
-                      params_paragraph.topcount,
+                      params_paragraph.origin,
+                      params_paragraph.direction,
                       params_doc_defaults.texmfHome,
                       string_tofilter)
     if res.flag == False:
@@ -216,13 +216,13 @@ def filterText(params_doc_defaults, params_paragraph):
             m = re.search(r'^\\zebracketsdefaults(\[.*\])', line)
             if m:
                 setDefaults(params_doc_defaults, m.group(1))
-                if params_doc_defaults.mirror:
+                if params_doc_defaults.mirror == 't':
                     params_doc_defaults.outfile.write('%' + saveline)
                 continue
             m = re.search(r'^\\zebracketsfont(\[.*\])', line)
             if m:
                 declareFont(params_doc_defaults, m.group(1))
-                if params_doc_defaults.mirror:
+                if params_doc_defaults.mirror == 't':
                     params_doc_defaults.outfile.write('%' + saveline)
                 continue
             m = re.search(r'^\\begin{zebrackets}(\[.*])', line)
@@ -232,7 +232,7 @@ def filterText(params_doc_defaults, params_paragraph):
                     params_doc_defaults,
                     params_paragraph,
                     m.group(1))
-                if params_paragraph.mirror:
+                if params_paragraph.mirror == 't':
                     params_doc_defaults.outfile.write('%' + saveline)
                 continue
             m = re.search(r'\\zebracketstext(\[.*\])({.*})', line)
@@ -242,7 +242,7 @@ def filterText(params_doc_defaults, params_paragraph):
                 params_paragraph = copy.copy(params_doc_defaults)
                 new_text = replaceText(params_doc_defaults, params_paragraph,
                                        m.group(1), m.group(2))
-                if params_paragraph.mirror:
+                if params_paragraph.mirror == 't':
                     mirror_line = True
                 line = re.sub(r'\\zebracketstext\[.*\]{.*}',
                               repr(new_text).strip("'").rstrip("'"), line)
@@ -252,7 +252,7 @@ def filterText(params_doc_defaults, params_paragraph):
                 params_doc_defaults.outfile.write('%' + saveline)
             params_doc_defaults.outfile.write(line)
         else:
-            if params_paragraph.mirror:
+            if params_paragraph.mirror == 't':
                 params_doc_defaults.outfile.write('%' + saveline)
             m = re.search(r'^\\end{zebrackets}', line)
             if m:
